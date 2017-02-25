@@ -1,0 +1,56 @@
+[level]
+tileset = spr/tiles.png
+map = ...........ttt
+      .##.##.#....rt
+      .#..1#.r.....t
+      .#...#..#.....
+      .#...#........
+      ...........rr.
+      ...........rr.
+      .##.##.rr..2..
+      ..............
+      ...........r.t
+      .#...#.rr....t
+      .#t.t#.....ttt
+
+[.]
+name = floor
+tile = 0, 1
+
+[#]
+name = post
+tile = 6, 0
+block = true
+
+[r]
+name = rock
+tile = 6, 1
+block = true
+
+[t]
+name = bush
+tile = 7, 2
+block = true
+
+[a]
+name = actor
+tile = 0, 1
+block = true
+
+[b]
+name = pokeball
+tile = 0,1
+block = true
+sprite = spr/ball.png
+
+[1]
+name = actor001
+tile = 0,1
+block = true
+entity = actor001
+
+[2]
+name = actor002
+tile = 0,1
+block = true
+entity = actor002
