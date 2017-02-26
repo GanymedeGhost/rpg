@@ -1,10 +1,12 @@
-import pygame
-import pygame.locals
-import utility
 import random
 import heapq
+import pygame
+import pygame.locals
+import my_globals as g
+import utility
 
-class BattleMod():
+#ENUMS
+class BattlerStatus():
     DEFEND = 0
     POISON = 1
     SLEEP = 2
@@ -12,11 +14,22 @@ class BattleMod():
     STUN = 4
     PARALYZE = 5
 
-class Battle (object):
+class DamageType():
+    PHYS = 0
+    FIRE = 1
+    ICE = 2
+    ELEC = 3
+    WIND = 4
+    LIGHT = 5
+    DARK = 6
+    CURSE = 7
+    NONE = 8
+
+class BattleController (object):
     def __init__(self):
         random.seed()
         self.battlers = []
- 
+
         args = {}
         #hero 1
         isHero = True
@@ -32,7 +45,7 @@ class Battle (object):
         LCK = 5
         HIT = 80
         EVA = 5
-        self.battlers.append( BattleActor(isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA))
+        self.battlers.append( BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA))
         #hero 2
         isHero = True
         NAME = "Lux"
@@ -47,7 +60,7 @@ class Battle (object):
         LCK = 100
         HIT = 95
         EVA = 8
-        self.battlers.append( BattleActor(isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)) 
+        self.battlers.append( BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)) 
         #enemy
         isHero = False
         NAME = "Slime"
@@ -62,7 +75,7 @@ class Battle (object):
         LCK = 5
         HIT = 95
         EVA = 8
-        self.battlers.append( BattleActor(isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA))         
+        self.battlers.append( BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA))         
         #enemy
         isHero = False
         NAME = "Bear"
@@ -77,7 +90,7 @@ class Battle (object):
         LCK = 5
         HIT = 50
         EVA = 2
-        self.battlers.append( BattleActor(isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA))
+        self.battlers.append( BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA))
 
         self.rounds = 0
         self.turnQueue = []
@@ -86,34 +99,26 @@ class Battle (object):
     def battle_loop(self):
         while (self.enemies_alive() and self.heroes_alive()):
             self.rounds += 1
+            print ()
             print ("***********")
-            print ("Round: " + str(self.rounds))
+            print ("ROUND " + str(self.rounds))
             print ("***********")
             self.list_heroes()
             self.list_enemies()
             self.get_turn_order()
+
+            print ()
+            print ("TURN ORDER")
+            turnQueueCopy = self.turnQueue[:]
+            while turnQueueCopy:
+                item = heapq.heappop(turnQueueCopy)
+                print (item[2].NAME)
+                
             #ACTOR ACTIONS
-            while self.turnQueue:
+            while self.turnQueue and self.enemies_alive() and self.heroes_alive():
                 priority, count, battler = heapq.heappop(self.turnQueue)
                 if battler != None:
-                    battler.before_turn()
-                    if (battler.can_act()):
-                        del self.turnFinder[battler]
-                        if battler.isHero:
-                            command = input("What will " + battler.NAME + " do? ")
-                            if (command == "attack"):
-                                battler.attack(self.get_target(battler))
-                            elif (command == "defend"):
-                                battler.defend()
-                            else:
-                                print("Invalid command!")
-                        else:
-                            AIRoll = random.randint(0, 5)
-                            if AIRoll < 3 :
-                                battler.attack(self.first_hero())
-                            elif AIRoll >= 3:
-                                battler.defend()
-                    battler.after_turn()
+                    battler.take_turn()
 
     def first_hero(self):
         for battler in self.battlers:
@@ -146,6 +151,7 @@ class Battle (object):
         entry[-1] = None            
 
     def list_enemies(self):
+        print("")
         print("*ENEMIES*")
         for battler in self.battlers:
             if not battler.isHero:
@@ -154,9 +160,9 @@ class Battle (object):
                     print ("HP: " + str(battler.HP))
                 else:
                     print ("DEAD")
-        print("")
 
     def list_heroes(self):
+        print("")
         print("*HEROES*")
         for battler in self.battlers:
             if battler.isHero:
@@ -164,8 +170,7 @@ class Battle (object):
                 if (battler.HP > 0):
                     print ("HP: " + str(battler.HP))
                 else:
-                    print ("KO")
-        print("")
+                    print ("DEAD")
 
     def enemies_alive(self):
         for battler in self.battlers:
@@ -191,9 +196,53 @@ class Battle (object):
         targetString = input("Target #: ")
         return self.battlers[int(targetString)]
 
+    def hit_calc(user, target):
+        roll = random.randint(0, 100)
+        if roll < user.HIT:
+            return True
+        else:
+            print ("Missed!")
+            return False
+
+    def dodge_calc(user, target):
+        roll = random.randint(0, 100)
+        if roll < target.EVA:
+            print ("Dodged!")
+            return True
+        else:
+            return False
+
+    def crit_calc(user, target):
+        roll = random.randint(0, 255)
+        #print ("Crit roll : " + str(roll))
+        if roll < user.LCK:
+            print ("Crit!")
+            return True
+        else:
+            return False
+
+    def phys_def_calc(user, target):
+        modValue = 0
+        if (target.mods[BattlerStatus.DEFEND] > 0):
+            print (target.NAME + " has a defense bonus")
+            modValue = target.DEF // 2
+        defTotal = target.DEF + modValue
+        #print ("DEF: " + str(target.DEF) + " (+" + str(modValue) + ")")
+        return defTotal
+
+    def phys_dmg_calc(user, target):
+        dmgMax = user.ATK * 2
+        dmgMin = dmgMax - (user.ATK // 2)
+        dmg = random.randint(dmgMin, dmgMax)
+        #print ("ATK: " + str(dmg) + " (" + str(dmgMin) + "," + str(dmgMax) + ")")
+        if (dmg < 0):
+            dmg = 0
+        return dmg
+
 class BattleActor (object):
     
-    def __init__(self, isHero, NAME, LV = 1, HP=10, SP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5):
+    def __init__(self, BC, isHero, NAME, LV = 1, HP=10, SP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5):
+        self.BC = BC
         self.isHero = isHero
         self.NAME = NAME
         self.LV = LV
@@ -207,84 +256,195 @@ class BattleActor (object):
         self.LCK = LCK
         self.HIT = HIT
         self.EVA = EVA
+
+        self.isAI = (not self.isHero)
+        self.aggro = 0
         
         self.mods = {}
-        self.mods[BattleMod.DEFEND] = 0
-        self.mods[BattleMod.SLEEP] = 0
-        self.mods[BattleMod.POISON] = 0
-        self.mods[BattleMod.SILENCE] = 0
-        self.mods[BattleMod.STUN] = 0
-        self.mods[BattleMod.PARALYZE] = 0
-        
+        self.mods[BattlerStatus.DEFEND] = 0
+        self.mods[BattlerStatus.SLEEP] = 0
+        self.mods[BattlerStatus.POISON] = 0
+        self.mods[BattlerStatus.SILENCE] = 0
+        self.mods[BattlerStatus.STUN] = 0
+        self.mods[BattlerStatus.PARALYZE] = 0
+
+        self.commands = []
+        self.commands.append(CmdAttack)
+        self.commands.append(CmdDefend)
+
+    def aggro_up(self, value=10):
+        self.aggro += value
+        if (self.aggro > 100):
+            self.aggro = 100
+
+    def aggro_down(self, value=10):
+        self.aggro -= value
+        if (self.aggro < 0):
+            self.aggro = 0
+
+    def aggro_half(self):
+        self.aggro = self.aggro // 2
 
     def can_act(self):
-        if (self.HP == 0 or
-            self.mods[BattleMod.SLEEP] > 0 or
-            self.mods[BattleMod.STUN] > 0 or
-            self.mods[BattleMod.PARALYZE] > 0):
+        print ()
+        if (self.HP == 0):
+            return False
+        elif (self.mods[BattlerStatus.SLEEP] > 0):
+            print (self.NAME + " is asleep.")
+            return False
+        elif (self.mods[BattlerStatus.STUN] > 0):
+            print (self.NAME + " is stunned.")
+            return False
+        elif (self.mods[BattlerStatus.PARALYZE] > 0):
+            print (self.NAME  + " is paralyzed.")
             return False
         else:
+            print ("It's " + self.NAME + "'s turn.")
             return True
 
-    def attack(self, target):
-        if (random.randint(0, 100) < self.HIT):
-            if (random.randint(0, 100) > target.EVA):
-                if (target.mods[BattleMod.DEFEND] > 0):
-                    defMod = target.DEF // 2
-                else:
-                    defMod = 0
-                print ("defMod: " + str(defMod))
-                defTotal = target.DEF + defMod
-                damageMin = self.ATK + (self.ATK // 2) - defTotal
-                damageMax = self.ATK * 2 - defTotal
-                damage = random.randint(damageMin, damageMax)
-                if (random.randint(0, 255) < self.LCK):
-                    damage += self.ATK
-                    target.stun()
-                    print("CRITICAL HIT!")
-                if (damage < 0):
-                    damage = 0
-                print (self.NAME + " does " + str(damage) + " damage to " + target.NAME)
-                target.take_damage(damage)
-            else:
-                print (target.NAME + " avoided " + self.NAME + "'s attack!")
-        else:
-            print (self.NAME + "'s attack missed " + target.NAME)
-
     def stun(self):
-        self.mods[BattleMod.STUN] += 1
-        
-
-    def defend(self):
-        print (self.NAME + " is defending.")
-        self.mods[BattleMod.DEFEND] += 1
-
-    def after_turn(self):
-        self.mods[BattleMod.STUN] = 0
+        print (self.NAME + " is stunned!")
+        self.mods[BattlerStatus.STUN] += 1
 
     def before_turn(self):
-        self.mods[BattleMod.DEFEND] -= 1
-        self.mods[BattleMod.SLEEP] -= 1
-        self.mods[BattleMod.PARALYZE] -= 1
+        self.mods[BattlerStatus.DEFEND] -= 1
+        self.mods[BattlerStatus.SLEEP] -= 1
+        self.mods[BattlerStatus.PARALYZE] -= 1
         for mod in self.mods:
             if (self.mods[mod] < 0):
                 self.mods[mod] = 0
 
-    def take_damage(self, damage):
+    def after_turn(self):
+        self.mods[BattlerStatus.STUN] = 0
+
+    #needs to be implemented per object
+    def take_turn(self):
+        self.before_turn()
+        
+        if (self.can_act()):
+            if (not self.isAI):
+                print ("COMMANDS")
+                
+                index = 0
+                for cmd in self.commands:
+                    print (str(index) + ": " + cmd.name())
+                    index += 1
+                    
+                cmdInput = input("# >> ")
+
+                targets = self.commands[int(cmdInput)].get_targets(self)
+                self.commands[int(cmdInput)].execute(self, targets)
+            else:
+                targets = self.commands[0].get_targets_auto(self)
+                self.commands[0].execute(self, targets)
+
+        self.after_turn()
+
+    def take_damage(self, damage, damageType):
+        #TODO: implement damage types and resistances
         self.HP -= damage
+        self.aggro_down()
+        print (self.NAME + " takes " + str(damage) + " damage!")
         
         if (self.HP < 0):
             self.HP = 0
         if (self.HP == 0):
             print (self.NAME + " died!")
             
+##
+##BATTLE COMMAND TEMPLATE
+##
+##class BattleCommand(object):
+##    def __init__(self):
+##        targetArgs = {}
+##    
+##    def get_targets(user):
+##        if (user.isHero):
+##            return user.BC.first_enemy()
+##        else:
+##            return user.BC.first_hero()
+##        
+##    def execute (user, target):
+##        print ("execute...")
+
+class CmdAttack():
+    def name():
+        return "Attack"
+    
+    def get_targets(user):
+        ALL = False
+        USER = False
+        OPPOSITE = True
+        SAME = False
+        ALIVE = True
+        DEAD = False
+
+        #Delegate this to a UI class
+        targets = []
+        index = 0
+        for target in user.BC.battlers:
+            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
+                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                    print (str(index) + ": " + target.NAME)
+            index += 1
+        
+        targetString = input("# >> ")
+        targets.append(user.BC.battlers[int(targetString)])
+        return targets
+
+    def get_targets_auto(user, mostAggro=True):
+        targets = []
+        if mostAggro:
+            bestAggro = -1
+        else:
+            bestAggro = 101
+        bestTarget = None
+        for target in user.BC.battlers:
+            if (user.isHero != target.isHero and target.HP > 0):
+                if mostAggro:
+                    if target.aggro > bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+                else:
+                    if target.aggro < bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+        targets.append(bestTarget)
+        return targets
+    
+    def execute(user, targets):
+        for target in targets:
+            print(user.NAME + " attacks " + target.NAME)
+            if BattleController.hit_calc(user, target):
+                if not BattleController.dodge_calc(user, target):
+                    dmg = BattleController.phys_dmg_calc(user, target)
+                    if BattleController.crit_calc(user, target):
+                        dmg*=2
+                        target.stun()
+                    dmg -= BattleController.phys_def_calc(user, target)
+                    if (dmg < 0):
+                        dmg = 0
+                    user.aggro_up()
+                    target.take_damage(dmg, DamageType.PHYS)
+
+class CmdDefend():
+
+    def name():
+        return "Defend"
+
+    def get_targets(user):
+        return user
+
+    def get_targets_auto(user, mostAggro=True):
+        return user
+
+    def execute(user, target):
+        print (user.NAME + " is defending.")
+        user.mods[BattlerStatus.DEFEND] += 1
 
 if __name__=='__main__':
-    BC = Battle()
+    BC = BattleController()
 
     BC.battle_loop()
     print ("***")
     print ("Battle over")
-        
-
-    

@@ -1,13 +1,8 @@
+import configparser
 import pygame
 import pygame.locals
+import my_globals as g
 import utility
-import configparser
-
-TILE_SIZE = 16
-
-KEY_CONFIRM = pygame.K_z
-KEY_CANCEL = pygame.K_x
-KEY_MENU = pygame.K_c
 
 DIR_DOWN = (0, 1)
 DIR_RIGHT = (1, 0)
@@ -38,7 +33,7 @@ class Level(object):
                 self.key[section] = desc
         self.width = len(self.map[0])
         self.height = len(self.map)
-        self.MAP_CACHE = utility.TileCache(TILE_SIZE)
+        self.MAP_CACHE = utility.TileCache(g.TILE_SIZE)
         self.sprites = {}
         for y, line in enumerate(self.map):
             for x, c in enumerate(line):
@@ -94,7 +89,7 @@ class Level(object):
     def render(self):
         wall = self.is_wall
         tiles = self.MAP_CACHE[self.tileset]
-        self.image = pygame.Surface((self.width*TILE_SIZE, self.height*TILE_SIZE))
+        self.image = pygame.Surface((self.width*g.TILE_SIZE, self.height*g.TILE_SIZE))
         for map_y, line in enumerate(self.map):
             for map_x, c in enumerate(line):
                 if wall(map_x, map_y):
@@ -107,7 +102,7 @@ class Level(object):
                         #default to ground tile
                         tile = 0, 0
                 tile_image = tiles[tile[0]][tile[1]]
-                self.image.blit(tile_image, (map_x*TILE_SIZE, map_y*TILE_SIZE))
+                self.image.blit(tile_image, (map_x*g.TILE_SIZE, map_y*g.TILE_SIZE))
         self.rect = self.image.get_rect()
 
     def draw (self, surface):
@@ -142,17 +137,17 @@ class Entity(pygame.sprite.Sprite):
         self.level = level
 
     def _get_pos(self):
-        return (self.rect.topleft[0])//TILE_SIZE, (self.rect.topleft[1])//TILE_SIZE
+        return (self.rect.topleft[0])//g.TILE_SIZE, (self.rect.topleft[1])//g.TILE_SIZE
 
     def _set_pos(self, value):
-        self.rect.topleft = value[0]*TILE_SIZE, value[1]*TILE_SIZE
+        self.rect.topleft = value[0]*g.TILE_SIZE, value[1]*g.TILE_SIZE
         self.depth = self.rect.center[1]
 
     pos = property(_get_pos, _set_pos)
 
     def pos_to_xy(self):
-        x = self.pos[0] * TILE_SIZE
-        y = self.pos[1] * TILE_SIZE
+        x = self.pos[0] * g.TILE_SIZE
+        y = self.pos[1] * g.TILE_SIZE
         return (x,y)
 
     def create_animation(self, key, framelist):
@@ -216,13 +211,13 @@ class Actor(Entity):
         self.moving = False
 
     def set_move_target(self, tx, ty):
-        tx *= TILE_SIZE
-        ty *= TILE_SIZE
+        tx *= g.TILE_SIZE
+        ty *= g.TILE_SIZE
         self.tPos = (tx, ty)
 
     def set_move_target_rel(self, tx, ty):
-        tx = self.pos[0] * TILE_SIZE + tx * TILE_SIZE
-        ty = self.pos[1] * TILE_SIZE + ty * TILE_SIZE
+        tx = self.pos[0] * g.TILE_SIZE + tx * g.TILE_SIZE
+        ty = self.pos[1] * g.TILE_SIZE + ty * g.TILE_SIZE
         self.tPos = (tx, ty)
 
     def get_pos_rel(self, dx, dy):
@@ -231,7 +226,7 @@ class Actor(Entity):
         return (tx, ty)
 
     def warp(self, dx, dy):
-        self.rect.move_ip(dx*TILE_SIZE, dy*TILE_SIZE)
+        self.rect.move_ip(dx*g.TILE_SIZE, dy*g.TILE_SIZE)
         self.depth = self.rect.midbottom[1]
 
     def try_move(self, direction):
@@ -304,7 +299,7 @@ class Player(Actor):
             elif keys[pygame.locals.K_RIGHT]:
                 mDir = "right"
                 self.facing = DIR_RIGHT
-            if keys[KEY_CONFIRM]:
+            if keys[g.KEY_CONFIRM]:
                 if (self.inputTimeout < 0 and not self.resetConfirm):
                     self.try_interact()
                     self.inputTimeout = 5

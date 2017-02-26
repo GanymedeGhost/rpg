@@ -1,22 +1,23 @@
 import pygame
 from pygame import *
+import my_globals as g
 
-TILE_SIZE = 16
-
-BLACK = (0,0,0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-
-KEY_CONFIRM = pygame.K_z
-KEY_CANCEL = pygame.K_x
-KEY_MENU = pygame.K_c
+##g.TILE_SIZE = 16
+##
+##g.BLACK = (0,0,0)
+##g.WHITE = (255, 255, 255)
+##g.RED = (255, 0, 0)
+##g.GREEN = (0, 255, 0)
+##g.BLUE = (0, 0, 255)
+##
+##g.KEY_CONFIRM = pygame.K_z
+##g.KEY_CANCEL = pygame.K_x
+##g.KEY_MENU = pygame.K_c
 
 class TileCache:
     """Load the tilesets lazily into global cache"""
 
-    def __init__(self,  width=TILE_SIZE, height=TILE_SIZE):
+    def __init__(self,  width=g.TILE_SIZE, height=g.TILE_SIZE):
         self.width = width
         self.height = height or width
         self.cache = {}
@@ -48,7 +49,6 @@ class TileCache:
         return tile_table
 
 class TextManager:
-    
     
     def __init__(self, UI_SURF):
         self.isTyping = False
@@ -106,13 +106,13 @@ class TextManager:
         if not self.boxDrawn:
             self.SURF.blit(self.boxImage, (0, 111))
             self.boxDrawn = True
-        if (keys[KEY_CONFIRM]):
+        if (keys[g.KEY_CONFIRM]):
             self.frameCounter += self.frameSkip
         if (self.frameCounter > self.frameDelay):
             self.frameCounter = 0
             if (self.lineIndex >= 0 and self.lineIndex < (self.boxIndex+1)*2 and self.lineIndex < len(self.lines)):
                 if (self.charIndex < len(self.lines[self.lineIndex])):
-                    textObj = self.FONT.render(self.lines[self.lineIndex][self.charIndex], False, BLACK)
+                    textObj = self.FONT.render(self.lines[self.lineIndex][self.charIndex], False, g.BLACK)
                     textRect = textObj.get_rect()
                     textRect.topleft = (7 + 8 * self.charIndex, 118 + 10 * self.lineIndex - self.boxIndex * 20)
                     self.SURF.blit(textObj, textRect)
@@ -120,7 +120,7 @@ class TextManager:
                 else:
                     self.charIndex = 0
                     self.lineIndex += 1
-            elif (keys[KEY_CONFIRM]):
+            elif (keys[g.KEY_CONFIRM]):
                 if (self.confirmReleased):
                     if (self.lineIndex == len(self.lines)):
                         self.destroy_text_box()
@@ -142,7 +142,7 @@ class TextManager:
         
     
     def draw_text (self, string, pos=(0,0)):
-        textObj = self.FONT.render(string, False, BLACK)
+        textObj = self.FONT.render(string, False, g.BLACK)
         textRect = textObj.get_rect()
         textRect.topleft = pos
         self.SURF.blit(textObj, textRect)

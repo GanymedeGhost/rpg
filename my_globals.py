@@ -1,0 +1,25 @@
+import pygame
+import pygame.locals
+
+###START CONSTANTS
+CAPTION = "RPG Engine"
+
+TILE_SIZE = 16
+
+VIEW_WIDTH = TILE_SIZE * 10 #160px
+VIEW_HEIGHT = TILE_SIZE * 9 #144px
+VIEW_SCALE = 4
+WIN_WIDTH = VIEW_WIDTH * VIEW_SCALE
+WIN_HEIGHT = VIEW_HEIGHT * VIEW_SCALE
+
+BLACK = (0,0,0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+###END CONSTANTS
+
+KEY_CONFIRM = pygame.K_z
+KEY_CANCEL = pygame.K_x
+KEY_MENU = pygame.K_c
