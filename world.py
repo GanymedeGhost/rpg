@@ -2,6 +2,7 @@ import configparser
 import pygame
 import pygame.locals
 import my_globals as g
+import battle
 import utility
 
 DIR_DOWN = (0, 1)
@@ -287,16 +288,16 @@ class Player(Actor):
             self.inputTimeout -= 1
         mDir = ""
         if not self.moving:
-            if keys[pygame.locals.K_DOWN]:
+            if keys[g.KEY_DOWN]:
                 mDir = "down"
                 self.facing = DIR_DOWN
-            elif keys[pygame.locals.K_UP]:
+            elif keys[g.KEY_UP]:
                 mDir = "up"
                 self.facing = DIR_UP
-            elif keys[pygame.locals.K_LEFT]:
+            elif keys[g.KEY_LEFT]:
                 mDir = "left"
                 self.facing = DIR_LEFT
-            elif keys[pygame.locals.K_RIGHT]:
+            elif keys[g.KEY_RIGHT]:
                 mDir = "right"
                 self.facing = DIR_RIGHT
             if keys[g.KEY_CONFIRM]:
@@ -349,13 +350,8 @@ class Actor002 (Actor):
     
     def interact(self):
         self.face_player()
-
-        if (self.level.entities["actor001"].talk02):
-            string = "What are you even doing? Leave me alone, please. &n ... &n ... &n ..."
-        else:
-            string = "..."
-        
-        self.level.TEXT_MANAGER.create_text_box(string)
+        self.level.CONTROLLER.GAME_STATE = g.GameState.BATTLE
+        self.level.CONTROLLER.BATTLE = battle.BattleController(self.level.CONTROLLER)
 
 ENTITY_DIC = {}
 ENTITY_DIC["actor001"] = Actor001

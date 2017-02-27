@@ -2,18 +2,6 @@ import pygame
 from pygame import *
 import my_globals as g
 
-##g.TILE_SIZE = 16
-##
-##g.BLACK = (0,0,0)
-##g.WHITE = (255, 255, 255)
-##g.RED = (255, 0, 0)
-##g.GREEN = (0, 255, 0)
-##g.BLUE = (0, 0, 255)
-##
-##g.KEY_CONFIRM = pygame.K_z
-##g.KEY_CANCEL = pygame.K_x
-##g.KEY_MENU = pygame.K_c
-
 class TileCache:
     """Load the tilesets lazily into global cache"""
 

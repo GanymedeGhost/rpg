@@ -5,7 +5,10 @@ import pygame.locals
 import my_globals as g
 import utility
 
-#ENUMS
+#########
+##ENUMS##
+#########
+
 class BattlerStatus():
     DEFEND = 0
     POISON = 1
@@ -25,9 +28,29 @@ class DamageType():
     CURSE = 7
     NONE = 8
 
+class BattleState():
+    FIGHT = 0
+    WIN = 1
+    LOSE = 2
+
+class UIState():
+    DEFAULT = 0
+    TARGET = 1
+    COMMAND = 2
+    SKILL = 3
+    ITEM = 4
+    
+
+###################
+##CONTROL CLASSES##
+###################
+
 class BattleController (object):
-    def __init__(self):
+    def __init__(self, controller):
+        self.CONTROLLER = controller
+        self.UI = BattleUI(self)
         random.seed()
+        self.BATTLE_STATE = BattleState.FIGHT
         self.battlers = []
 
         args = {}
@@ -96,29 +119,39 @@ class BattleController (object):
         self.turnQueue = []
         self.turnFinder = {}
 
-    def battle_loop(self):
-        while (self.enemies_alive() and self.heroes_alive()):
-            self.rounds += 1
-            print ()
-            print ("***********")
-            print ("ROUND " + str(self.rounds))
-            print ("***********")
-            self.list_heroes()
-            self.list_enemies()
-            self.get_turn_order()
+        
 
-            print ()
-            print ("TURN ORDER")
-            turnQueueCopy = self.turnQueue[:]
-            while turnQueueCopy:
-                item = heapq.heappop(turnQueueCopy)
-                print (item[2].NAME)
-                
+    def update(self):
+        if self.enemies_alive() and self.heroes_alive():
             #ACTOR ACTIONS
-            while self.turnQueue and self.enemies_alive() and self.heroes_alive():
+            if self.turnQueue:
                 priority, count, battler = heapq.heappop(self.turnQueue)
                 if battler != None:
                     battler.take_turn()
+            else:
+                self.next_round()
+        else:
+            if self.enemies_alive():
+                self.BATTLE_STATE = BattleState.LOSE
+            else:
+                self.BATTLE_STATE = BattleState.WIN
+
+    def next_round(self):
+        self.rounds += 1
+        print ()
+        print ("***********")
+        print ("ROUND " + str(self.rounds))
+        print ("***********")
+        self.list_heroes()
+        self.list_enemies()
+        self.get_turn_order()
+
+        print ()
+        print ("TURN ORDER")
+        turnQueueCopy = self.turnQueue[:]
+        while turnQueueCopy:
+            item = heapq.heappop(turnQueueCopy)
+            print (item[2].NAME)
 
     def first_hero(self):
         for battler in self.battlers:
@@ -186,6 +219,7 @@ class BattleController (object):
                     return True
         return False
 
+    #TODO: delegate to UI
     def get_target(self, battler, opposite = True, same = False, alive = True, dead = False):
         index = 0
         for target in self.battlers:
@@ -239,6 +273,91 @@ class BattleController (object):
             dmg = 0
         return dmg
 
+##############
+##UI CLASSES##
+##############
+
+class BattleUI (object):
+    def __init__(self, bc):
+        self.BC = bc
+        self.UI_STATE = UIState.DEFAULT
+        self.output = []
+        self.cursorPos = (0,0)
+        self.cursorImage = pygame.image.load("spr/cursor-h.png")
+        self.cursorRect = self.cursorImage.get_rect()
+        self.cmdAnchors = [(0,0), (0, 8)]
+        self.tgtAnchors = [(64,0), (64, 8)]
+        self.cursorIndex = 0
+
+    def get_command(self, user):
+        g.CURSOR_TIMER = 0
+        g.CONFIRM_TIMER = g.CONFIRM_DELAY
+        command = None
+        self.cursorIndex = 0
+
+        while not command:
+            callback = self.process_input(0, len(user.commands)-1)
+            if (callback > -1):
+                command = user.commands[callback]
+            self.render_command_window()
+        return command
+
+    def get_target(self, user, validTargets):
+        g.CURSOR_TIMER = 0
+        g.CONFIRM_TIMER = g.CONFIRM_DELAY
+        targets = []
+        self.cursorIndex = 0
+        while not targets:
+            callback = self.process_input(0, len(validTargets)-1)
+            if (callback > -1):
+                targets.append(validTargets[callback])
+            self.render_target_window()
+        return targets
+
+    def render_command_window(self):
+        self.BC.CONTROLLER.VIEW_SURF.fill(g.WHITE)
+        
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, self.cmdAnchors[self.cursorIndex])
+        
+        self.BC.CONTROLLER.window_render()
+
+    def render_target_window(self):
+        self.BC.CONTROLLER.VIEW_SURF.fill(g.WHITE)
+        
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, self.tgtAnchors[self.cursorIndex])
+        
+        self.BC.CONTROLLER.window_render()
+
+    def process_input(self, cMin, cMax):
+        if (g.CURSOR_TIMER > 0):
+            g.CURSOR_TIMER -= 1
+        if (g.CONFIRM_TIMER > 0):
+            g.CONFIRM_TIMER -= 1    
+        
+        self.BC.CONTROLLER.event_loop()
+        if self.BC.CONTROLLER.KEYS[g.KEY_DOWN]:
+            if not g.CURSOR_TIMER:
+                g.CURSOR_TIMER = g.CURSOR_DELAY
+                self.cursorIndex += 1
+                if self.cursorIndex > cMax:
+                    self.cursorIndex = cMin
+        elif self.BC.CONTROLLER.KEYS[g.KEY_UP]:
+            if not g.CURSOR_TIMER:
+                g.CURSOR_TIMER = g.CURSOR_DELAY
+                self.cursorIndex -= 1
+                if self.cursorIndex < cMin:
+                    self.cursorIndex = cMax
+        elif self.BC.CONTROLLER.KEYS[g.KEY_CONFIRM]:
+            if not g.CONFIRM_TIMER:
+                g.CURSOR_TIMER = g.CURSOR_DELAY
+                return self.cursorIndex
+            
+        return -1
+
+#################
+##ACTOR CLASSES##
+#################
+
 class BattleActor (object):
     
     def __init__(self, BC, isHero, NAME, LV = 1, HP=10, SP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5):
@@ -256,6 +375,8 @@ class BattleActor (object):
         self.LCK = LCK
         self.HIT = HIT
         self.EVA = EVA
+
+        #TODO: Add damage resistances
 
         self.isAI = (not self.isHero)
         self.aggro = 0
@@ -323,17 +444,22 @@ class BattleActor (object):
         
         if (self.can_act()):
             if (not self.isAI):
-                print ("COMMANDS")
-                
-                index = 0
-                for cmd in self.commands:
-                    print (str(index) + ": " + cmd.name())
-                    index += 1
-                    
-                cmdInput = input("# >> ")
 
-                targets = self.commands[int(cmdInput)].get_targets(self)
-                self.commands[int(cmdInput)].execute(self, targets)
+                #TODO: Move to UI
+##                print ("COMMANDS")
+##                index = 0
+##                for cmd in self.commands:
+##                    print (str(index) + ": " + cmd.name())
+##                    index += 1
+##                cmdInput = input("# >> ")
+                #
+
+                command = self.BC.UI.get_command(self)
+                targets = command.get_targets(self)
+
+                command.execute(self, targets)
+##                targets = self.commands[int(cmdInput)].get_targets(self)
+##                self.commands[int(cmdInput)].execute(self, targets)
             else:
                 targets = self.commands[0].get_targets_auto(self)
                 self.commands[0].execute(self, targets)
@@ -351,21 +477,9 @@ class BattleActor (object):
         if (self.HP == 0):
             print (self.NAME + " died!")
             
-##
-##BATTLE COMMAND TEMPLATE
-##
-##class BattleCommand(object):
-##    def __init__(self):
-##        targetArgs = {}
-##    
-##    def get_targets(user):
-##        if (user.isHero):
-##            return user.BC.first_enemy()
-##        else:
-##            return user.BC.first_hero()
-##        
-##    def execute (user, target):
-##        print ("execute...")
+###################
+##COMMAND CLASSES##
+###################
 
 class CmdAttack():
     def name():
@@ -380,17 +494,19 @@ class CmdAttack():
         DEAD = False
 
         #Delegate this to a UI class
-        targets = []
+        validTargets = []
+        selectedTargets = []
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
                 if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
-                    print (str(index) + ": " + target.NAME)
+                    validTargets.append(target)
             index += 1
+            
         
-        targetString = input("# >> ")
-        targets.append(user.BC.battlers[int(targetString)])
-        return targets
+        selectedTargets = user.BC.UI.get_target(user, validTargets)
+
+        return selectedTargets
 
     def get_targets_auto(user, mostAggro=True):
         targets = []
@@ -441,6 +557,10 @@ class CmdDefend():
     def execute(user, target):
         print (user.NAME + " is defending.")
         user.mods[BattlerStatus.DEFEND] += 1
+
+###############
+##MAIN THREAD##
+###############
 
 if __name__=='__main__':
     BC = BattleController()
