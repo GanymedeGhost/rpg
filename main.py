@@ -22,7 +22,7 @@ class Control(object):
 
         self.BATTLE = None
         self.MENU = None
-        
+
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
         self.LEVEL.add_entity(world.Player("player", self.LEVEL, (1,0), self.SPRITE_CACHE['spr/red.png'], True))

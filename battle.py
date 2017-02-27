@@ -290,9 +290,9 @@ class BattleUI (object):
         self.cursorImage = pygame.image.load("spr/cursor-h.png")
         self.cursorRect = self.cursorImage.get_rect()
         self.heroStatusAnchors = [(2, 4), (66, 4), (110, 4)]
-        self.cmdAnchors = [(8,100), (8, 110)]
-        self.tgtAnchors = [(8,100), (8, 110)]
-        self.outAnchors = [(2, 88), (2, 80), (2,72), (2,64), (2,56), (2, 48), (2, 40), (2,32), (2,24)]
+        self.cmdAnchors = [(8,116), (8, 126)]
+        self.tgtAnchors = [(8,116), (8, 126)]
+        self.outAnchors = [(2, 96), (2, 88), (2, 80), (2,72), (2,64), (2,56), (2, 48), (2, 40), (2,32), (2,24)]
         self.cursorIndex = 0
 
     def get_command(self, user):
@@ -352,7 +352,7 @@ class BattleUI (object):
                 self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP:" + str(hero.SP), utility.add_tuple(self.heroStatusAnchors[index], utility.scale_tuple(vOffset, (1,2))))
                 index += 1
 
-    def render_output(self, maxLines = 6):
+    def render_output(self, maxLines = 8):
         lineCount = 0
         for line in reversed(self.output):
             self.BC.CONTROLLER.TEXT_MANAGER.draw_text(line, self.outAnchors[lineCount])
@@ -369,26 +369,27 @@ class BattleUI (object):
         self.output.append(string)
 
     def process_input(self, cMin, cMax):
+        dt = self.BC.CONTROLLER.CLOCK.get_time()
         if (g.CURSOR_TIMER > 0):
-            g.CURSOR_TIMER -= 1
+            g.CURSOR_TIMER -= dt
         if (g.CONFIRM_TIMER > 0):
-            g.CONFIRM_TIMER -= 1    
-        
+            g.CONFIRM_TIMER -= dt    
+
         self.BC.CONTROLLER.event_loop()
         if self.BC.CONTROLLER.KEYS[g.KEY_DOWN]:
-            if not g.CURSOR_TIMER:
+            if g.CURSOR_TIMER <= 0:
                 g.CURSOR_TIMER = g.CURSOR_DELAY
                 self.cursorIndex += 1
                 if self.cursorIndex > cMax:
                     self.cursorIndex = cMin
         elif self.BC.CONTROLLER.KEYS[g.KEY_UP]:
-            if not g.CURSOR_TIMER:
+            if g.CURSOR_TIMER <= 0:
                 g.CURSOR_TIMER = g.CURSOR_DELAY
                 self.cursorIndex -= 1
                 if self.cursorIndex < cMin:
                     self.cursorIndex = cMax
         elif self.BC.CONTROLLER.KEYS[g.KEY_CONFIRM]:
-            if not g.CONFIRM_TIMER:
+            if g.CONFIRM_TIMER <= 0:
                 g.CURSOR_TIMER = g.CURSOR_DELAY
                 return self.cursorIndex
             

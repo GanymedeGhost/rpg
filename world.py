@@ -280,12 +280,12 @@ class Actor(Entity):
 class Player(Actor):
     def __init__(self, handle, level, pos, tileset, animated, animTime = 200):
         Actor.__init__(self, handle, level, pos, tileset, animated, animTime)
-        self.inputTimeout = -1
+        g.INPUT_TIMER = -1
         self.resetConfirm = False
     
     def process_input(self, keys):
-        if (self.inputTimeout >= 0):
-            self.inputTimeout -= 1
+        if (g.INPUT_TIMER > 0):
+            g.INPUT_TIMER -= self.level.CONTROLLER.CLOCK.get_time()
         mDir = ""
         if not self.moving:
             if keys[g.KEY_DOWN]:
@@ -301,11 +301,11 @@ class Player(Actor):
                 mDir = "right"
                 self.facing = DIR_RIGHT
             if keys[g.KEY_CONFIRM]:
-                if (self.inputTimeout < 0 and not self.resetConfirm):
+                if (g.INPUT_TIMER <= 0 and not self.resetConfirm):
                     self.try_interact()
-                    self.inputTimeout = 5
+                    g.INPUT_TIMER = g.INPUT_DELAY
                     self.resetConfirm = True
-            elif (self.inputTimeout < 0):
+            elif (g.INPUT_TIMER <= 0):
                     self.resetConfirm = False
             if (mDir != ""):
                 self.set_anim(mDir, False)
