@@ -2,6 +2,16 @@ import pygame
 from pygame import *
 import my_globals as g
 
+def add_tuple(a, b):
+    s0 = a[0]+b[0]
+    s1 = a[1]+b[1]
+    return s0,s1
+
+def scale_tuple(o, f):
+    p0 = o[0] * f[0]
+    p1 = o[1] * f[1]
+    return p0, p1
+               
 class TileCache:
     """Load the tilesets lazily into global cache"""
 

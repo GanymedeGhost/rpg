@@ -134,12 +134,13 @@ class BattleController (object):
             if self.enemies_alive():
                 self.BATTLE_STATE = BattleState.LOSE
             else:
-                self.BATTLE_STATE = BattleState.WIN
+                self.BATTLE_STATE = BattleState.WIN 
 
     def next_round(self):
         self.rounds += 1
         print ()
         print ("***********")
+        self.UI.print_line("ROUND " + str(self.rounds))
         print ("ROUND " + str(self.rounds))
         print ("***********")
         self.list_heroes()
@@ -220,42 +221,45 @@ class BattleController (object):
         return False
 
     #TODO: delegate to UI
-    def get_target(self, battler, opposite = True, same = False, alive = True, dead = False):
-        index = 0
-        for target in self.battlers:
-            if ((opposite and (battler.isHero != target.isHero)) or (same and (battler.isHero == target.isHero))):
-                if ((alive and (target.HP > 0)) or (dead and (target.HP == 0))):
-                    print (str(index) + ": " + target.NAME)
-            index += 1
-        targetString = input("Target #: ")
-        return self.battlers[int(targetString)]
+##    def get_target(self, battler, opposite = True, same = False, alive = True, dead = False):
+##        index = 0
+##        for target in self.battlers:
+##            if ((opposite and (battler.isHero != target.isHero)) or (same and (battler.isHero == target.isHero))):
+##                if ((alive and (target.HP > 0)) or (dead and (target.HP == 0))):
+##                    print (str(index) + ": " + target.NAME)
+##            index += 1
+##        targetString = input("Target #: ")
+##        return self.battlers[int(targetString)]
 
-    def hit_calc(user, target):
+    def hit_calc(self, user, target):
         roll = random.randint(0, 100)
         if roll < user.HIT:
             return True
         else:
+            self.UI.print_line("Missed!")
             print ("Missed!")
             return False
 
-    def dodge_calc(user, target):
+    def dodge_calc(self, user, target):
         roll = random.randint(0, 100)
         if roll < target.EVA:
+            self.UI.print_line("Dodged!")
             print ("Dodged!")
             return True
         else:
             return False
 
-    def crit_calc(user, target):
+    def crit_calc(self, user, target):
         roll = random.randint(0, 255)
         #print ("Crit roll : " + str(roll))
         if roll < user.LCK:
+            self.UI.print_line("Crit!")
             print ("Crit!")
             return True
         else:
             return False
 
-    def phys_def_calc(user, target):
+    def phys_def_calc(self, user, target):
         modValue = 0
         if (target.mods[BattlerStatus.DEFEND] > 0):
             print (target.NAME + " has a defense bonus")
@@ -264,7 +268,7 @@ class BattleController (object):
         #print ("DEF: " + str(target.DEF) + " (+" + str(modValue) + ")")
         return defTotal
 
-    def phys_dmg_calc(user, target):
+    def phys_dmg_calc(self, user, target):
         dmgMax = user.ATK * 2
         dmgMin = dmgMax - (user.ATK // 2)
         dmg = random.randint(dmgMin, dmgMax)
@@ -285,8 +289,10 @@ class BattleUI (object):
         self.cursorPos = (0,0)
         self.cursorImage = pygame.image.load("spr/cursor-h.png")
         self.cursorRect = self.cursorImage.get_rect()
-        self.cmdAnchors = [(0,0), (0, 8)]
-        self.tgtAnchors = [(64,0), (64, 8)]
+        self.heroStatusAnchors = [(2, 4), (66, 4), (110, 4)]
+        self.cmdAnchors = [(8,100), (8, 110)]
+        self.tgtAnchors = [(8,100), (8, 110)]
+        self.outAnchors = [(2, 88), (2, 80), (2,72), (2,64), (2,56), (2, 48), (2, 40), (2,32), (2,24)]
         self.cursorIndex = 0
 
     def get_command(self, user):
@@ -299,7 +305,7 @@ class BattleUI (object):
             callback = self.process_input(0, len(user.commands)-1)
             if (callback > -1):
                 command = user.commands[callback]
-            self.render_command_window()
+            self.render_command_window(user.commands)
         return command
 
     def get_target(self, user, validTargets):
@@ -311,22 +317,56 @@ class BattleUI (object):
             callback = self.process_input(0, len(validTargets)-1)
             if (callback > -1):
                 targets.append(validTargets[callback])
-            self.render_target_window()
+            self.render_target_window(validTargets)
         return targets
 
-    def render_command_window(self):
+    def render_command_window(self, commands):
         self.BC.CONTROLLER.VIEW_SURF.fill(g.WHITE)
+
+        index = 0
+        for command in commands:
+            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(command.name(), self.cmdAnchors[index])
+            index += 1
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.cmdAnchors[self.cursorIndex],(-self.cursorImage.get_width(),0)))
         
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, self.cmdAnchors[self.cursorIndex])
+        self.update()
+
+    def render_target_window(self, validTargets):
+        self.BC.CONTROLLER.VIEW_SURF.fill(g.WHITE)
+
+        index = 0
+        for target in validTargets:
+            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(target.NAME, self.tgtAnchors[index])
+            index += 1
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.tgtAnchors[self.cursorIndex],(-self.cursorImage.get_width(),0)))
         
+        self.update()
+
+    def render_hero_status(self):
+        vOffset = (0, 8)
+        index = 0
+        for hero in self.BC.battlers:
+            if (hero.isHero):
+                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(hero.NAME, self.heroStatusAnchors[index])
+                self.BC.CONTROLLER.TEXT_MANAGER.draw_text("HP:" + str(hero.HP), utility.add_tuple(self.heroStatusAnchors[index], utility.scale_tuple(vOffset, (1,1))))
+                self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP:" + str(hero.SP), utility.add_tuple(self.heroStatusAnchors[index], utility.scale_tuple(vOffset, (1,2))))
+                index += 1
+
+    def render_output(self, maxLines = 6):
+        lineCount = 0
+        for line in reversed(self.output):
+            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(line, self.outAnchors[lineCount])
+            lineCount += 1
+            if lineCount > maxLines-1:
+                break
+
+    def update(self):
+        self.render_hero_status()
+        self.render_output()
         self.BC.CONTROLLER.window_render()
 
-    def render_target_window(self):
-        self.BC.CONTROLLER.VIEW_SURF.fill(g.WHITE)
-        
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, self.tgtAnchors[self.cursorIndex])
-        
-        self.BC.CONTROLLER.window_render()
+    def print_line(self, string):
+        self.output.append(string)
 
     def process_input(self, cMin, cMax):
         if (g.CURSOR_TIMER > 0):
@@ -411,19 +451,24 @@ class BattleActor (object):
         if (self.HP == 0):
             return False
         elif (self.mods[BattlerStatus.SLEEP] > 0):
+            self.BC.UI.print_line(" " + self.NAME + " is asleep.")
             print (self.NAME + " is asleep.")
             return False
         elif (self.mods[BattlerStatus.STUN] > 0):
+            self.BC.UI.print_line(" " + self.NAME + " can't move.")
             print (self.NAME + " is stunned.")
             return False
         elif (self.mods[BattlerStatus.PARALYZE] > 0):
+            self.BC.UI.print_line(self.NAME + " is paralyzed.")
             print (self.NAME  + " is paralyzed.")
             return False
         else:
+            self.BC.UI.print_line(" " + self.NAME + "'s turn")
             print ("It's " + self.NAME + "'s turn.")
             return True
 
     def stun(self):
+        self.BC.UI.print_line(self.NAME + " is stunned!")
         print (self.NAME + " is stunned!")
         self.mods[BattlerStatus.STUN] += 1
 
@@ -470,11 +515,13 @@ class BattleActor (object):
         #TODO: implement damage types and resistances
         self.HP -= damage
         self.aggro_down()
+        self.BC.UI.print_line(self.NAME + " takes " + str(damage) + " damage!")
         print (self.NAME + " takes " + str(damage) + " damage!")
         
         if (self.HP < 0):
             self.HP = 0
         if (self.HP == 0):
+            self.BC.UI.print_line(self.NAME + " died!")
             print (self.NAME + " died!")
             
 ###################
@@ -530,14 +577,15 @@ class CmdAttack():
     
     def execute(user, targets):
         for target in targets:
+            user.BC.UI.print_line(user.NAME + " attacks " + target.NAME)
             print(user.NAME + " attacks " + target.NAME)
-            if BattleController.hit_calc(user, target):
-                if not BattleController.dodge_calc(user, target):
-                    dmg = BattleController.phys_dmg_calc(user, target)
-                    if BattleController.crit_calc(user, target):
+            if user.BC.hit_calc(user, target):
+                if not user.BC.dodge_calc(user, target):
+                    dmg = user.BC.phys_dmg_calc(user, target)
+                    if user.BC.crit_calc(user, target):
                         dmg*=2
                         target.stun()
-                    dmg -= BattleController.phys_def_calc(user, target)
+                    dmg -= user.BC.phys_def_calc(user, target)
                     if (dmg < 0):
                         dmg = 0
                     user.aggro_up()
@@ -555,16 +603,6 @@ class CmdDefend():
         return user
 
     def execute(user, target):
+        user.BC.UI.print_line(user.NAME + " is defending.")
         print (user.NAME + " is defending.")
         user.mods[BattlerStatus.DEFEND] += 1
-
-###############
-##MAIN THREAD##
-###############
-
-if __name__=='__main__':
-    BC = BattleController()
-
-    BC.battle_loop()
-    print ("***")
-    print ("Battle over")
