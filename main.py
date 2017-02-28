@@ -1,14 +1,16 @@
 import pygame
 import pygame.locals
 import my_globals as g
+import database as db
 import world
 import battle
 import utility
 
 class Control(object):
     def __init__(self):
-        self.GAME_STATE = g.GameState.MAP ##THIS SHOULD REALLY START AS INIT
-        
+        ##THIS SHOULD REALLY START AS INIT
+        self.GAME_STATE = g.GameState.MAP
+
         self.VIEW_SURF = pygame.Surface((g.VIEW_WIDTH, g.VIEW_HEIGHT))
         self.VIEW_RECT = self.VIEW_SURF.get_rect()
         self.SCREEN = pygame.display.set_mode((g.WIN_WIDTH, g.WIN_HEIGHT))
@@ -23,11 +25,22 @@ class Control(object):
         self.BATTLE = None
         self.MENU = None
         
+        g.PARTY_LIST.append(db.Hero.dic["Asa"])
+        g.PARTY_LIST.append(db.Hero.dic["Elle"])
+        g.PARTY_LIST.append(db.Hero.dic["Lux"])
+
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
         self.LEVEL.add_entity(world.Player("player", self.LEVEL, (1,0), self.SPRITE_CACHE['spr/red.png'], True))
 
         self.skipRender = False
+
+    def start_battle(self, monsters):
+        g.MONSTER_LIST = []
+        for key in monsters:
+            g.MONSTER_LIST.append(db.Monster.dic[key])
+        self.BATTLE = battle.BattleController(self)
+        self.GAME_STATE = g.GameState.BATTLE
     
     def event_loop(self):
         for event in pygame.event.get():
@@ -35,17 +48,21 @@ class Control(object):
             if event.type == pygame.QUIT or self.KEYS[pygame.K_ESCAPE]:
                 self.CURRENT_STATE = -1
 
+            ###DEBUG KEYS
+            if self.KEYS[pygame.K_1]:
+                print ("Game State: " + str(self.GAME_STATE))
+
     def display_fps(self):
         caption = "{} - FPS: {:.2f}".format(g.CAPTION, self.CLOCK.get_fps())
         pygame.display.set_caption(caption)
 
     def update(self):
         if self.GAME_STATE == g.GameState.MAP:
-            if not self.TEXT_MANAGER.isTyping:
-                self.LEVEL.update(self.CLOCK.get_time(), self.KEYS)
-                self.LEVEL.draw(self.VIEW_SURF)
-            else:
-                self.TEXT_MANAGER.type_text(self.KEYS)
+                if not self.TEXT_MANAGER.isTyping:
+                    self.LEVEL.update(self.CLOCK.get_time(), self.KEYS)
+                    self.LEVEL.draw(self.VIEW_SURF)
+                else:
+                    self.TEXT_MANAGER.type_text(self.KEYS)
         elif (self.GAME_STATE == g.GameState.BATTLE):
             if (self.BATTLE.BATTLE_STATE != battle.BattleState.WIN and
                 self.BATTLE.BATTLE_STATE != battle.BattleState.LOSE):
@@ -53,11 +70,11 @@ class Control(object):
             else:
                 self.GAME_STATE = g.GameState.MAP
                 del self.BATTLE
-        
+    
         if not self.skipRender:
-            self.window_render()
+                self.window_render()
         else:
-            self.skipRender = False
+                self.skipRender = False
 
     def window_render(self):
         pygame.transform.scale(self.VIEW_SURF, (g.WIN_WIDTH, g.WIN_HEIGHT), self.SCREEN)

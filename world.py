@@ -2,6 +2,7 @@ import configparser
 import pygame
 import pygame.locals
 import my_globals as g
+import database as db
 import battle
 import utility
 
@@ -42,7 +43,6 @@ class Level(object):
                     self.sprites[(x, y)] = self.key[c]
                 if 'entity' in self.key[c]:
                     self.add_entity(ENTITY_DIC[self.key[c]['entity']](self.key[c]['name'], self, (x,y), self.MAP_CACHE['spr/red.png'], False))
-                    print (self.key[c]['entity'])
         #render the static BG once
         self.render()
 
@@ -350,8 +350,7 @@ class Actor002 (Actor):
     
     def interact(self):
         self.face_player()
-        self.level.CONTROLLER.GAME_STATE = g.GameState.BATTLE
-        self.level.CONTROLLER.BATTLE = battle.BattleController(self.level.CONTROLLER)
+        self.level.CONTROLLER.start_battle(["Slime", "Slime", "Bear"])
 
 ENTITY_DIC = {}
 ENTITY_DIC["actor001"] = Actor001

@@ -3,6 +3,7 @@ import heapq
 import pygame
 import pygame.locals
 import my_globals as g
+import database as db
 import utility
 
 #########
@@ -41,7 +42,6 @@ class UIState():
     COMMAND = 2
     SKILL = 3
     ITEM = 4
-    
 
 ###################
 ##CONTROL CLASSES##
@@ -56,92 +56,55 @@ class BattleController (object):
         self.PREV_BATTLE_STATE = self.BATTLE_STATE
         self.battlers = []
 
-        args = {}
-        #hero 1
-        isHero = True
-        NAME = "Asa"
-        LV = 1
-        HP = 10
-        SP = 10
-        ATK = 6
-        DEF = 5
-        MATK = 6
-        MDEF = 5
-        AGI = 5
-        LCK = 5
-        HIT = 95
-        EVA = 5
-        battler = BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
-        battler.img = pygame.image.load("spr/battle/hero-asa.png")
-        battler.imgTurn = pygame.image.load("spr/battle/turn-asa.png")
-        self.battlers.append(battler)
-        #hero 2
-        isHero = True
-        NAME = "Lux"
-        LV = 1
-        HP = 18
-        SP = 5
-        ATK = 8
-        DEF = 6
-        MATK = 2
-        MDEF = 2
-        AGI = 4
-        LCK = 7
-        HIT = 90
-        EVA = 5
-        battler = BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
-        battler.img = pygame.image.load("spr/battle/hero-lux.png")
-        battler.imgTurn = pygame.image.load("spr/battle/turn-lux.png")
-        self.battlers.append(battler)
-        #hero 3
-        isHero = True
-        NAME = "Elle"
-        LV = 1
-        HP = 7
-        SP = 15
-        ATK = 3
-        DEF = 4
-        MATK = 8
-        MDEF = 7
-        AGI = 6
-        LCK = 5
-        HIT = 95
-        EVA = 5
-        battler = BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
-        battler.img = pygame.image.load("spr/battle/hero-elle.png")
-        battler.imgTurn = pygame.image.load("spr/battle/turn-elle.png")
-        self.battlers.append(battler)
-        #enemy
-        isHero = False
-        NAME = "Slime1"
-        LV = 1
-        HP = 8
-        SP = 5
-        ATK = 5
-        DEF = 5
-        MATK = 5
-        MDEF = 5
-        AGI = 5
-        LCK = 5
-        HIT = 95
-        EVA = 5
-        battler = BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
-        battler.img = pygame.image.load("spr/battle/mon-slime.png")
-        battler.imgTurn = pygame.image.load("spr/battle/mon-slime.png")
-        self.battlers.append(battler)
-        NAME = "Slime2"
-        battler = BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
-        battler.img = pygame.image.load("spr/battle/mon-slime.png")
-        battler.imgTurn = pygame.image.load("spr/battle/mon-slime.png")
-        self.battlers.append(battler)
-        NAME = "Slime3"
-        battler = BattleActor(self, isHero, NAME, LV, HP, SP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
-        battler.img = pygame.image.load("spr/battle/mon-slime.png")
-        battler.imgTurn = pygame.image.load("spr/battle/mon-slime.png")
-        self.battlers.append(battler)
+        #heroes
+        for hero in g.PARTY_LIST:
+            isHero = True
+            NAME = hero.attr["name"]
+            LV = hero.attr["lvl"]
+            HP = hero.attr["hp"]
+            MAXHP = hero.baseMaxHP
+            SP = hero.attr["sp"]
+            MAXSP = hero.baseMaxSP
+            ATK = hero.baseAtk
+            DEF = hero.baseDef
+            MATK = hero.baseMAtk
+            MDEF = hero.baseMDef
+            HIT = hero.baseAtk
+            EVA = hero.baseDef
+            AGI = hero.attr["agi"]
+            LCK = hero.attr["lck"]
+            print (NAME + " AGI: " + str(AGI))
+            battler = BattleActor(self, isHero, NAME, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
+            self.battlers.append(battler)
 
-        
+        #enemies
+        self.monsterCounters = {}
+        for monster in g.MONSTER_LIST:
+            isHero = False
+            NAME = monster.attr["name"]
+            LV = monster.attr["lvl"]
+            HP = MAXHP = monster.attr["hp"]
+            SP = MAXSP = monster.attr["sp"]
+            ATK = monster.attr["atk"]
+            DEF = monster.attr["def"]
+            MATK = monster.attr["matk"]
+            MDEF = monster.attr["mdef"]
+            HIT = monster.attr["hit"]
+            EVA = monster.attr["eva"]
+            AGI = monster.attr["agi"]
+            LCK = monster.attr["lck"]
+            print (NAME + " AGI: " + str(AGI))
 
+            
+            if NAME in self.monsterCounters:
+                self.monsterCounters[NAME] += 1
+                NAME += str(self.monsterCounters[NAME])
+            else:
+                self.monsterCounters[NAME] = 1
+            
+            
+            battler = BattleActor(self, isHero, NAME, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
+            self.battlers.append(battler)
         
         self.rounds = 0
         self.turnQueue = []
@@ -153,6 +116,7 @@ class BattleController (object):
     def change_state(self, state):
         self.PREV_BATTLE_STATE = self.BATTLE_STATE
         self.BATTLE_STATE = state
+        print ("BATTLE STATE CHANGED: " + str(self.PREV_BATTLE_STATE) + " >> " + str(self.BATTLE_STATE))
 
     def prev_state(self):
         self.BATTLE_STATE = self.PREV_BATTLE_STATE
@@ -265,17 +229,6 @@ class BattleController (object):
                     return True
         return False
 
-    #TODO: delegate to UI
-##    def get_target(self, battler, opposite = True, same = False, alive = True, dead = False):
-##        index = 0
-##        for target in self.battlers:
-##            if ((opposite and (battler.isHero != target.isHero)) or (same and (battler.isHero == target.isHero))):
-##                if ((alive and (target.HP > 0)) or (dead and (target.HP == 0))):
-##                    print (str(index) + ": " + target.NAME)
-##            index += 1
-##        targetString = input("Target #: ")
-##        return self.battlers[int(targetString)]
-
     def hit_calc(self, user, target):
         roll = random.randint(0, 100)
         if roll < user.HIT:
@@ -368,15 +321,6 @@ class BattleUI (object):
         self.init_cursor()
 
         self.change_state(UIState.COMMAND)
-            
-##        command = None
-##        self.cursorIndex = 0
-##        while not command:
-##            callback = self.process_input(0, len(user.commands)-1)
-##            if (callback > -1):
-##                command = user.commands[callback]
-##            self.render_command_window(user.commands)
-##        return command
 
     def get_target(self, user, validTargets):
         #self.BC.BATTLE_STATE = BattleState.WAITING
@@ -389,15 +333,6 @@ class BattleUI (object):
         self.init_cursor()
 
         self.change_state(UIState.TARGET)
-        
-##        targets = []
-##        self.cursorIndex = 0
-##        while not targets:
-##            callback = self.process_input(0, len(validTargets)-1)
-##            if (callback > -1):
-##                targets.append(validTargets[callback])
-##            self.render_target_window(validTargets)
-##        return targets
 
     def process_get_command(self):
         selection = self.process_input(0, len(self.currentUser.commands)-1)
@@ -479,6 +414,7 @@ class BattleUI (object):
     def change_state(self, state):
         self.PREV_UI_STATE = self.UI_STATE
         self.UI_STATE = state
+        print ("UI STATE CHANGED: " + str(self.PREV_UI_STATE) + " >> " + str(self.UI_STATE))
 
     def prev_state(self):
 
@@ -534,7 +470,7 @@ class BattleUI (object):
 
 class BattleActor (object):
     
-    def __init__(self, BC, isHero, NAME, LV = 1, HP=10, SP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5):
+    def __init__(self, BC, isHero, NAME, LV = 1, HP=10, MAXHP = 10, SP = 10, MAXSP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5):
         self.BC = BC
         self.isHero = isHero
         self.NAME = NAME
