@@ -67,7 +67,7 @@ class TextManager:
         self.confirmReleased = False
         self.boxDrawn = False
         
-        self.FONT = pygame.font.Font('font/pixelm8b.ttf', 8)
+        self.FONT = pygame.font.Font('font/pixel8.ttf', 8)
         self.SURF = UI_SURF
         
 
@@ -75,18 +75,22 @@ class TextManager:
         words = string.split(" ")
         wordIndex = 0
         curLine = ""
+        curWidth = 0
         lines = []
         while (wordIndex < len(words)):
             if (words[wordIndex] == "&n"):
                 wordIndex += 1
                 lines.append(curLine)
                 curLine = ""
-            if (len (curLine) + len(words[wordIndex]) < 19):
+                curWidth = 0
+            if curWidth < 120:
                 curLine += words[wordIndex] + " "
+                curWidth = self.FONT.size(curLine)[0]
                 wordIndex += 1
             else:
                 lines.append(curLine)
                 curLine = ""
+                curWidth = 0
         lines.append(curLine)
         return lines
 
@@ -99,6 +103,8 @@ class TextManager:
         self.charIndex = 0
         self.confirmReleased = False
         self.boxDrawn = False
+        self.startX = 7
+        self.nextX = self.startX
 
     def type_text(self, keys):
         if not self.boxDrawn:
@@ -112,10 +118,12 @@ class TextManager:
                 if (self.charIndex < len(self.lines[self.lineIndex])):
                     textObj = self.FONT.render(self.lines[self.lineIndex][self.charIndex], False, g.BLACK)
                     textRect = textObj.get_rect()
-                    textRect.topleft = (7 + 8 * self.charIndex, 118 + 10 * self.lineIndex - self.boxIndex * 20)
+                    textRect.topleft = (self.nextX, 118 + 10 * self.lineIndex - self.boxIndex * 20)
+                    self.nextX += self.FONT.size(self.lines[self.lineIndex][self.charIndex])[0]
                     self.SURF.blit(textObj, textRect)
                     self.charIndex += 1
                 else:
+                    self.nextX = self.startX
                     self.charIndex = 0
                     self.lineIndex += 1
             elif (keys[g.KEY_CONFIRM]):
@@ -139,8 +147,8 @@ class TextManager:
         self.boxDrawn = False
         
     
-    def draw_text (self, string, pos=(0,0)):
-        textObj = self.FONT.render(string, False, g.BLACK)
+    def draw_text (self, string, pos=(0,0), color = g.BLACK):
+        textObj = self.FONT.render(string, False, color)
         textRect = textObj.get_rect()
         textRect.topleft = pos
         self.SURF.blit(textObj, textRect)

@@ -22,7 +22,7 @@ class Control(object):
 
         self.BATTLE = None
         self.MENU = None
-
+        
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
         self.LEVEL.add_entity(world.Player("player", self.LEVEL, (1,0), self.SPRITE_CACHE['spr/red.png'], True))
@@ -47,7 +47,8 @@ class Control(object):
             else:
                 self.TEXT_MANAGER.type_text(self.KEYS)
         elif (self.GAME_STATE == g.GameState.BATTLE):
-            if (self.BATTLE.BATTLE_STATE == battle.BattleState.FIGHT):
+            if (self.BATTLE.BATTLE_STATE != battle.BattleState.WIN and
+                self.BATTLE.BATTLE_STATE != battle.BattleState.LOSE):
                 self.BATTLE.update()
             else:
                 self.GAME_STATE = g.GameState.MAP
@@ -61,7 +62,6 @@ class Control(object):
     def window_render(self):
         pygame.transform.scale(self.VIEW_SURF, (g.WIN_WIDTH, g.WIN_HEIGHT), self.SCREEN)
         pygame.display.flip()
-            
 
     def main_loop(self):
         while self.CURRENT_STATE != -1: 
