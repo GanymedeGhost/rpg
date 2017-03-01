@@ -324,8 +324,8 @@ class BattleUI (object):
         self.windowImage = pygame.image.load("spr/battle/ui-window.png")
         self.windowAnchors = [(0,85)]
 
-        self.currentTurnCursor = pygame.image.load("spr/cursor-v.png")
-        self.currentTargetCursor = pygame.image.load("spr/cursor-v.png")
+        self.currentTurnCursor = pygame.image.load("spr/battle/cursor-turn.png")
+        self.currentTargetCursor = pygame.image.load("spr/battle/cursor-target.png")
 
         self.turnImage = pygame.image.load("spr/battle/turn.png")
         self.heroTurnImage = pygame.image.load("spr/battle/turn-hero.png")
@@ -422,7 +422,7 @@ class BattleUI (object):
             else:
                 img = self.monTurnImage
             self.BC.CONTROLLER.VIEW_SURF.blit(img, self.turnAnchors[index])
-            self.BC.CONTROLLER.VIEW_SURF.blit(battler[2].spr['icon'], utility.add_tuple(self.turnAnchors[index], (2,0)))
+            self.BC.CONTROLLER.VIEW_SURF.blit(battler[2].spr['icon'], utility.add_tuple(self.turnAnchors[index], (3,0)))
             
             label = battler[2].NAME[0:5]
             self.BC.CONTROLLER.TEXT_MANAGER.draw_text(label, utility.add_tuple(self.turnAnchors[index], (2,18)), g.WHITE, g.FONT_SML)
