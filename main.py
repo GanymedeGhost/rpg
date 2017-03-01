@@ -50,7 +50,14 @@ class Control(object):
 
             ###DEBUG KEYS
             if self.KEYS[pygame.K_1]:
-                print ("Game State: " + str(self.GAME_STATE))
+                g.LOG_FILTER[g.LogLevel.DEBUG] = not g.LOG_FILTER[g.LogLevel.DEBUG]
+                utility.log("Debug Log: " + str(g.LOG_FILTER[g.LogLevel.DEBUG]), g.LogLevel.SYSTEM)
+            if self.KEYS[pygame.K_2]:
+                g.LOG_FILTER[g.LogLevel.ERROR] = not g.LOG_FILTER[g.LogLevel.ERROR]
+                utility.log("Error Log: " + str(g.LOG_FILTER[g.LogLevel.ERROR]), g.LogLevel.SYSTEM)
+            if self.KEYS[pygame.K_3]:
+                g.LOG_FILTER[g.LogLevel.FEEDBACK] = not g.LOG_FILTER[g.LogLevel.FEEDBACK]
+                utility.log("Feedback Log: " + str(g.LOG_FILTER[g.LogLevel.FEEDBACK]), g.LogLevel.SYSTEM)
 
     def display_fps(self):
         caption = "{} - FPS: {:.2f}".format(g.CAPTION, self.CLOCK.get_fps())
@@ -64,8 +71,8 @@ class Control(object):
                 else:
                     self.TEXT_MANAGER.type_text(self.KEYS)
         elif (self.GAME_STATE == g.GameState.BATTLE):
-            if (self.BATTLE.BATTLE_STATE != battle.BattleState.WIN and
-                self.BATTLE.BATTLE_STATE != battle.BattleState.LOSE):
+            if (self.BATTLE.BATTLE_STATE != g.BattleState.WIN and
+                self.BATTLE.BATTLE_STATE != g.BattleState.LOSE):
                 self.BATTLE.update()
             else:
                 self.GAME_STATE = g.GameState.MAP

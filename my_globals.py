@@ -3,7 +3,9 @@ import pygame.locals
 
 pygame.init()
 
-###START CONSTANTS
+#######################
+### START CONSTANTS ###
+#######################
 CAPTION = "RPG Engine"
 
 TILE_SIZE = 16
@@ -43,6 +45,13 @@ FONT_MED_BOLD = pygame.font.Font('font/pixel8b.ttf', 8)
 FONT_LRG = pygame.font.Font('font/pixel.ttf', 16)
 FONT_LRG_BOLD = pygame.font.Font('font/pixelb.ttf', 16)
 
+### ENUMS
+
+class LogLevel():
+    SYSTEM = -1
+    DEBUG = 0
+    ERROR = 1
+    FEEDBACK = 2
 
 class GameState():
     INIT = 0
@@ -50,7 +59,44 @@ class GameState():
     MENU = 2
     BATTLE = 3
 
-###END CONSTANTS
+class BattlerStatus():
+    DEFEND = 0
+    POISON = 1
+    SLEEP = 2
+    SILENCE = 3
+    STUN = 4
+    PARALYZE = 5
+
+class DamageType():
+    PHYS = 0
+    FIRE = 1
+    ICE = 2
+    ELEC = 3
+    WIND = 4
+    LIGHT = 5
+    DARK = 6
+    CURSE = 7
+    NONE = 8
+
+class BattleState():
+    FIGHT = 0
+    WIN = 1
+    LOSE = 2
+    TARGET = 3
+    COMMAND = 4
+    AI = 5
+
+class BattleUIState():
+    DEFAULT = 0
+    TARGET = 1
+    COMMAND = 2
+    SKILL = 3
+    ITEM = 4
+    AI = 5
+
+#####################
+### END CONSTANTS ###
+#####################
 
 CURSOR_TIMER = 0
 CONFIRM_TIMER = 0
@@ -64,6 +110,12 @@ KEY_UP = pygame.K_UP
 KEY_DOWN = pygame.K_DOWN
 KEY_LEFT = pygame.K_LEFT
 KEY_RIGHT = pygame.K_RIGHT
+
+LOG_FILTER = {}
+LOG_FILTER[LogLevel.SYSTEM] = True
+LOG_FILTER[LogLevel.DEBUG] = True
+LOG_FILTER[LogLevel.ERROR] = True
+LOG_FILTER[LogLevel.FEEDBACK] = True
 
 PARTY_LIST = []
 MONSTER_LIST = []

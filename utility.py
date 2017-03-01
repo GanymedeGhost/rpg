@@ -11,6 +11,10 @@ def scale_tuple(o, f):
     p0 = o[0] * f[0]
     p1 = o[1] * f[1]
     return p0, p1
+
+def log(string = "", level = g.LogLevel.DEBUG):
+    if g.LOG_FILTER[level]:
+        print (string)
                
 class TileCache:
     """Load the tilesets lazily into global cache"""

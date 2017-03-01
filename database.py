@@ -5,10 +5,11 @@ import battle as b
 class Hero (object):
 	dic = {}
 	
-	def __init__(self, index, attr = {}, equip = {}, spr = {}):
+	def __init__(self, index, attr = {}, res = {}, equip = {}, spr = {}):
 		self.index = ""
-		
-		if not attr:
+
+		self.attr = attr
+		if not self.attr:
 			self.attr = {}
 			self.attr["name"] = "???"
 			self.attr["lvl"] = 1
@@ -19,10 +20,13 @@ class Hero (object):
 			self.attr["spr"] = 5
 			self.attr["agi"] = 5
 			self.attr["lck"] = 5
-		else:
-			self.attr = attr
+			
 		self.attr["hp"] = self.baseMaxHP
 		self.attr["sp"] = self.baseMaxSP
+
+		self.res = res
+		#if not self.res:
+			
 			
 		self.attrMods = {}
 		
@@ -34,12 +38,11 @@ class Hero (object):
 		else:
 			self.equip = equip
 
-		if not spr:
+		self.spr = spr
+		if not self.spr:
 			self.spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
 			self.spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
-		else:
-			self.spr = spr
-		
+
 		Hero.dic[index] = self
 
 	@property
@@ -71,34 +74,33 @@ def InvItem (object):
 	dic = {}
 
 class Monster (object):
-        dic = {}
+	dic = {}
 
-        def __init__(self, index, attr = {}, spr = {}):
-                if not attr:
-                        self.attr = {}
-                        self.attr["name"] = "???"
-                        self.attr["lvl"] = 1
-                        self.attr["hp"] = 10
-                        self.attr["sp"] = 10
-                        self.attr["atk"] = 6
-                        self.attr["def"] = 6
-                        self.attr["matk"] = 6
-                        self.attr["mdef"] = 6
-                        self.attr["hit"] = 95
-                        self.attr["eva"] = 3
-                        self.attr["agi"] = 5
-                        self.attr["lck"] = 3
-                else:
-                        self.attr = attr
+	def __init__(self, index, attr = {}, res = {}, spr = {}):
 
-                if not spr:
-                        self.spr = {}
-                        self.spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
-                        self.spr['icon'] = pygame.image.load("spr/battle/mon-slime.png")
-                else:
-                        self.spr = spr
+		self.attr = attr
+		if not self.attr:
+			self.attr = {}
+			self.attr["name"] = "???"
+			self.attr["lvl"] = 1
+			self.attr["hp"] = 10
+			self.attr["sp"] = 10
+			self.attr["atk"] = 6
+			self.attr["def"] = 6
+			self.attr["matk"] = 6
+			self.attr["mdef"] = 6
+			self.attr["hit"] = 95
+			self.attr["eva"] = 3
+			self.attr["agi"] = 5
+			self.attr["lck"] = 3
+			
+		self.spr = spr
+		if not self.spr:
+			self.spr = {}
+			self.spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
+			self.spr['icon'] = pygame.image.load("spr/battle/mon-slime.png") 
 
-                Monster.dic[index] = self
+		Monster.dic[index] = self
 	
 ##########
 ##HEROES##
@@ -107,6 +109,7 @@ equip = {}
 equip["wpn"] = None
 equip["arm"] = None
 equip["acc"] = None
+res = {}
 
 attr = {}
 attr["name"] = "Asa"
@@ -123,7 +126,7 @@ spr = {}
 spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
 spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
 
-Hero(attr["name"], attr, equip, spr)
+Hero(attr["name"], attr, res, equip, spr)
 
 attr = {}
 attr["name"] = "Elle"
@@ -140,7 +143,7 @@ spr = {}
 spr['battle'] = pygame.image.load("spr/battle/hero-elle.png")
 spr['icon'] = pygame.image.load("spr/battle/hero-elle.png")
 
-Hero(attr["name"], attr, equip, spr)
+Hero(attr["name"], attr, res, equip, spr)
 
 attr = {}
 attr["name"] = "Lux"
@@ -157,7 +160,7 @@ spr = {}
 spr['battle'] = pygame.image.load("spr/battle/hero-lux.png")
 spr['icon'] = pygame.image.load("spr/battle/hero-lux.png")
 
-Hero(attr["name"], attr, equip, spr)
+Hero(attr["name"], attr, res, equip, spr)
 
 ############
 ##MONSTERS##
@@ -180,7 +183,7 @@ spr = {}
 spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
 spr['icon'] = pygame.image.load("spr/battle/mon-slime.png")
 
-Monster(attr["name"], attr, spr)
+Monster(attr["name"], attr, res, spr)
 
 attr = {}
 attr["name"] = "Mold"
@@ -199,4 +202,4 @@ attr["lck"] = 5
 spr = {}
 spr['battle'] = pygame.image.load("spr/battle/mon-mold.png")
 spr['icon'] = pygame.image.load("spr/battle/mon-mold.png")
-Monster(attr["name"], attr, spr)
+Monster(attr["name"], attr, res, spr)

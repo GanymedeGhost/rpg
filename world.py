@@ -81,9 +81,9 @@ class Level(object):
     def add_entity(self, entity):
         try:
             if (self.entities[entity.handle] != entity):
-                print ("ERROR: An entity with handle '" + handle + "' already exists in this level")
+                utility.log("ERROR: An entity with handle '" + handle + "' already exists in this level", g.LogLevel.ERROR)
             else:
-                print ("ERROR: This entity already exists in this level")
+                utility.log("ERROR: This entity already exists in this level", g.LogLevel.ERROR)
         except KeyError:
             self.entities[entity.handle] = entity
 
@@ -171,7 +171,7 @@ class Entity(pygame.sprite.Sprite):
             except KeyError:
                 self.curAnim = lastAnim
                 self.image = self.animations[self.curAnim][self.curFrame]
-                print("ERROR: tried to set a non-existant animation. Reverting to the previous animation")
+                utility.log("ERROR: tried to set a non-existant animation. Reverting to the previous animation", g.LogLevel.ERROR)
 
     def animate(self, dt):
         if (self.animated):
@@ -190,7 +190,7 @@ class Entity(pygame.sprite.Sprite):
         surface.blit(self.image, self.rect)
 
     def interact(self):
-        print ("test")
+        utility.log("test")
 
 class Actor(Entity):
     def __init__(self, handle, level, pos, tileset, animated, animTime = 200):

@@ -7,45 +7,6 @@ import my_globals as g
 import database as db
 import utility
 
-#########
-##ENUMS##
-#########
-
-class BattlerStatus():
-    DEFEND = 0
-    POISON = 1
-    SLEEP = 2
-    SILENCE = 3
-    STUN = 4
-    PARALYZE = 5
-
-class DamageType():
-    PHYS = 0
-    FIRE = 1
-    ICE = 2
-    ELEC = 3
-    WIND = 4
-    LIGHT = 5
-    DARK = 6
-    CURSE = 7
-    NONE = 8
-
-class BattleState():
-    FIGHT = 0
-    WIN = 1
-    LOSE = 2
-    TARGET = 3
-    COMMAND = 4
-    AI = 5
-
-class UIState():
-    DEFAULT = 0
-    TARGET = 1
-    COMMAND = 2
-    SKILL = 3
-    ITEM = 4
-    AI = 5
-
 ###################
 ##CONTROL CLASSES##
 ###################
@@ -55,7 +16,7 @@ class BattleController (object):
         self.CONTROLLER = controller
         self.UI = BattleUI(self)
         random.seed()
-        self.BATTLE_STATE = BattleState.FIGHT
+        self.BATTLE_STATE = g.BattleState.FIGHT
         self.PREV_BATTLE_STATE = self.BATTLE_STATE
         self.battlers = []
         self.battlerCount = 0
@@ -78,7 +39,9 @@ class BattleController (object):
             AGI = hero.attr["agi"]
             LCK = hero.attr["lck"]
             SPR = hero.spr
-            print (NAME + " AGI: " + str(AGI))
+            
+            utility.log(NAME + " AGI: " + str(AGI))
+            
             battler = BattleActor(self, isHero, NAME, SPR, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
 
@@ -99,8 +62,8 @@ class BattleController (object):
             AGI = monster.attr["agi"]
             LCK = monster.attr["lck"]
             SPR = monster.spr
-            print (NAME + " AGI: " + str(AGI))
-
+            
+            utility.log(NAME + " AGI: " + str(AGI))
             
             if NAME in self.monsterCounters:
                 self.monsterCounters[NAME] += 1
@@ -108,7 +71,8 @@ class BattleController (object):
             else:
                 self.monsterCounters[NAME] = 1
             
-            print (self.battlerCount)
+            utility.log(self.battlerCount)
+            
             battler = BattleActor(self, isHero, NAME, SPR, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
         
@@ -122,27 +86,28 @@ class BattleController (object):
     def change_state(self, state):
         self.PREV_BATTLE_STATE = self.BATTLE_STATE
         self.BATTLE_STATE = state
-        print ("BATTLE STATE CHANGED: " + str(self.PREV_BATTLE_STATE) + " >> " + str(self.BATTLE_STATE))
+        
+        utility.log("BATTLE STATE CHANGED: " + str(self.PREV_BATTLE_STATE) + " >> " + str(self.BATTLE_STATE))
 
     def prev_state(self):
         self.BATTLE_STATE = self.PREV_BATTLE_STATE
 
     def update(self):
-        if self.BATTLE_STATE ==  BattleState.AI:
+        if self.BATTLE_STATE ==  g.BattleState.AI:
             self.UI.update()
             if g.AI_TIMER > 0 and self.currentBattler.HP > 0:
                 g.AI_TIMER -= self.CONTROLLER.CLOCK.get_time()
             else:
                 self.currentBattler.take_turn()
-        elif self.BATTLE_STATE == BattleState.COMMAND:
+        elif self.BATTLE_STATE == g.BattleState.COMMAND:
             self.UI_CALLBACK = self.UI.update()
             if self.UI_CALLBACK != None:
                 self.UI_CALLBACK.start(self.currentBattler)
-        elif self.BATTLE_STATE == BattleState.TARGET:
+        elif self.BATTLE_STATE == g.BattleState.TARGET:
             self.UI_CALLBACK = self.UI.update()
             if self.UI_CALLBACK != None:
                 self.queuedAction(self.currentBattler, self.UI_CALLBACK)
-        elif self.BATTLE_STATE == BattleState.FIGHT:
+        elif self.BATTLE_STATE == g.BattleState.FIGHT:
             if self.enemies_alive() and self.heroes_alive():
                 if self.turnQueue:
                     priority, count, battler = heapq.heappop(self.turnQueue)
@@ -152,33 +117,38 @@ class BattleController (object):
                         else:
                             self.currentBattler = battler
                             g.AI_TIMER = g.AI_DELAY
-                            self.change_state(BattleState.AI)
-                            self.UI.change_state(UIState.AI)
+                            self.change_state(g.BattleState.AI)
+                            self.UI.change_state(g.BattleUIState.AI)
                 else:
                     self.next_round()
             else:
                 if self.heroes_alive():
-                    self.change_state(BattleState.WIN)
+                    self.change_state(g.BattleState.WIN)
                 else:
-                    self.change_state(BattleState.LOSE)
+                    self.change_state(g.BattleState.LOSE)
 
     def next_round(self):
         self.rounds += 1
-        print ()
-        print ("***********")
+        
+        utility.log("", g.LogLevel.FEEDBACK)
+        utility.log("***********", g.LogLevel.FEEDBACK)
+        
         self.UI.print_line("ROUND " + str(self.rounds))
-        print ("ROUND " + str(self.rounds))
-        print ("***********")
+        
+        utility.log("ROUND " + str(self.rounds), g.LogLevel.FEEDBACK)
+        utility.log("***********", g.LogLevel.FEEDBACK)
+        
         self.list_heroes()
         self.list_enemies()
         self.get_turn_order()
 
-        print ()
-        print ("TURN ORDER")
+        utility.log("", g.LogLevel.FEEDBACK)
+        utility.log("TURN ORDER", g.LogLevel.FEEDBACK)
+        
         turnQueueCopy = self.turnQueue[:]
         while turnQueueCopy:
             item = heapq.heappop(turnQueueCopy)
-            print (item[2].NAME)
+            utility.log(item[2].NAME)
 
     def first_hero(self):
         for battler in self.battlers:
@@ -211,26 +181,28 @@ class BattleController (object):
         entry[-1] = None            
 
     def list_enemies(self):
-        print("")
-        print("*ENEMIES*")
+        
+        utility.log("", g.LogLevel.FEEDBACK)
+        utility.log("*ENEMIES*", g.LogLevel.FEEDBACK)
+        
         for battler in self.battlers:
             if not battler.isHero:
-                print (battler.NAME)
+                utility.log(battler.NAME)
                 if (battler.HP > 0):
-                    print ("HP: " + str(battler.HP))
+                    utility.log("HP: " + str(battler.HP), g.LogLevel.FEEDBACK)
                 else:
-                    print ("DEAD")
+                    utility.log("DEAD", g.LogLevel.FEEDBACK)
 
     def list_heroes(self):
-        print("")
-        print("*HEROES*")
+        utility.log("", g.LogLevel.FEEDBACK)
+        utility.log("*HEROES*", g.LogLevel.FEEDBACK)
         for battler in self.battlers:
             if battler.isHero:
-                print (battler.NAME)
+                utility.log(battler.NAME)
                 if (battler.HP > 0):
-                    print ("HP: " + str(battler.HP))
+                    utility.log("HP: " + str(battler.HP), g.LogLevel.FEEDBACK)
                 else:
-                    print ("DEAD")
+                    utility.log("DEAD", g.LogLevel.FEEDBACK)
 
     def enemies_alive(self):
         for battler in self.battlers:
@@ -253,7 +225,7 @@ class BattleController (object):
         else:
             self.UI.print_line("Missed!")
             self.UI.create_popup("Miss!", target.pos)
-            print ("Missed!")
+            utility.log("Missed!", g.LogLevel.FEEDBACK)
             return False
 
     def dodge_calc(self, user, target):
@@ -261,35 +233,35 @@ class BattleController (object):
         if roll < target.EVA:
             self.UI.print_line("Dodged!")
             self.UI.create_popup("Dodged!", target.pos)
-            print ("Dodged!")
+            utility.log("Dodged!", g.LogLevel.FEEDBACK)
             return True
         else:
             return False
 
     def crit_calc(self, user, target):
         roll = random.randint(0, 255)
-        #print ("Crit roll : " + str(roll))
+        #utility.log("Crit roll : " + str(roll))
         if roll < user.LCK:
             self.UI.print_line("Crit!")
-            print ("Crit!")
+            utility.log("Crit!", g.LogLevel.FEEDBACK)
             return True
         else:
             return False
 
     def phys_def_calc(self, user, target):
         modValue = 0
-        if (target.mods[BattlerStatus.DEFEND] > 0):
-            print (target.NAME + " has a defense bonus")
+        if (target.mods[g.BattlerStatus.DEFEND] > 0):
+            utility.log(target.NAME + " has a defense bonus", g.LogLevel.FEEDBACK)
             modValue = target.DEF // 2
         defTotal = target.DEF + modValue
-        #print ("DEF: " + str(target.DEF) + " (+" + str(modValue) + ")")
+        #utility.log("DEF: " + str(target.DEF) + " (+" + str(modValue) + ")")
         return defTotal
 
     def phys_dmg_calc(self, user, target):
         dmgMax = user.ATK * 2
         dmgMin = dmgMax - (user.ATK // 2)
         dmg = random.randint(dmgMin, dmgMax)
-        #print ("ATK: " + str(dmg) + " (" + str(dmgMin) + "," + str(dmgMax) + ")")
+        #utility.log("ATK: " + str(dmg) + " (" + str(dmgMin) + "," + str(dmgMax) + ")")
         if (dmg < 0):
             dmg = 0
         return dmg
@@ -301,7 +273,7 @@ class BattleController (object):
 class BattleUI (object):
     def __init__(self, bc):
         self.BC = bc
-        self.UI_STATE = UIState.DEFAULT
+        self.UI_STATE = g.BattleUIState.DEFAULT
         self.PREV_UI_STATE = self.UI_STATE
         self.output = []
         self.cursorPos = (0,0)
@@ -347,7 +319,7 @@ class BattleUI (object):
         self.cursorIndex = self.targetCursor
         self.init_cursor()
 
-        self.change_state(UIState.COMMAND)
+        self.change_state(g.BattleUIState.COMMAND)
 
     def get_target(self, user, validTargets):
         self.currentUser = user
@@ -357,19 +329,19 @@ class BattleUI (object):
         self.cursorIndex = self.targetCursor
         self.init_cursor()
 
-        self.change_state(UIState.TARGET)
+        self.change_state(g.BattleUIState.TARGET)
 
     def process_get_command(self):
         selection = self.process_input(0, len(self.currentUser.commands)-1)
         if (selection > -1):
             self.selectedThing = self.currentUser.commands[selection]
-            self.UI_STATE = UIState.DEFAULT
+            self.UI_STATE = g.BattleUIState.DEFAULT
 
     def process_get_target(self):
         selection = self.process_input(0, len(self.validTargets)-1)
         if (selection > -1):
             self.selectedThing = self.validTargets[selection]
-            self.UI_STATE = UIState.DEFAULT
+            self.UI_STATE = g.BattleUIState.DEFAULT
 
     def render_command_window(self):
         index = 0
@@ -446,11 +418,11 @@ class BattleUI (object):
         self.render_hero_status()
         self.render_battlers()
 
-        if (self.UI_STATE == UIState.TARGET):
+        if (self.UI_STATE == g.BattleUIState.TARGET):
             self.process_get_target()
             self.render_target_window()
             self.render_target_cursor()
-        elif (self.UI_STATE == UIState.COMMAND):
+        elif (self.UI_STATE == g.BattleUIState.COMMAND):
             self.process_get_command()
             self.render_command_window()
             
@@ -480,17 +452,17 @@ class BattleUI (object):
     def change_state(self, state):
         self.PREV_UI_STATE = self.UI_STATE
         self.UI_STATE = state
-        print ("UI STATE CHANGED: " + str(self.PREV_UI_STATE) + " >> " + str(self.UI_STATE))
+        utility.log("UI STATE CHANGED: " + str(self.PREV_UI_STATE) + " >> " + str(self.UI_STATE))
 
     def prev_state(self):
 
-        print (self.UI_STATE)
-        print (self.BC.BATTLE_STATE)
+        utility.log(self.UI_STATE)
+        utility.log(self.BC.BATTLE_STATE)
         self.UI_STATE = self.PREV_UI_STATE
         self.BC.prev_state()
-        print()
-        print (self.UI_STATE)
-        print (self.BC.BATTLE_STATE)
+        utility.log()
+        utility.log(self.UI_STATE)
+        utility.log(self.BC.BATTLE_STATE)
         
 
     def print_line(self, string):
@@ -523,10 +495,10 @@ class BattleUI (object):
         elif self.BC.CONTROLLER.KEYS[g.KEY_CANCEL]:
             if g.CONFIRM_TIMER < 0:
                 g.CURSOR_TIMER = g.CURSOR_DELAY
-                if (self.UI_STATE == UIState.TARGET):
+                if (self.UI_STATE == g.BattleUIState.TARGET):
                     self.cursorIndex = self.commandCursor
-                    self.change_state(UIState.COMMAND)
-                    self.BC.change_state(BattleState.COMMAND)
+                    self.change_state(g.BattleUIState.COMMAND)
+                    self.BC.change_state(g.BattleState.COMMAND)
                     
         return -1
 
@@ -590,12 +562,12 @@ class BattleActor (object):
         self.aggro = 0
         
         self.mods = {}
-        self.mods[BattlerStatus.DEFEND] = 0
-        self.mods[BattlerStatus.SLEEP] = 0
-        self.mods[BattlerStatus.POISON] = 0
-        self.mods[BattlerStatus.SILENCE] = 0
-        self.mods[BattlerStatus.STUN] = 0
-        self.mods[BattlerStatus.PARALYZE] = 0
+        self.mods[g.BattlerStatus.DEFEND] = 0
+        self.mods[g.BattlerStatus.SLEEP] = 0
+        self.mods[g.BattlerStatus.POISON] = 0
+        self.mods[g.BattlerStatus.SILENCE] = 0
+        self.mods[g.BattlerStatus.STUN] = 0
+        self.mods[g.BattlerStatus.PARALYZE] = 0
 
         self.commands = []
         self.commands.append(CmdAttack)
@@ -615,49 +587,49 @@ class BattleActor (object):
         self.aggro = self.aggro // 2
 
     def can_act(self):
-        print ()
+        utility.log()
         if (self.HP == 0):
             return False
-        elif (self.mods[BattlerStatus.SLEEP] > 0):
+        elif (self.mods[g.BattlerStatus.SLEEP] > 0):
             self.BC.UI.print_line(" " + self.NAME + " is asleep.")
             self.BC.UI.create_popup("zzZ", self.pos)
-            print (self.NAME + " is asleep.")
+            utility.log(self.NAME + " is asleep.", g.LogLevel.FEEDBACK)
             return False
-        elif (self.mods[BattlerStatus.STUN] > 0):
+        elif (self.mods[g.BattlerStatus.STUN] > 0):
             self.BC.UI.print_line(" " + self.NAME + " can't move.")
             self.BC.UI.create_popup("Stunned", self.pos)
-            print (self.NAME + " is stunned.")
+            utility.log(self.NAME + " is stunned.", g.LogLevel.FEEDBACK)
             return False
-        elif (self.mods[BattlerStatus.PARALYZE] > 0):
+        elif (self.mods[g.BattlerStatus.PARALYZE] > 0):
             self.BC.UI.print_line(self.NAME + " is paralyzed.")
-            print (self.NAME  + " is paralyzed.")
+            utility.log(self.NAME  + " is paralyzed.", g.LogLevel.FEEDBACK)
             return False
         else:
             self.BC.UI.print_line(" " + self.NAME + "'s turn")
-            print ("It's " + self.NAME + "'s turn.")
+            utility.log("It's " + self.NAME + "'s turn.", g.LogLevel.FEEDBACK)
             return True
 
     def stun(self):
-        if self.mods[BattlerStatus.DEFEND] > 0:
-            self.BC.mods[BattlerStatus.STUN] = 0
-            print (self.NAME + "'s defense was broken!")
+        if self.mods[g.BattlerStatus.DEFEND] > 0:
+            self.BC.mods[g.BattlerStatus.STUN] = 0
+            utility.log(self.NAME + "'s defense was broken!", g.LogLevel.FEEDBACK)
         else:
             self.BC.UI.print_line(self.NAME + " is stunned!")
-            print (self.NAME + " is stunned!")
-            self.mods[BattlerStatus.STUN] += 1
+            utility.log(self.NAME + " is stunned!", g.LogLevel.FEEDBACK)
+            self.mods[g.BattlerStatus.STUN] += 1
 
     def before_turn(self):
         self.BC.currentBattler = self
-        self.mods[BattlerStatus.DEFEND] -= 1
-        self.mods[BattlerStatus.SLEEP] -= 1
-        self.mods[BattlerStatus.PARALYZE] -= 1
+        self.mods[g.BattlerStatus.DEFEND] -= 1
+        self.mods[g.BattlerStatus.SLEEP] -= 1
+        self.mods[g.BattlerStatus.PARALYZE] -= 1
         for mod in self.mods:
             if (self.mods[mod] < 0):
                 self.mods[mod] = 0
 
     def after_turn(self):
-        self.mods[BattlerStatus.STUN] = 0
-        self.BC.change_state(BattleState.FIGHT)
+        self.mods[g.BattlerStatus.STUN] = 0
+        self.BC.change_state(g.BattleState.FIGHT)
 
     #needs to be implemented per object
     def take_turn(self):
@@ -665,27 +637,27 @@ class BattleActor (object):
         
         if (self.can_act()):
             if (not self.isAI):
-                self.BC.change_state(BattleState.COMMAND)
+                self.BC.change_state(g.BattleState.COMMAND)
                 self.BC.UI.get_command(self)
             else:
                 self.commands[0].start(self)
         else:
             self.after_turn()
 
-    def take_damage(self, damage, damageType = DamageType.NONE):
+    def take_damage(self, damage, damageType = g.DamageType.NONE):
         #TODO: implement damage types and resistances
         damage -= math.floor(damage * self.RES[damageType])
         self.HP -= damage
         self.aggro_down()
         self.BC.UI.print_line(self.NAME + " takes " + str(damage) + " damage!")
-        print (self.NAME + " takes " + str(damage) + " damage!")
+        utility.log(self.NAME + " takes " + str(damage) + " damage!")
         self.BC.UI.create_popup(str(damage), self.pos)
         
         if (self.HP < 0):
             self.HP = 0
         if (self.HP == 0):
             self.BC.UI.print_line(self.NAME + " died!")
-            print (self.NAME + " died!")
+            utility.log(self.NAME + " died!")
             
 ###################
 ##COMMAND CLASSES##
@@ -718,7 +690,7 @@ class CmdAttack():
                     validTargets.append(target)
             index += 1
 
-        user.BC.change_state(BattleState.TARGET)
+        user.BC.change_state(g.BattleState.TARGET)
         user.BC.UI.get_target(user, validTargets)
         user.BC.queuedAction = CmdAttack.execute
 
@@ -744,7 +716,7 @@ class CmdAttack():
     def execute(user, target):
         #for target in targets:
         user.BC.UI.print_line(user.NAME + " attacks " + target.NAME)
-        print(user.NAME + " attacks " + target.NAME)
+        utility.log(user.NAME + " attacks " + target.NAME)
         if user.BC.hit_calc(user, target):
             if not user.BC.dodge_calc(user, target):
                 dmg = user.BC.phys_dmg_calc(user, target)
@@ -755,7 +727,7 @@ class CmdAttack():
                 if (dmg < 0):
                     dmg = 0
                 user.aggro_up()
-                target.take_damage(dmg, DamageType.PHYS)
+                target.take_damage(dmg, g.DamageType.PHYS)
 
         user.after_turn()
 
@@ -769,7 +741,7 @@ class CmdDefend():
 
     def execute(user, target):
         user.BC.UI.print_line(user.NAME + " is defending.")
-        print (user.NAME + " is defending.")
-        user.mods[BattlerStatus.DEFEND] += 1
+        utility.log(user.NAME + " is defending.", g.LogLevel.FEEDBACK)
+        user.mods[g.BattlerStatus.DEFEND] += 1
 
         user.after_turn()
