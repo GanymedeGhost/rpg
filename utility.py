@@ -66,8 +66,13 @@ class TextManager:
         self.waitForConfirm = False
         self.confirmReleased = False
         self.boxDrawn = False
+
+        self.startX = 5
+        self.startY = 118
+        self.maxX = 150
+        self.maxY = 140
         
-        self.FONT = pygame.font.Font('font/pixel8.ttf', 8)
+        self.curFont = g.FONT_MED
         self.SURF = UI_SURF
         
 
@@ -83,9 +88,9 @@ class TextManager:
                 lines.append(curLine)
                 curLine = ""
                 curWidth = 0
-            if curWidth < 120:
+            if curWidth + self.curFont.size(words[wordIndex])[0] < self.maxX:
+                curWidth += self.curFont.size(words[wordIndex] + " ")[0]
                 curLine += words[wordIndex] + " "
-                curWidth = self.FONT.size(curLine)[0]
                 wordIndex += 1
             else:
                 lines.append(curLine)
@@ -94,8 +99,10 @@ class TextManager:
         lines.append(curLine)
         return lines
 
-    def create_text_box(self, string):
+    def create_text_box(self, string, font = g.FONT_MED):
         self.SURF.blit(self.boxImage, (0, 111))
+        self.curFont = font
+        self.curHeight = 0
         self.lines = self.parse_string(string)
         self.isTyping = True
         self.boxIndex = 0
@@ -103,10 +110,10 @@ class TextManager:
         self.charIndex = 0
         self.confirmReleased = False
         self.boxDrawn = False
-        self.startX = 7
         self.nextX = self.startX
+        self.nextY = self.startY
 
-    def type_text(self, keys):
+    def type_text(self, keys, font = g.FONT_MED):
         if not self.boxDrawn:
             self.SURF.blit(self.boxImage, (0, 111))
             self.boxDrawn = True
@@ -114,16 +121,17 @@ class TextManager:
             self.frameCounter += self.frameSkip
         if (self.frameCounter > self.frameDelay):
             self.frameCounter = 0
-            if (self.lineIndex >= 0 and self.lineIndex < (self.boxIndex+1)*2 and self.lineIndex < len(self.lines)):
+            if (self.lineIndex >= 0 and (self.nextY + self.curFont.size("X")[1]) < self.maxY and self.lineIndex < len(self.lines)):
                 if (self.charIndex < len(self.lines[self.lineIndex])):
-                    textObj = self.FONT.render(self.lines[self.lineIndex][self.charIndex], False, g.BLACK)
+                    textObj = self.curFont.render(self.lines[self.lineIndex][self.charIndex], False, g.BLACK)
                     textRect = textObj.get_rect()
-                    textRect.topleft = (self.nextX, 118 + 10 * self.lineIndex - self.boxIndex * 20)
-                    self.nextX += self.FONT.size(self.lines[self.lineIndex][self.charIndex])[0]
+                    textRect.topleft = (self.nextX, self.nextY)
+                    self.nextX += self.curFont.size(self.lines[self.lineIndex][self.charIndex])[0]
                     self.SURF.blit(textObj, textRect)
                     self.charIndex += 1
                 else:
                     self.nextX = self.startX
+                    self.nextY += self.curFont.size("X")[1]
                     self.charIndex = 0
                     self.lineIndex += 1
             elif (keys[g.KEY_CONFIRM]):
@@ -133,6 +141,7 @@ class TextManager:
                     else:
                         self.SURF.blit(self.boxImage, (0, 111))
                         self.boxIndex += 1
+                        self.nextY = self.startY
                     self.confirmReleased = False
             else:
                 self.confirmReleased = True
@@ -147,8 +156,26 @@ class TextManager:
         self.boxDrawn = False
         
     
-    def draw_text (self, string, pos=(0,0), color = g.BLACK):
-        textObj = self.FONT.render(string, False, color)
+    def draw_text (self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
+        textObj = font.render(string, False, color)
         textRect = textObj.get_rect()
         textRect.topleft = pos
         self.SURF.blit(textObj, textRect)
+
+    def draw_text_shaded(self, string, pos, color1 = g.WHITE, color2 = g.BLACK, font = g.FONT_MED):
+        textObj4 = font.render(string, False, color2)
+        textRect4 = textObj4.get_rect()
+        textRect4.topleft = add_tuple(pos, (1,0))
+        self.SURF.blit(textObj4, textRect4)
+        textObj3 = font.render(string, False, color2)
+        textRect3 = textObj3.get_rect()
+        textRect3.topleft = add_tuple(pos, (1,1))
+        self.SURF.blit(textObj3, textRect3)
+        textObj2 = font.render(string, False, color2)
+        textRect2 = textObj2.get_rect()
+        textRect2.topleft = add_tuple(pos, (0,1))
+        self.SURF.blit(textObj2, textRect2)
+        textObj1 = font.render(string, False, color1)
+        textRect1 = textObj1.get_rect()
+        textRect1.topleft = pos
+        self.SURF.blit(textObj1, textRect1)

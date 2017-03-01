@@ -342,7 +342,7 @@ class Actor001 (Actor):
             self.talk02 = True
             string = "Oh, it's you again."
         else:
-            string = "..."
+            string = "This is the beginning of some really long diaglogue. Great dialogue! But, like, really long dialogue. You know? Isn't dialogue great? Isn't this dialogue great? I think this dialogue is excellent. Really exccellent. 1 2 3 4 5 6 7 8 9 0 20 300 4000 50000 600000 7000000 80000000 900000000 10000000000"
             
         self.level.TEXT_MANAGER.create_text_box(string)
 
@@ -350,8 +350,8 @@ class Actor002 (Actor):
     
     def interact(self):
         self.face_player()
-        self.level.CONTROLLER.start_battle(["Slime", "Slime", "Bear"])
+        self.level.CONTROLLER.start_battle(["Slime", "Slime", "Mold"])
 
-ENTITY_DIC = {}
+zENTITY_DIC = {}
 ENTITY_DIC["actor001"] = Actor001
 ENTITY_DIC["actor002"] = Actor002

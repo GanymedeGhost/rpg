@@ -89,7 +89,6 @@ class Control(object):
             self.display_fps()
 
 def main():
-    pygame.init()
     Control().main_loop()
     pygame.quit()
 
