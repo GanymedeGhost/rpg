@@ -48,16 +48,20 @@ FONT_LRG_BOLD = pygame.font.Font('font/pixelb.ttf', 16)
 ### ENUMS
 
 class LogLevel():
-    SYSTEM = -1
-    DEBUG = 0
-    ERROR = 1
-    FEEDBACK = 2
+    SYSTEM = 0
+    DEBUG = 1
+    ERROR = 2
+    FEEDBACK = 3
+
+    SIZE = 3
 
 class GameState():
     INIT = 0
     MAP = 1
     MENU = 2
     BATTLE = 3
+
+    SIZE = 3
 
 class BattlerStatus():
     DEFEND = 0
@@ -67,16 +71,20 @@ class BattlerStatus():
     STUN = 4
     PARALYZE = 5
 
+    SIZE = 5
+
 class DamageType():
-    PHYS = 0
-    FIRE = 1
-    ICE = 2
-    ELEC = 3
-    WIND = 4
-    LIGHT = 5
-    DARK = 6
-    CURSE = 7
-    NONE = 8
+    NONE = 0
+    PHYS = 1
+    FIRE = 2
+    ICE = 3
+    ELEC = 4
+    WIND = 5
+    LIGHT = 6
+    DARK = 7
+    CURSE = 8
+
+    SIZE = 8
 
 class BattleState():
     FIGHT = 0
@@ -86,6 +94,8 @@ class BattleState():
     COMMAND = 4
     AI = 5
 
+    SIZE = 5
+
 class BattleUIState():
     DEFAULT = 0
     TARGET = 1
@@ -93,6 +103,8 @@ class BattleUIState():
     SKILL = 3
     ITEM = 4
     AI = 5
+
+    SIZE = 5
 
 #####################
 ### END CONSTANTS ###
@@ -115,7 +127,7 @@ LOG_FILTER = {}
 LOG_FILTER[LogLevel.SYSTEM] = True
 LOG_FILTER[LogLevel.DEBUG] = True
 LOG_FILTER[LogLevel.ERROR] = True
-LOG_FILTER[LogLevel.FEEDBACK] = True
+LOG_FILTER[LogLevel.FEEDBACK] = False
 
 PARTY_LIST = []
 MONSTER_LIST = []

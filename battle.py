@@ -39,10 +39,11 @@ class BattleController (object):
             AGI = hero.attr["agi"]
             LCK = hero.attr["lck"]
             SPR = hero.spr
+            res = hero.res
             
             utility.log(NAME + " AGI: " + str(AGI))
             
-            battler = BattleActor(self, isHero, NAME, SPR, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
+            battler = BattleActor(self, isHero, NAME, SPR, res, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
 
         #enemies
@@ -62,6 +63,7 @@ class BattleController (object):
             AGI = monster.attr["agi"]
             LCK = monster.attr["lck"]
             SPR = monster.spr
+            res = monster.res
             
             utility.log(NAME + " AGI: " + str(AGI))
             
@@ -73,7 +75,7 @@ class BattleController (object):
             
             utility.log(self.battlerCount)
             
-            battler = BattleActor(self, isHero, NAME, SPR, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
+            battler = BattleActor(self, isHero, NAME, SPR, res, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
         
         self.rounds = 0
@@ -364,8 +366,8 @@ class BattleUI (object):
         for hero in self.BC.battlers:
             if (hero.isHero):
                 self.BC.CONTROLLER.TEXT_MANAGER.draw_text(hero.NAME, self.heroStatusAnchors[index], g.WHITE)
-                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(str(hero.HP) + "/" + str(hero.MAXHP), utility.add_tuple(self.heroStatusAnchors[index], (1, 10)), g.WHITE, g.FONT_SML)
-                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(str(hero.SP) + "/" + str(hero.MAXSP), utility.add_tuple(self.heroStatusAnchors[index], (30, 10)), g.WHITE, g.FONT_SML)
+                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(str(hero.HP) + "/" + str(hero.MAXHP), utility.add_tuple(self.heroStatusAnchors[index], (1, 10)), g.RED, g.FONT_SML)
+                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(str(hero.SP) + "/" + str(hero.MAXSP), utility.add_tuple(self.heroStatusAnchors[index], (30, 10)), g.BLUE, g.FONT_SML)
                 #self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP:" + str(hero.SP), utility.add_tuple(self.heroStatusAnchors[index], utility.scale_tuple(vOffset, (1,2))))
                 index += 1
 
@@ -502,13 +504,14 @@ class BattleUI (object):
                     
         return -1
 
-    def create_popup(self, string, pos, life = g.BATTLE_POPUP_LIFE):
-        self.popupList.append(BattleUIPopup(self, string, pos, life))
+    def create_popup(self, string, pos, col = g.WHITE, life = g.BATTLE_POPUP_LIFE):
+        self.popupList.append(BattleUIPopup(self, string, pos, col, life))
     
 class BattleUIPopup (object):
-    def __init__(self, ui, string, pos, life):
+    def __init__(self, ui, string, pos, col, life):
         self.ui = ui
         self.string = string
+        self.col = col
         self.life = life
         self.x = pos[0]
         self.y = pos[1]
@@ -516,7 +519,7 @@ class BattleUIPopup (object):
     def update(self):
         self.y -= 0.25
         self.life -= self.ui.BC.CONTROLLER.CLOCK.get_time()
-        self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text_shaded(self.string, (self.x, math.floor(self.y)))
+        self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text_shaded(self.string, (self.x, math.floor(self.y)), self.col)
 
 #################
 ##ACTOR CLASSES##
@@ -524,7 +527,7 @@ class BattleUIPopup (object):
 
 class BattleActor (object):
     
-    def __init__(self, BC, isHero, NAME, spr, LV = 1, HP=10, MAXHP = 10, SP = 10, MAXSP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5, RES = {}):
+    def __init__(self, BC, isHero, NAME, spr, res, LV = 1, HP=10, MAXHP = 10, SP = 10, MAXSP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5, RES = {}):
         self.BC = BC
         self.isHero = isHero
         self.NAME = NAME
@@ -542,19 +545,12 @@ class BattleActor (object):
         self.HIT = HIT
         self.EVA = EVA
 
+        self.res = res
         self.spr = spr
 
-        
         self.battlerIndex = self.BC.battlerCount
         self.pos = self.BC.UI.battlerAnchors[self.battlerIndex]
         self.BC.battlerCount += 1
-
-        if not RES:
-            self.RES = {}
-            for i in range(0, 8):
-                self.RES[i] = 0
-        else:
-            self.RES = RES
 
         #TODO: Add damage resistances
 
@@ -646,15 +642,22 @@ class BattleActor (object):
 
     def take_damage(self, damage, damageType = g.DamageType.NONE):
         #TODO: implement damage types and resistances
-        damage -= math.floor(damage * self.RES[damageType])
+        damage -= math.floor(damage * self.res[damageType])
+        if damage >= 0:
+            col = g.WHITE
+        else:
+            col = g.GREEN
+            
         self.HP -= damage
         self.aggro_down()
         self.BC.UI.print_line(self.NAME + " takes " + str(damage) + " damage!")
         utility.log(self.NAME + " takes " + str(damage) + " damage!")
-        self.BC.UI.create_popup(str(damage), self.pos)
+        self.BC.UI.create_popup(str(abs(damage)), self.pos, col)
         
         if (self.HP < 0):
             self.HP = 0
+        if (self.HP > self.MAXHP):
+            self.HP = self.MAXHP
         if (self.HP == 0):
             self.BC.UI.print_line(self.NAME + " died!")
             utility.log(self.NAME + " died!")
