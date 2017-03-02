@@ -15,9 +15,12 @@ class BattleController (object):
     def __init__(self, controller):
         self.CONTROLLER = controller
         self.UI = BattleUI(self)
+        
         random.seed()
+        
         self.BATTLE_STATE = g.BattleState.FIGHT
         self.PREV_BATTLE_STATE = self.BATTLE_STATE
+        
         self.battlers = []
         self.battlerCount = 0
         
@@ -41,8 +44,6 @@ class BattleController (object):
             SPR = hero.spr
             res = hero.res
             
-            utility.log(NAME + " AGI: " + str(AGI))
-            
             battler = BattleActor(self, isHero, NAME, SPR, res, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
 
@@ -65,22 +66,18 @@ class BattleController (object):
             SPR = monster.spr
             res = monster.res
             
-            utility.log(NAME + " AGI: " + str(AGI))
-            
             if NAME in self.monsterCounters:
                 self.monsterCounters[NAME] += 1
-                NAME += str(self.monsterCounters[NAME])
+                #NAME += str(self.monsterCounters[NAME])
             else:
                 self.monsterCounters[NAME] = 1
-            
-            utility.log(self.battlerCount)
             
             battler = BattleActor(self, isHero, NAME, SPR, res, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
         
         self.rounds = 0
-        self.turnQueue = []
-        self.turnFinder = {}
+        self.turnOrder = []
+        
         self.currentBattler = None
         self.queuedAction = None
         self.UI_CALLBACK = None
@@ -111,8 +108,8 @@ class BattleController (object):
                 self.queuedAction(self.currentBattler, self.UI_CALLBACK)
         elif self.BATTLE_STATE == g.BattleState.FIGHT:
             if self.enemies_alive() and self.heroes_alive():
-                if self.turnQueue:
-                    priority, count, battler = heapq.heappop(self.turnQueue)
+                if self.turnOrder:
+                    battler = self.next_turn()
                     if battler != None:
                         if (battler.isHero):
                             battler.take_turn()
@@ -129,6 +126,13 @@ class BattleController (object):
                 else:
                     self.change_state(g.BattleState.LOSE)
 
+    def next_turn(self):
+        nextBattler = self.turnOrder[0]
+        del self.turnOrder[0]
+        for battler in self.battlers:
+            battler.turnOrder -= 1
+        return nextBattler
+
     def next_round(self):
         self.rounds += 1
         
@@ -142,15 +146,10 @@ class BattleController (object):
         
         self.list_heroes()
         self.list_enemies()
-        self.get_turn_order()
+        self.get_new_turn_order()
 
         utility.log("", g.LogLevel.FEEDBACK)
         utility.log("TURN ORDER", g.LogLevel.FEEDBACK)
-        
-        turnQueueCopy = self.turnQueue[:]
-        while turnQueueCopy:
-            item = heapq.heappop(turnQueueCopy)
-            utility.log(item[2].NAME)
 
     def first_hero(self):
         for battler in self.battlers:
@@ -166,17 +165,21 @@ class BattleController (object):
                     return battler
         return None
 
-    def get_turn_order(self):
-        self.turnQueue = []
-        self.turnFinder = {}
-        heapq.heapify(self.turnQueue)
+    def get_new_turn_order(self):
+        turnQueue = []
+        heapq.heapify(turnQueue)
         counter = 0
         for battler in self.battlers:
             if (battler.HP > 0):
                 counter += 1
                 entry = [-battler.AGI, counter, battler]
-                self.turnFinder[battler] = entry
-                heapq.heappush(self.turnQueue, entry)
+                heapq.heappush(turnQueue, entry)
+        self.turnOrder = [heapq.heappop(turnQueue)[2] for i in range(len(turnQueue))]
+        index = 0
+        for battler in self.turnOrder:
+            battler.turnOrder = index
+            index += 1
+        utility.log(self.turnOrder)
     
     def remove_turn(self, battler):
         entry = self.turnFinder.pop(battler)
@@ -226,7 +229,7 @@ class BattleController (object):
             return True
         else:
             self.UI.print_line("Missed!")
-            self.UI.create_popup("Miss!", target.pos)
+            self.UI.create_popup("MISS", target.pos)
             utility.log("Missed!", g.LogLevel.FEEDBACK)
             return False
 
@@ -234,7 +237,7 @@ class BattleController (object):
         roll = random.randint(0, 100)
         if roll < target.EVA:
             self.UI.print_line("Dodged!")
-            self.UI.create_popup("Dodged!", target.pos)
+            self.UI.create_popup("DODGE", target.pos)
             utility.log("Dodged!", g.LogLevel.FEEDBACK)
             return True
         else:
@@ -244,7 +247,7 @@ class BattleController (object):
         roll = random.randint(0, 255)
         #utility.log("Crit roll : " + str(roll))
         if roll < user.LCK:
-            self.UI.print_line("Crit!")
+            self.UI.print_line("CRIT")
             utility.log("Crit!", g.LogLevel.FEEDBACK)
             return True
         else:
@@ -300,6 +303,10 @@ class BattleUI (object):
 
         self.currentTurnCursor = pygame.image.load("spr/battle/cursor-turn.png")
         self.currentTargetCursor = pygame.image.load("spr/battle/cursor-target.png")
+        self.currentTargetTurnCursor = pygame.image.load("spr/battle/cursor-target2.png")
+
+        self.iconDead = pygame.image.load("spr/battle/icon-cross.png")
+        self.iconSkip = pygame.image.load("spr/battle/icon-next.png")
 
         self.turnImage = pygame.image.load("spr/battle/turn.png")
         self.heroTurnImage = pygame.image.load("spr/battle/turn-hero.png")
@@ -375,8 +382,10 @@ class BattleUI (object):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.battlerAnchors[self.BC.currentBattler.battlerIndex], (4, -8)))
 
     def render_target_cursor(self):
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[self.validTargets[self.cursorIndex].battlerIndex], (4, -8)))
-
+        battler = self.validTargets[self.cursorIndex]
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[battler.battlerIndex], (4, -8)))
+        if battler.turnOrder >= 0:
+            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2, 0)))
 
     def render_battlers(self):
         index = 0
@@ -387,21 +396,22 @@ class BattleUI (object):
 
     def render_turns(self):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.turnImage, self.turnBannerAnchor)
-        turnQueueCopy = self.BC.turnQueue[:]
-        index = 0 
-        while turnQueueCopy:
-            battler = heapq.heappop(turnQueueCopy)
-            if (battler[2].isHero):
+        for battler in self.BC.turnOrder:
+            if (battler.isHero):
                 img = self.heroTurnImage
             else:
                 img = self.monTurnImage
-            self.BC.CONTROLLER.VIEW_SURF.blit(img, self.turnAnchors[index])
-            self.BC.CONTROLLER.VIEW_SURF.blit(battler[2].spr['icon'], utility.add_tuple(self.turnAnchors[index], (3,0)))
-            
-            label = battler[2].NAME[0:5]
-            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(label, utility.add_tuple(self.turnAnchors[index], (2,18)), g.WHITE, g.FONT_SML)
-            index += 1
-            
+                
+            anchorIndex = battler.turnOrder
+            self.BC.CONTROLLER.VIEW_SURF.blit(img, self.turnAnchors[anchorIndex])
+            self.BC.CONTROLLER.VIEW_SURF.blit(battler.spr['icon'], utility.add_tuple(self.turnAnchors[anchorIndex], (3,0)))
+            label = battler.NAME[0:5]
+            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(label, utility.add_tuple(self.turnAnchors[anchorIndex], (2,17)), g.WHITE, g.FONT_SML)
+
+            if (battler.HP <= 0):
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDead, utility.add_tuple(self.turnAnchors[anchorIndex], (11,0)))
+            elif (battler.mods[g.BattlerStatus.STUN]) > 0:
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconSkip, utility.add_tuple(self.turnAnchors[anchorIndex], (11,0)))
 
     def render_output(self, maxLines = 6):
         lineCount = 0
@@ -419,6 +429,8 @@ class BattleUI (object):
         self.BC.CONTROLLER.VIEW_SURF.fill(g.GREEN_BLUE)
         self.render_hero_status()
         self.render_battlers()
+        self.render_turn_cursor()
+        self.render_turns()
 
         if (self.UI_STATE == g.BattleUIState.TARGET):
             self.process_get_target()
@@ -427,10 +439,6 @@ class BattleUI (object):
         elif (self.UI_STATE == g.BattleUIState.COMMAND):
             self.process_get_command()
             self.render_command_window()
-            
-        self.render_turn_cursor()
-        #self.render_output()
-        self.render_turns()
 
         index = 0
         for popup in self.popupList:
@@ -513,11 +521,17 @@ class BattleUIPopup (object):
         self.string = string
         self.col = col
         self.life = life
+        self.halfLife = life // 2
+        self.halfTrigger = False
+        self.speed = .6
         self.x = pos[0]
         self.y = pos[1]
 
     def update(self):
-        self.y -= 0.25
+        if self.life < self.halfLife and not self.halfTrigger:
+            self.halfTrigger = True
+            self.speed *= -1
+        self.y -= self.speed
         self.life -= self.ui.BC.CONTROLLER.CLOCK.get_time()
         self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text_shaded(self.string, (self.x, math.floor(self.y)), self.col)
 
@@ -545,6 +559,8 @@ class BattleActor (object):
         self.HIT = HIT
         self.EVA = EVA
 
+        self.currentTurnPos = 0
+
         self.res = res
         self.spr = spr
 
@@ -555,7 +571,7 @@ class BattleActor (object):
         #TODO: Add damage resistances
 
         self.isAI = (not self.isHero)
-        self.aggro = 0
+        self.aggro = random.randint(0, math.floor(self.HP // 10))
         
         self.mods = {}
         self.mods[g.BattlerStatus.DEFEND] = 0
@@ -605,14 +621,18 @@ class BattleActor (object):
             utility.log("It's " + self.NAME + "'s turn.", g.LogLevel.FEEDBACK)
             return True
 
-    def stun(self):
+    def stun(self, rating = 100):
         if self.mods[g.BattlerStatus.DEFEND] > 0:
-            self.BC.mods[g.BattlerStatus.STUN] = 0
+            self.mods[g.BattlerStatus.STUN] = 0
             utility.log(self.NAME + "'s defense was broken!", g.LogLevel.FEEDBACK)
         else:
-            self.BC.UI.print_line(self.NAME + " is stunned!")
-            utility.log(self.NAME + " is stunned!", g.LogLevel.FEEDBACK)
-            self.mods[g.BattlerStatus.STUN] += 1
+            roll = random.randint(0, 100)
+            if (roll > rating * 100):
+                self.BC.UI.create_popup("STUN", self.pos)
+                utility.log(self.NAME + " is stunned!", g.LogLevel.FEEDBACK)
+                self.mods[g.BattlerStatus.STUN] += 1
+            else:
+                self.BC.UI.create_popup("RES", self.pos)
 
     def before_turn(self):
         self.BC.currentBattler = self

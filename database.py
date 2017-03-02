@@ -26,11 +26,11 @@ class Hero (object):
 		self.attr["sp"] = self.baseMaxSP
 
 		self.res = res
-		utility.log("Pre Res: " + str(self.res))
 		if not self.res:
 			for dmgType in range(0, g.DamageType.SIZE):
 				self.res[dmgType] = 0
-		utility.log("Post Res: " + str(self.res))
+			for status in range(0, g.BattlerStatus.SIZE):
+				self.res[status] = 0
 			
 		self.attrMods = {}
 		
@@ -99,11 +99,11 @@ class Monster (object):
 			self.attr["lck"] = 3
 
 		self.res = res
-		utility.log("Pre Res: " + str(self.res))
 		if not self.res:
 			for dmgType in range(0, g.DamageType.SIZE):
 				self.res[dmgType] = 0
-		utility.log("Post Res: " + str(self.res))
+			for status in range(0, g.BattlerStatus.SIZE):
+				self.res[status] = 0
 		
 		self.spr = spr
 		if not self.spr:
@@ -114,115 +114,115 @@ class Monster (object):
 		Monster.dic[index] = self
 
 def create_data():
-        ##########
-        ##HEROES##
-        ##########
-        equip = {}
-        equip["wpn"] = None
-        equip["arm"] = None
-        equip["acc"] = None
+	##########
+	##HEROES##
+	##########
+	equip = {}
+	equip["wpn"] = None
+	equip["arm"] = None
+	equip["acc"] = None
 
-        attr = {}
-        attr["name"] = "Asa"
-        attr["lvl"] = 1
-        attr["exp"] = 0
-        attr["str"] = 6
-        attr["end"] = 5
-        attr["wis"] = 6
-        attr["spr"] = 4
-        attr["agi"] = 7
-        attr["lck"] = 4
+	attr = {}
+	attr["name"] = "Asa"
+	attr["lvl"] = 1
+	attr["exp"] = 0
+	attr["str"] = 6
+	attr["end"] = 5
+	attr["wis"] = 6
+	attr["spr"] = 4
+	attr["agi"] = 7
+	attr["lck"] = 4
 
-        res = {}
+	res = {}
 
-        spr = {}
-        spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
-        spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
+	spr = {}
+	spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
+	spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
 
-        Hero(attr["name"], attr, res, equip, spr)
+	Hero(attr["name"], attr, res, equip, spr)
 
-        attr = {}
-        attr["name"] = "Elle"
-        attr["lvl"] = 1
-        attr["exp"] = 0
-        attr["str"] = 3
-        attr["end"] = 3
-        attr["wis"] = 7
-        attr["spr"] = 7
-        attr["agi"] = 6
-        attr["lck"] = 4
+	attr = {}
+	attr["name"] = "Elle"
+	attr["lvl"] = 1
+	attr["exp"] = 0
+	attr["str"] = 3
+	attr["end"] = 3
+	attr["wis"] = 7
+	attr["spr"] = 7
+	attr["agi"] = 6
+	attr["lck"] = 4
 
-        res = {}
+	res = {}
 
-        spr = {}
-        spr['battle'] = pygame.image.load("spr/battle/hero-elle.png")
-        spr['icon'] = pygame.image.load("spr/battle/hero-elle.png")
+	spr = {}
+	spr['battle'] = pygame.image.load("spr/battle/hero-elle.png")
+	spr['icon'] = pygame.image.load("spr/battle/hero-elle.png")
 
-        Hero(attr["name"], attr, res, equip, spr)
+	Hero(attr["name"], attr, res, equip, spr)
 
-        attr = {}
-        attr["name"] = "Lux"
-        attr["lvl"] = 1
-        attr["exp"] = 0
-        attr["str"] = 7
-        attr["end"] = 6
-        attr["wis"] = 4
-        attr["spr"] = 5
-        attr["agi"] = 3
-        attr["lck"] = 5
+	attr = {}
+	attr["name"] = "Lux"
+	attr["lvl"] = 1
+	attr["exp"] = 0
+	attr["str"] = 7
+	attr["end"] = 6
+	attr["wis"] = 4
+	attr["spr"] = 5
+	attr["agi"] = 3
+	attr["lck"] = 5
 
-        res = {}
+	res = {}
 
-        spr = {}
-        spr['battle'] = pygame.image.load("spr/battle/hero-lux.png")
-        spr['icon'] = pygame.image.load("spr/battle/hero-lux.png")
+	spr = {}
+	spr['battle'] = pygame.image.load("spr/battle/hero-lux.png")
+	spr['icon'] = pygame.image.load("spr/battle/hero-lux.png")
 
-        Hero(attr["name"], attr, res, equip, spr)
+	Hero(attr["name"], attr, res, equip, spr)
 
-        ############
-        ##MONSTERS##
-        ############
-        attr = {}
-        attr["name"] = "Slime"
-        attr["lvl"] = 1
-        attr["hp"] = 6
-        attr["sp"] = 3
-        attr["atk"] = 5
-        attr["def"] = 5
-        attr["matk"] = 5
-        attr["mdef"] = 5
-        attr["hit"] = 95
-        attr["eva"] = 3
-        attr["agi"] = 5
-        attr["lck"] = 3
+	############
+	##MONSTERS##
+	############
+	attr = {}
+	attr["name"] = "Slime"
+	attr["lvl"] = 1
+	attr["hp"] = 6
+	attr["sp"] = 3
+	attr["atk"] = 5
+	attr["def"] = 5
+	attr["matk"] = 5
+	attr["mdef"] = 5
+	attr["hit"] = 95
+	attr["eva"] = 3
+	attr["agi"] = 5
+	attr["lck"] = 3
 
-        res = {}
+	res = {}
 
-        spr = {}
-        spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
-        spr['icon'] = pygame.image.load("spr/battle/mon-slime.png")
+	spr = {}
+	spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
+	spr['icon'] = pygame.image.load("spr/battle/mon-slime.png")
 
-        Monster(attr["name"], attr, res, spr)
+	Monster(attr["name"], attr, res, spr)
 
-        attr = {}
-        attr["name"] = "Mold"
-        attr["lvl"] = 2
-        attr["hp"] = 12
-        attr["sp"] = 5
-        attr["atk"] = 6
-        attr["def"] = 6
-        attr["matk"] = 2
-        attr["mdef"] = 2
-        attr["hit"] = 95
-        attr["eva"] = 5
-        attr["agi"] = 7
-        attr["lck"] = 5
+	attr = {}
+	attr["name"] = "Mold"
+	attr["lvl"] = 2
+	attr["hp"] = 12
+	attr["sp"] = 5
+	attr["atk"] = 6
+	attr["def"] = 6
+	attr["matk"] = 2
+	attr["mdef"] = 2
+	attr["hit"] = 95
+	attr["eva"] = 5
+	attr["agi"] = 7
+	attr["lck"] = 5
 
-        res = {}
+	res = {}
 
-        spr = {}
-        spr['battle'] = pygame.image.load("spr/battle/mon-mold.png")
-        spr['icon'] = pygame.image.load("spr/battle/mon-mold.png")
-        Monster(attr["name"], attr, res, spr)
+	spr = {}
+	spr['battle'] = pygame.image.load("spr/battle/mon-mold.png")
+	spr['icon'] = pygame.image.load("spr/battle/mon-mold.png")
+	Monster(attr["name"], attr, res, spr)
 
 create_data()
