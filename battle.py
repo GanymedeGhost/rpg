@@ -34,9 +34,11 @@ class BattleController (object):
                 self.initiative = g.Initiative.NONE
             elif (roll < 75):
                 utility.log ("Initiative PARTY")
+                self.UI.create_message("First strike!")
                 self.initiative = g.Initiative.PARTY
             else:
                 utility.log ("Initiative ENEMY")
+                self.UI.create_message("Ambush!")
                 self.initiative = g.Initiative.ENEMY
         
         #heroes
@@ -155,6 +157,7 @@ class BattleController (object):
         return nextBattler
 
     def next_round(self):
+        
         self.rounds += 1
         
         utility.log("", g.LogLevel.FEEDBACK)
@@ -206,7 +209,9 @@ class BattleController (object):
                         battler.turnOrder = -99
                 else:
                     heapq.heappush(turnQueue, entry)
+                    
         self.turnOrder = [heapq.heappop(turnQueue)[2] for i in range(len(turnQueue))]
+        
         index = 0
         for battler in self.turnOrder:
             battler.turnOrder = index
@@ -338,7 +343,7 @@ class BattleUI (object):
         self.cursorPos = (0,0)
         self.cursorImage = pygame.image.load("spr/cursor-h.png")
         self.cursorRect = self.cursorImage.get_rect()
-        self.heroStatusAnchors = [(101, 90), (101, 107), (101, 124)]
+        self.heroStatusAnchors = [(101, 91), (101, 109), (101, 127)]
         self.cmdAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.tgtAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.outAnchors = [(2, 66), (2, 58), (2,50), (2,42), (2,34), (2, 26), (2, 18), (2,10), (2,2)]
@@ -430,21 +435,33 @@ class BattleUI (object):
         vOffset = (0, 8)
         index = 0
         for hero in self.BC.battlers:
+            iconOffset = (0, 7)
+            iconOffsetH = (9, 0)
             if (hero.isHero):
                 self.BC.CONTROLLER.TEXT_MANAGER.draw_text(hero.NAME, self.heroStatusAnchors[index], g.WHITE)
-                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(str(hero.HP) + "/" + str(hero.MAXHP), utility.add_tuple(self.heroStatusAnchors[index], (1, 10)), g.RED, g.FONT_SML)
-                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(str(hero.SP) + "/" + str(hero.MAXSP), utility.add_tuple(self.heroStatusAnchors[index], (30, 10)), g.BLUE, g.FONT_SML)
-                #self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP:" + str(hero.SP), utility.add_tuple(self.heroStatusAnchors[index], utility.scale_tuple(vOffset, (1,2))))
+                self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(hero.HP), utility.add_tuple(self.heroStatusAnchors[index], (56, 0)), g.WHITE)
+                if hero.mods[g.BattlerStatus.STUN] > 0:
+                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
+                    iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+                if hero.mods[g.BattlerStatus.DEFEND] > 0:
+                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
+                    iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+                if hero.mods[g.BattlerStatus.POISON] > 0:
+                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
+                    iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+                #self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(hero.SP), utility.add_tuple(self.heroStatusAnchors[index], (56, 0)), g.WHITE)
                 index += 1
 
     def render_turn_cursor(self):
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.battlerAnchors[self.BC.currentBattler.battlerIndex], (4, -8)))
+        if self.BC.currentBattler:
+            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.battlerAnchors[self.BC.currentBattler.battlerIndex], (4, -8)))
 
     def render_target_cursor(self):
         battler = self.validTargets[self.cursorIndex]
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[battler.battlerIndex], (4, -8)))
-        if battler.turnOrder >= 0:
-            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2, 0)))
+        if battler:
+            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[battler.battlerIndex], (4, -8)))
+            if battler.turnOrder >= 0:
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2, 0)))
 
     def render_battlers(self):
         index = 0
@@ -617,12 +634,14 @@ class BattleUIMessage (object):
         self.string = string
         self.life = life
         self.boxPos = (0,0)
-        self.textPos = utility.add_tuple((80,4), (-g.FONT_LRG.size(string)[0] // 2, 0))
+        self.textPos = (80, 11)
+        #self.textPos = utility.add_tuple((80,4), (-g.FONT_LRG.size(string)[0] // 2, 0))
 
     def update(self):
         self.life -= self.ui.BC.CONTROLLER.CLOCK.get_time()
         self.ui.BC.CONTROLLER.VIEW_SURF.blit(self.ui.messageBoxImage, self.boxPos)
-        self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text(self.string, self.textPos, g.WHITE, g.FONT_LRG)
+        self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text_centered(self.string, self.textPos, g.WHITE, g.FONT_LRG)
+        #self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text(self.string, self.textPos, g.WHITE, g.FONT_LRG)
 
 #################
 ##ACTOR CLASSES##
@@ -789,8 +808,14 @@ class BattleActor (object):
         if (self.HP > self.MAXHP):
             self.HP = self.MAXHP
         if (self.HP == 0):
+            self.kill()
             self.BC.UI.print_line(self.NAME + " died!")
             utility.log(self.NAME + " died!")
+
+    def kill(self):
+        for mod in self.mods:
+            utility.log(str (mod))
+            self.mods[mod] = 0
             
 ###################
 ##COMMAND CLASSES##

@@ -177,7 +177,7 @@ def create_data():
 	attr["wis"] = 4
 	attr["spr"] = 5
 	attr["agi"] = 3
-	attr["lck"] = 255
+	attr["lck"] = 6
 
 	resD = {}
 	resS = {}
@@ -217,7 +217,7 @@ def create_data():
 	attr = {}
 	attr["name"] = "Mold"
 	attr["lvl"] = 2
-	attr["hp"] = 999
+	attr["hp"] = 12
 	attr["sp"] = 5
 	attr["atk"] = 6
 	attr["def"] = 6

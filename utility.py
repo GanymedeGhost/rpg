@@ -166,6 +166,18 @@ class TextManager:
         textRect.topleft = pos
         self.SURF.blit(textObj, textRect)
 
+    def draw_text_centered(self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
+        textObj = font.render(string, False, color)
+        textRect = textObj.get_rect()
+        textRect.center = pos
+        self.SURF.blit(textObj, textRect)
+
+    def draw_text_ralign (self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
+        textObj = font.render(string, False, color)
+        textRect = textObj.get_rect()
+        textRect.topright = pos
+        self.SURF.blit(textObj, textRect)
+
     def draw_text_shaded(self, string, pos, color1 = g.WHITE, color2 = g.BLACK, font = g.FONT_MED):
         textObj4 = font.render(string, False, color2)
         textRect4 = textObj4.get_rect()
