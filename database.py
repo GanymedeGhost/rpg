@@ -7,7 +7,7 @@ import battle_ai as bai
 class Hero (object):
 	dic = {}
 	
-	def __init__(self, index, attr = {}, resD = {}, resS = {}, equip = {}, spr = {}):
+	def __init__(self, index, attr = {}, resD = {}, resS = {}, equip = {}, spr = None, size = 32, icon = None):
 		self.index = ""
 
 		self.attr = attr
@@ -45,10 +45,18 @@ class Hero (object):
 		else:
 			self.equip = equip
 
+		self.size = size
 		self.spr = spr
 		if not self.spr:
-			self.spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
-			self.spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
+			self.spr = "spr/battle/battler-anim.png"
+
+		self.icon = icon
+		if not self.icon:
+			self.icon = pygame.image.load("spr/battle/hero-asa.png")
+##		self.spr = spr
+##		if not self.spr:
+##			self.spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
+##			self.spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
 
 		Hero.dic[index] = self
 
@@ -83,7 +91,7 @@ def InvItem (object):
 class Monster (object):
 	dic = {}
 
-	def __init__(self, index, attr = {}, resD = {}, resS = {}, spr = {}):
+	def __init__(self, index, attr = {}, resD = {}, resS = {}, spr = None, size = 16, icon = None):
 		self.ai = bai.dic[index]
 
 		self.attr = attr
@@ -110,12 +118,20 @@ class Monster (object):
 		if not self.resS:
 			for status in range(0, g.BattlerStatus.SIZE):
 				self.resS[status] = 0
-		
+
+		self.size = size
 		self.spr = spr
 		if not self.spr:
-			self.spr = {}
-			self.spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
-			self.spr['icon'] = pygame.image.load("spr/battle/mon-slime.png") 
+			self.spr = "spr/battle/battler-anim.png"
+
+		self.icon = icon
+		if not self.icon:
+			self.icon = pygame.image.load("spr/battle/mon-slime.png")
+##		self.spr = spr
+##		if not self.spr:
+##			self.spr = {}
+##			self.spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
+##			self.spr['icon'] = pygame.image.load("spr/battle/mon-slime.png") 
 
 		Monster.dic[index] = self
 
@@ -142,11 +158,14 @@ def create_data():
 	resD = {}
 	resS = {}
 
-	spr = {}
-	spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
-	spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
+	spr = "spr/battle/battler-anim.png"
+	size = 48
+	icon = pygame.image.load("spr/battle/hero-asa.png")
+##	spr = {}
+##	spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
+##	spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
 
-	Hero(attr["name"], attr, resD, resS, equip, spr)
+	Hero(attr["name"], attr, resD, resS, equip, spr, size, icon)
 
 	attr = {}
 	attr["name"] = "Elle"
@@ -162,11 +181,14 @@ def create_data():
 	resD = {}
 	resS = {}
 
-	spr = {}
-	spr['battle'] = pygame.image.load("spr/battle/hero-elle.png")
-	spr['icon'] = pygame.image.load("spr/battle/hero-elle.png")
+	spr = "spr/battle/battler-anim.png"
+	size = 48
+	icon = pygame.image.load("spr/battle/hero-elle.png")
+##	spr = {}
+##	spr['battle'] = pygame.image.load("spr/battle/hero-elle.png")
+##	spr['icon'] = pygame.image.load("spr/battle/hero-elle.png")
 
-	Hero(attr["name"], attr, resD, resS, equip, spr)
+	Hero(attr["name"], attr, resD, resS, equip, spr, size, icon)
 
 	attr = {}
 	attr["name"] = "Lux"
@@ -182,11 +204,14 @@ def create_data():
 	resD = {}
 	resS = {}
 
-	spr = {}
-	spr['battle'] = pygame.image.load("spr/battle/hero-lux.png")
-	spr['icon'] = pygame.image.load("spr/battle/hero-lux.png")
+	spr = "spr/battle/battler-anim.png"
+	size = 48
+	icon = pygame.image.load("spr/battle/hero-lux.png")
+##	spr = {}
+##	spr['battle'] = pygame.image.load("spr/battle/hero-lux.png")
+##	spr['icon'] = pygame.image.load("spr/battle/hero-lux.png")
 
-	Hero(attr["name"], attr, resD, resS, equip, spr)
+	Hero(attr["name"], attr, resD, resS, equip, spr, size, icon)
 
 	############
 	##MONSTERS##
@@ -208,11 +233,14 @@ def create_data():
 	resD = {}
 	resS = {}
 
-	spr = {}
-	spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
-	spr['icon'] = pygame.image.load("spr/battle/mon-slime.png")
+	spr = "spr/battle/mon-slime.png"
+	size = 16
+	icon = pygame.image.load("spr/battle/mon-slime.png")
+##	spr = {}
+##	spr['battle'] = pygame.image.load("spr/battle/mon-slime.png")
+##	spr['icon'] = pygame.image.load("spr/battle/mon-slime.png")
 
-	Monster(attr["name"], attr, resD, resS, spr)
+	Monster(attr["name"], attr, resD, resS, spr, size, icon)
 
 	attr = {}
 	attr["name"] = "Mold"
@@ -231,9 +259,13 @@ def create_data():
 	resD = {}
 	resS = {}
 
-	spr = {}
-	spr['battle'] = pygame.image.load("spr/battle/mon-mold.png")
-	spr['icon'] = pygame.image.load("spr/battle/mon-mold.png")
-	Monster(attr["name"], attr, resD, resS, spr)
+	spr = "spr/battle/mon-mold.png"
+	size = 16
+	icon = pygame.image.load("spr/battle/mon-mold.png")
+##	spr = {}
+##	spr['battle'] = pygame.image.load("spr/battle/mon-mold.png")
+##	spr['icon'] = pygame.image.load("spr/battle/mon-mold.png")
+	
+	Monster(attr["name"], attr, resD, resS, spr, size, icon)
 
 create_data()

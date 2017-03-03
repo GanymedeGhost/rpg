@@ -13,6 +13,7 @@ import utility
 ###################
 
 class BattleController (object):
+    
     def __init__(self, controller, initiative = -1):
         self.CONTROLLER = controller
         self.UI = BattleUI(self)
@@ -59,10 +60,12 @@ class BattleController (object):
             AGI = hero.attr["agi"]
             LCK = hero.attr["lck"]
             SPR = hero.spr
+            size = hero.size
+            icon = hero.icon
             resD = hero.resD
             resS = hero.resS
             
-            battler = BattleActor(self, isHero, NAME, SPR, resD, resS, None, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
+            battler = BattleActor(self, isHero, NAME, SPR, size, icon, resD, resS, None, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
 
         #enemies
@@ -82,6 +85,8 @@ class BattleController (object):
             AGI = monster.attr["agi"]
             LCK = monster.attr["lck"]
             SPR = monster.spr
+            size = monster.size
+            icon = monster.icon
             resD = monster.resD
             resS = monster.resS
             ai = bai.dic[NAME]
@@ -92,7 +97,7 @@ class BattleController (object):
             else:
                 self.monsterCounters[NAME] = 1
             
-            battler = BattleActor(self, isHero, NAME, SPR, resD, resS, ai, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
+            battler = BattleActor(self, isHero, NAME, SPR, size, icon, resD, resS, ai, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
         
         self.rounds = 0
@@ -347,7 +352,7 @@ class BattleUI (object):
         self.cmdAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.tgtAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.outAnchors = [(2, 66), (2, 58), (2,50), (2,42), (2,34), (2, 26), (2, 18), (2,10), (2,2)]
-        self.battlerAnchors = [(114, 32), (122, 48), (130, 64), (28, 48), (12, 64), (44, 32), (52, 60), (68, 44)]
+        self.battlerAnchors = [(124, 48), (132, 64), (140, 80), (38, 64), (22, 80), (54, 48), (62, 76), (78, 60)]
         self.turnBannerAnchor = (2, 0)
         self.turnAnchors = [(8, 0), (34, 0), (59, 0), (84, 0), (109, 0), (134, 0), (159, 0), (185, 0), (185, 0), (185, 0), (185, 0)]
 
@@ -360,6 +365,7 @@ class BattleUI (object):
         self.windowImage = pygame.image.load("spr/battle/ui-window.png")
         self.windowAnchors = [(0,85)]
 
+        self.battlerCursorOffset = (-4, -24)
         self.currentTurnCursor = pygame.image.load("spr/battle/cursor-turn.png")
         self.currentTargetCursor = pygame.image.load("spr/battle/cursor-target.png")
         self.currentTargetTurnCursor = pygame.image.load("spr/battle/cursor-target2.png")
@@ -432,7 +438,6 @@ class BattleUI (object):
 
     def render_hero_status(self):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.windowImage, self.windowAnchors[0])
-        vOffset = (0, 8)
         index = 0
         for hero in self.BC.battlers:
             iconOffset = (0, 7)
@@ -454,26 +459,38 @@ class BattleUI (object):
 
     def render_turn_cursor(self):
         if self.BC.currentBattler:
-            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.battlerAnchors[self.BC.currentBattler.battlerIndex], (4, -8)))
+            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.battlerAnchors[self.BC.currentBattler.battlerIndex], self.battlerCursorOffset))
 
     def render_target_cursor(self):
         battler = self.validTargets[self.cursorIndex]
         if battler:
-            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[battler.battlerIndex], (4, -8)))
+            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[battler.battlerIndex], self.battlerCursorOffset))
             if battler.turnOrder >= 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2, 0)))
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], self.battlerCursorOffset))
 
     def render_battlers(self):
+        dt = self.BC.CONTROLLER.CLOCK.get_time()
+        surf = self.BC.CONTROLLER.VIEW_SURF
+        
         index = 0
         for battler in self.BC.battlers:
-            if battler.HP > 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(battler.spr["battle"], self.battlerAnchors[index])
-                if battler.mods[g.BattlerStatus.DEFEND] > 0:
-                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, self.battlerAnchors[index])
-                elif battler.mods[g.BattlerStatus.STUN] > 0:
-                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, self.battlerAnchors[index])
-                elif battler.mods[g.BattlerStatus.POISON] > 0:
-                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, self.battlerAnchors[index])
+            if battler.spr.animated:
+                battler.spr.animate(dt)
+                battler.spr.draw(surf)
+            else:
+                iconOffset = (0, -16)
+                iconOffsetH = (-8, 0)
+                if battler.HP > 0:
+                    battler.spr.draw(surf)
+                    if battler.mods[g.BattlerStatus.DEFEND] > 0:
+                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(self.battlerAnchors[index], iconOffset))
+                        iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+                    if battler.mods[g.BattlerStatus.STUN] > 0:
+                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, self.battlerAnchors[index])
+                        iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+                    if battler.mods[g.BattlerStatus.POISON] > 0:
+                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, self.battlerAnchors[index])
+                        iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             index += 1
 
     def render_turns(self):
@@ -486,18 +503,25 @@ class BattleUI (object):
                 
             anchorIndex = battler.turnOrder
             self.BC.CONTROLLER.VIEW_SURF.blit(img, self.turnAnchors[anchorIndex])
-            self.BC.CONTROLLER.VIEW_SURF.blit(battler.spr['icon'], utility.add_tuple(self.turnAnchors[anchorIndex], (3,0)))
+            self.BC.CONTROLLER.VIEW_SURF.blit(battler.icon, utility.add_tuple(self.turnAnchors[anchorIndex], (3,0)))
             label = battler.NAME[0:5]
             self.BC.CONTROLLER.TEXT_MANAGER.draw_text(label, utility.add_tuple(self.turnAnchors[anchorIndex], (2,17)), g.WHITE, g.FONT_SML)
 
+            iconOffset = (0, 0)
+            iconOffsetH = (9, 0)
+            
             if (battler.HP <= 0):
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDead, utility.add_tuple(self.turnAnchors[anchorIndex], (11,0)))
-            elif battler.mods[g.BattlerStatus.STUN] > 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, utility.add_tuple(self.turnAnchors[anchorIndex], (11,0)))
-            elif battler.mods[g.BattlerStatus.DEFEND] > 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(self.turnAnchors[anchorIndex], (11,0)))
-            elif battler.mods[g.BattlerStatus.POISON] > 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(self.turnAnchors[anchorIndex], (11,0)))
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDead, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+            if battler.mods[g.BattlerStatus.STUN] > 0:
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+            if battler.mods[g.BattlerStatus.DEFEND] > 0:
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+            if battler.mods[g.BattlerStatus.POISON] > 0:
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                
 
     def render_output(self, maxLines = 6):
@@ -516,8 +540,9 @@ class BattleUI (object):
         self.BC.CONTROLLER.VIEW_SURF.fill(g.GREEN_BLUE)
         self.render_hero_status()
         self.render_battlers()
-        self.render_turn_cursor()
+        
         self.render_turns()
+        self.render_turn_cursor()
 
         if (self.UI_STATE == g.BattleUIState.TARGET):
             self.process_get_target()
@@ -527,17 +552,17 @@ class BattleUI (object):
             self.process_get_command()
             self.render_command_window()
 
-        if self.popupList:
-            if self.popupList[0].life > 0:
-                self.popupList[0].update()
-            else:
-                del self.popupList[0]
-
         if self.messageList:
             if self.messageList[0].life > 0:
                 self.messageList[0].update()
             else:
                 del self.messageList[0]
+
+        if self.popupList:
+            if self.popupList[0].life > 0:
+                self.popupList[0].update()
+            else:
+                del self.popupList[0]
         
         self.BC.CONTROLLER.window_render()
 
@@ -618,7 +643,7 @@ class BattleUIPopup (object):
         self.halfTrigger = False
         self.speed = .6
         self.x = pos[0]
-        self.y = pos[1]
+        self.y = pos[1] + self.ui.battlerCursorOffset[1]
 
     def update(self):
         if self.life < self.halfLife and not self.halfTrigger:
@@ -626,7 +651,7 @@ class BattleUIPopup (object):
             self.speed *= -1
         self.y -= self.speed
         self.life -= self.ui.BC.CONTROLLER.CLOCK.get_time()
-        self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text_shaded(self.string, (self.x, math.floor(self.y)), self.col)
+        self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text_shaded_centered(self.string, (self.x, math.floor(self.y)), self.col)
 
 class BattleUIMessage (object):
     def __init__(self, ui, string, life):
@@ -647,9 +672,100 @@ class BattleUIMessage (object):
 ##ACTOR CLASSES##
 #################
 
+class Sprite (pygame.sprite.Sprite):
+
+    def __init__(self, frameset, frameSize, pos, animated = False, animTime = 200):
+        pygame.sprite.Sprite.__init__(self)
+        
+        self.frameCache = utility.TileCache(frameSize, frameSize)
+        self.frameset = self.frameCache[frameset]
+        self.animations = {}
+        
+        if (animated):
+            self.init_basic_animations()
+        else:
+            self.create_animation('idle', [(0,0)])
+        
+        self.animated = animated
+        self.animTime = animTime
+        self.curTime = 0
+        self.curFrame = 0
+        self.curAnim = 'idle'
+
+        self.pos = pos
+
+        self.image = None
+        self.set_anim(self.curAnim, True)
+        self.rect = self.image.get_rect()
+        self.rect.midbottom = self.pos
+        
+    def init_basic_animations(self):
+        framelist = [(1,0),
+                     (0,0),
+                     (1,0),
+                     (2,0)]
+        self.create_animation("idle", framelist)
+        framelist = [(1,1),
+                     (0,1),
+                     (1,1),
+                     (2,1)]
+        self.create_animation("attack", framelist)
+        framelist = [(0,4)]
+        self.create_animation("dead", framelist)
+        framelist = [(1,5),
+                     (0,5),
+                     (1,5),
+                     (2,5)]
+        self.create_animation("damage", framelist)
+        framelist = [(1,6),
+                     (0,6),
+                     (1,6),
+                     (2,6)]
+        self.create_animation("poison", framelist)
+        framelist = [(1,7),
+                     (0,7),
+                     (1,7),
+                     (2,7)]
+        self.create_animation("defend", framelist)
+
+    def create_animation(self, key, framelist):
+        framecount = len(framelist)
+        frames = []
+        for i in range(0, framecount):
+            row = framelist[i][0]
+            col = framelist[i][1]
+            frames.append(self.frameset[row][col])
+        self.animations[key] = frames
+
+    def set_anim(self, key, reset = False):
+        lastAnim = self.curAnim
+        if (self.curAnim != key or reset):
+            self.curAnim = key
+            self.curFrame = 0
+            self.curTime = 0
+            try:
+                self.image = self.animations[self.curAnim][self.curFrame]
+            except KeyError:
+                self.curAnim = lastAnim
+                self.image = self.animations[self.curAnim][self.curFrame]
+                utility.log("ERROR: tried to set a non-existant animation. Reverting to the previous animation", g.LogLevel.ERROR)
+
+    def animate(self, dt):
+        if (self.animated):
+            self.curTime += dt;
+            if (self.curTime > self.animTime):
+                self.curFrame += 1
+                if (self.curFrame >= len(self.animations[self.curAnim])):
+                    self.curFrame = 0
+                self.image = self.animations[self.curAnim][self.curFrame]
+                self.curTime = 0
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
 class BattleActor (object):
     
-    def __init__(self, BC, isHero, NAME, spr, resD, resS, ai = None, LV = 1, HP=10, MAXHP = 10, SP = 10, MAXSP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5, RES = {}):
+    def __init__(self, BC, isHero, NAME, spr, size, icon, resD, resS, ai = None, LV = 1, HP=10, MAXHP = 10, SP = 10, MAXSP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5, RES = {}):
         self.BC = BC
         self.isHero = isHero
         self.NAME = NAME
@@ -671,12 +787,14 @@ class BattleActor (object):
 
         self.resD = resD
         self.resS = resS
-        
-        self.spr = spr
 
         self.battlerIndex = self.BC.battlerCount
         self.pos = self.BC.UI.battlerAnchors[self.battlerIndex]
         self.BC.battlerCount += 1
+
+        self.size = size
+        self.spr = Sprite(spr, size, self.pos, self.isHero)
+        self.icon = icon
 
         #TODO: Add damage resistances
 
@@ -752,11 +870,13 @@ class BattleActor (object):
         if self.BC.status_calc(self, g.BattlerStatus.POISON, rate):
             self.BC.UI.create_popup("PSN", self.pos)
             self.mods[g.BattlerStatus.POISON] = 999
+            self.reset_anim()
         else:
             self.BC.UI.create_popup("RES", self.pos)
             utility.log(self.NAME + " resisted poison", g.LogLevel.FEEDBACK)
             
     def before_turn(self):
+        
         self.mods[g.BattlerStatus.DEFEND] -= 1
         self.mods[g.BattlerStatus.SLEEP] -= 1
         self.mods[g.BattlerStatus.PARALYZE] -= 1
@@ -765,6 +885,24 @@ class BattleActor (object):
 
         if self.mods[g.BattlerStatus.POISON] > 0:
             self.take_damage(self.BC.poison_dmg_calc(self), g.DamageType.POISON)
+
+        self.reset_anim()
+
+    def reset_anim(self):
+        if self.spr.animated:
+            if self.HP > 0:
+                if self.mods[g.BattlerStatus.DEFEND]:
+                    self.spr.set_anim("defend")
+                elif self.mods[g.BattlerStatus.SLEEP]:
+                    self.spr.set_anim("idle")
+                elif self.mods[g.BattlerStatus.PARALYZE]:
+                    self.spr.set_anim("idle")
+                elif self.mods[g.BattlerStatus.POISON]:
+                    self.spr.set_anim("poison")
+                else:
+                    self.spr.set_anim("idle")
+            else:
+                self.spr.set_anim("dead")
 
     def after_turn(self):
         self.mods[g.BattlerStatus.STUN] -= 1
@@ -813,6 +951,7 @@ class BattleActor (object):
             utility.log(self.NAME + " died!")
 
     def kill(self):
+        self.reset_anim()
         for mod in self.mods:
             utility.log(str (mod))
             self.mods[mod] = 0
@@ -901,7 +1040,7 @@ class CmdDefend():
         user.BC.UI.print_line(user.NAME + " is defending.")
         utility.log(user.NAME + " is defending.", g.LogLevel.FEEDBACK)
         user.mods[g.BattlerStatus.DEFEND] += 1
-
+        user.reset_anim()
         user.after_turn()
 
 class CmdPoison():

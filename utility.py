@@ -54,7 +54,7 @@ class TileCache:
     def _load_tile_table(self, filename, width, height):
         """Load an image and split it into tiles."""
 
-        image = pygame.image.load(filename).convert()
+        image = pygame.image.load(filename).convert_alpha()
         image_width, image_height = image.get_size()
         tile_table = []
         for tile_x in range(0, image_width//width):
@@ -209,4 +209,22 @@ class TextManager:
         textObj1 = font.render(string, False, color1)
         textRect1 = textObj1.get_rect()
         textRect1.topleft = pos
+        self.SURF.blit(textObj1, textRect1)
+
+    def draw_text_shaded_centered(self, string, pos, color1 = g.WHITE, color2 = g.BLACK, font = g.FONT_MED):
+        textObj4 = font.render(string, False, color2)
+        textRect4 = textObj4.get_rect()
+        textRect4.center = add_tuple(pos, (1,0))
+        self.SURF.blit(textObj4, textRect4)
+        textObj3 = font.render(string, False, color2)
+        textRect3 = textObj3.get_rect()
+        textRect3.center = add_tuple(pos, (1,1))
+        self.SURF.blit(textObj3, textRect3)
+        textObj2 = font.render(string, False, color2)
+        textRect2 = textObj2.get_rect()
+        textRect2.center = add_tuple(pos, (0,1))
+        self.SURF.blit(textObj2, textRect2)
+        textObj1 = font.render(string, False, color1)
+        textRect1 = textObj1.get_rect()
+        textRect1.center = pos
         self.SURF.blit(textObj1, textRect1)
