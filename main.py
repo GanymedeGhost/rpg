@@ -35,11 +35,11 @@ class Control(object):
 
         self.skipRender = False
 
-    def start_battle(self, monsters):
+    def start_battle(self, monsters, initiative = -1):
         g.MONSTER_LIST = []
         for key in monsters:
             g.MONSTER_LIST.append(db.Monster.dic[key])
-        self.BATTLE = battle.BattleController(self)
+        self.BATTLE = battle.BattleController(self, initiative)
         self.GAME_STATE = g.GameState.BATTLE
     
     def event_loop(self):

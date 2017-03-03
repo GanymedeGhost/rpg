@@ -2,6 +2,7 @@ import pygame
 import utility
 import my_globals as g
 import battle as b
+import battle_ai as bai
 
 class Hero (object):
 	dic = {}
@@ -81,6 +82,7 @@ class Monster (object):
 	dic = {}
 
 	def __init__(self, index, attr = {}, res = {}, spr = {}):
+		self.ai = bai.dic[index]
 
 		self.attr = attr
 		if not self.attr:
@@ -169,7 +171,7 @@ def create_data():
 	attr["wis"] = 4
 	attr["spr"] = 5
 	attr["agi"] = 3
-	attr["lck"] = 5
+	attr["lck"] = 255
 
 	res = {}
 
@@ -207,7 +209,7 @@ def create_data():
 	attr = {}
 	attr["name"] = "Mold"
 	attr["lvl"] = 2
-	attr["hp"] = 12
+	attr["hp"] = 999
 	attr["sp"] = 5
 	attr["atk"] = 6
 	attr["def"] = 6

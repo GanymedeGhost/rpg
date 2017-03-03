@@ -350,7 +350,7 @@ class Actor002 (Actor):
     
     def interact(self):
         self.face_player()
-        self.level.CONTROLLER.start_battle(["Slime", "Mold", "Slime"])
+        self.level.CONTROLLER.start_battle(["Slime", "Mold", "Slime", "Slime", "Mold"])
 
 ENTITY_DIC = {}
 ENTITY_DIC["actor001"] = Actor001

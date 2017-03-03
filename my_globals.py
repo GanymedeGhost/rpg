@@ -16,6 +16,7 @@ INPUT_DELAY = 100
 AI_DELAY = 700
 
 BATTLE_POPUP_LIFE = 350
+BATTLE_MESSAGE_LIFE = 800
 
 VIEW_WIDTH = TILE_SIZE * 10 #160px
 VIEW_HEIGHT = TILE_SIZE * 9 #144px
@@ -53,7 +54,7 @@ class LogLevel():
     ERROR = 2
     FEEDBACK = 3
 
-    SIZE = 3
+    SIZE = 4
 
 class GameState():
     INIT = 0
@@ -61,7 +62,7 @@ class GameState():
     MENU = 2
     BATTLE = 3
 
-    SIZE = 3
+    SIZE = 4
 
 class BattlerStatus():
     DEFEND = 0
@@ -71,7 +72,7 @@ class BattlerStatus():
     STUN = 4
     PARALYZE = 5
 
-    SIZE = 5
+    SIZE = 6
 
 class DamageType():
     NONE = 0
@@ -83,8 +84,9 @@ class DamageType():
     LIGHT = 6
     DARK = 7
     CURSE = 8
-
-    SIZE = 8
+    POISON = 9
+    
+    SIZE = 10
 
 class BattleState():
     FIGHT = 0
@@ -94,7 +96,7 @@ class BattleState():
     COMMAND = 4
     AI = 5
 
-    SIZE = 5
+    SIZE = 6
 
 class BattleUIState():
     DEFAULT = 0
@@ -104,7 +106,14 @@ class BattleUIState():
     ITEM = 4
     AI = 5
 
-    SIZE = 5
+    SIZE = 6
+
+class Initiative():
+    NONE = 0
+    PARTY = 1
+    ENEMY = 2
+
+    SIZE = 3
 
 #####################
 ### END CONSTANTS ###
