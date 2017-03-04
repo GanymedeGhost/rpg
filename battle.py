@@ -7,6 +7,7 @@ import my_globals as g
 import database as db
 import battle_ai as bai
 import utility
+import animation
 
 ###################
 ##CONTROL CLASSES##
@@ -106,6 +107,7 @@ class BattleController (object):
         self.currentBattler = None
         self.queuedAction = None
         self.UI_CALLBACK = None
+        self.animationStack = animation.AnimationStack()
 
     def change_state(self, state):
         self.PREV_BATTLE_STATE = self.BATTLE_STATE
@@ -117,7 +119,9 @@ class BattleController (object):
         self.BATTLE_STATE = self.PREV_BATTLE_STATE
 
     def update(self):
-        if not self.UI.messageList:
+        animationCallback = self.animationStack.run()
+        
+        if not self.UI.messageList and animationCallback < 0:
             if self.BATTLE_STATE == g.BattleState.AI:
                 self.UI.update()
                 if g.AI_TIMER > 0 and self.currentBattler.HP > 0:
@@ -273,15 +277,14 @@ class BattleController (object):
             return True
         else:
             self.UI.print_line("Missed!")
-            self.UI.create_popup("MISS", target.pos)
+            self.UI.create_popup("MISS", target.spr.pos)
             utility.log("Missed!", g.LogLevel.FEEDBACK)
             return False
 
     def dodge_calc(self, user, target):
         roll = random.randint(0, 100)
         if roll < target.EVA:
-            self.UI.print_line("Dodged!")
-            self.UI.create_popup("DODGE", target.pos)
+            self.UI.create_popup("DODGE", target.spr.pos)
             utility.log("Dodged!", g.LogLevel.FEEDBACK)
             return True
         else:
@@ -291,7 +294,6 @@ class BattleController (object):
         roll = random.randint(0, 255)
         #utility.log("Crit roll : " + str(roll))
         if roll < user.LCK:
-            self.UI.print_line("CRIT")
             utility.log("Crit!", g.LogLevel.FEEDBACK)
             return True
         else:
@@ -459,16 +461,17 @@ class BattleUI (object):
 
     def render_turn_cursor(self):
         if self.BC.currentBattler:
-            finalOffset = utility.add_tuple((0, -self.BC.currentBattler.size), self.battlerCursorOffset)
+            cursorOffset = utility.add_tuple((0, -self.BC.currentBattler.size), self.battlerCursorOffset)
             if self.BC.currentBattler:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.battlerAnchors[self.BC.currentBattler.battlerIndex], finalOffset))
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.BC.currentBattler.spr.pos, cursorOffset))
 
     def render_target_cursor(self):
         battler = self.validTargets[self.cursorIndex]
         if battler:
-            finalOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
-            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[battler.battlerIndex], finalOffset))
+            cursorOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
+            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(battler.spr.pos, cursorOffset))
             if battler.turnOrder >= 0:
+                #this is currently rendering over any icons in the turn area
                 self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
 
     def render_battlers(self):
@@ -477,6 +480,8 @@ class BattleUI (object):
         
         index = 0
         for battler in self.BC.battlers:
+            battlerPos = utility.add_tuple(self.battlerAnchors[index], battler.spr.pos)
+            
             if battler.spr.animated:
                 battler.spr.animate(dt)
                 battler.spr.draw(surf)
@@ -486,13 +491,13 @@ class BattleUI (object):
                 if battler.HP > 0:
                     battler.spr.draw(surf)
                     if battler.mods[g.BattlerStatus.DEFEND] > 0:
-                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(self.battlerAnchors[index], iconOffset))
+                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(battlerPos, iconOffset))
                         iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                     if battler.mods[g.BattlerStatus.STUN] > 0:
-                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, self.battlerAnchors[index])
+                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, utility.add_tuple(battlerPos, iconOffset))
                         iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                     if battler.mods[g.BattlerStatus.POISON] > 0:
-                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, self.battlerAnchors[index])
+                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(battlerPos, iconOffset))
                         iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             index += 1
 
@@ -677,7 +682,7 @@ class BattleUIMessage (object):
 
 class Sprite (pygame.sprite.Sprite):
 
-    def __init__(self, frameset, frameSize, pos, animated = False, animTime = 200):
+    def __init__(self, frameset, frameSize, anchor, animated = False, animTime = 200):
         pygame.sprite.Sprite.__init__(self)
         
         self.frameCache = utility.TileCache(frameSize, frameSize)
@@ -695,12 +700,24 @@ class Sprite (pygame.sprite.Sprite):
         self.curFrame = 0
         self.curAnim = 'idle'
 
-        self.pos = pos
 
         self.image = None
         self.set_anim(self.curAnim, True)
         self.rect = self.image.get_rect()
-        self.rect.midbottom = self.pos
+        self.anchor = anchor
+        self.pos = self.anchor
+
+    @property
+    def pos(self):
+        return self.rect.midbottom
+
+    @pos.setter
+    def pos(self, pos):
+        self.rect.midbottom = pos
+        
+    def move_ip(self, offset):
+        self.offset = offset
+        self.rect.midbottom = utility.add_tuple(self.pos, self.offset)
         
     def init_basic_animations(self):
         framelist = [(1,0),
@@ -794,11 +811,10 @@ class BattleActor (object):
         self.resS = resS
 
         self.battlerIndex = self.BC.battlerCount
-        self.pos = self.BC.UI.battlerAnchors[self.battlerIndex]
         self.BC.battlerCount += 1
 
         self.size = size
-        self.spr = Sprite(spr, size, self.pos, self.isHero)
+        self.spr = Sprite(spr, size, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
         self.icon = icon
 
         #TODO: Add damage resistances
@@ -820,6 +836,7 @@ class BattleActor (object):
             self.commands = []
             self.commands.append(CmdAttack)
             self.commands.append(CmdDefend)
+            self.commands.append(CmdPoison)
 
     @property
     def hpPercent (self):
@@ -926,25 +943,25 @@ class BattleActor (object):
         if self.BC.status_calc(self, g.BattlerStatus.STUN, rate):
             if self.mods[g.BattlerStatus.DEFEND] > 0:
                 self.mods[g.BattlerStatus.DEFEND] = 0
-                self.BC.UI.create_popup("BREAK", self.pos)
+                self.BC.UI.create_popup("BREAK", self.spr.pos)
                 utility.log(self.NAME + "'s defense was broken!", g.LogLevel.FEEDBACK)
             else:
-                self.BC.UI.create_popup("STUN", self.pos)
+                self.BC.UI.create_popup("STUN", self.spr.pos)
                 utility.log(self.NAME + " is stunned!", g.LogLevel.FEEDBACK)
                 self.mods[g.BattlerStatus.STUN] = 1
                 self.reset_anim()
         else:
-            self.BC.UI.create_popup("RES", self.pos)
+            self.BC.UI.create_popup("RES", self.spr.pos)
             utility.log(self.NAME + " resisted stun", g.LogLevel.FEEDBACK)
 
     def poison(self, rate = 100):
         self.aggro_down()
         if self.BC.status_calc(self, g.BattlerStatus.POISON, rate):
-            self.BC.UI.create_popup("PSN", self.pos)
+            self.BC.UI.create_popup("PSN", self.spr.pos)
             self.mods[g.BattlerStatus.POISON] = 999
             self.reset_anim()
         else:
-            self.BC.UI.create_popup("RES", self.pos)
+            self.BC.UI.create_popup("RES", self.spr.pos)
             utility.log(self.NAME + " resisted poison", g.LogLevel.FEEDBACK)
 
     def take_damage(self, damage, damageType = g.DamageType.NONE):
@@ -957,9 +974,8 @@ class BattleActor (object):
             col = g.GREEN
             
         self.HP -= damage
-        self.BC.UI.print_line(self.NAME + " takes " + str(damage) + " damage!")
         utility.log(self.NAME + " takes " + str(damage) + " damage!")
-        self.BC.UI.create_popup(str(abs(damage)), self.pos, col)
+        self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
         
         if (self.HP < 0):
             self.HP = 0
@@ -967,7 +983,6 @@ class BattleActor (object):
             self.HP = self.MAXHP
         if (self.HP == 0):
             self.kill()
-            self.BC.UI.print_line(self.NAME + " died!")
             utility.log(self.NAME + " died!")
 
     def kill(self):
@@ -1064,6 +1079,10 @@ class CmdDefend():
         user.after_turn()
 
 class CmdPoison():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
     
     def name():
         return "Poison"
@@ -1093,7 +1112,7 @@ class CmdPoison():
 
         user.BC.change_state(g.BattleState.TARGET)
         user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = CmdAttack.execute
+        user.BC.queuedAction = CmdPoison.queue
 
     def get_targets_auto(user, mostAggro=True):
         if mostAggro:
@@ -1111,13 +1130,24 @@ class CmdPoison():
                     if target.aggro < bestAggro:
                         bestAggro = target.aggro
                         bestTarget = target
-                        
-        CmdPoison.execute(user, bestTarget)
 
-    def execute(user, target):
+        CmdPoison.queue(user, bestTarget)
+
+    def queue(user, target):
+        if (user.isHero):
+            f = -1
+        else:
+            f = 1
+        pos = utility.add_tuple(user.spr.pos, (3*f, 0))
+        user.BC.animationStack.queue(animation.MoveToPos(user.spr, pos))
+        user.BC.animationStack.queue(CmdPoison(user, target))
+        user.BC.animationStack.queue(animation.MoveToPos(user.spr, user.spr.anchor))
+
+    def run(self):
         #for target in targets:
-        user.BC.UI.create_message(CmdPoison.name())
-        utility.log(user.NAME + " uses Poison on " + target.NAME)
-        target.poison(50)
+        self.user.BC.UI.create_message(CmdPoison.name())
+        utility.log(self.user.NAME + " uses Poison on " + self.target.NAME)
+        self.target.poison(50)
 
-        user.after_turn()
+        self.user.after_turn()
+        return -1
