@@ -365,7 +365,7 @@ class BattleUI (object):
         self.windowImage = pygame.image.load("spr/battle/ui-window.png")
         self.windowAnchors = [(0,85)]
 
-        self.battlerCursorOffset = (-4, -24)
+        self.battlerCursorOffset = (-4, -8)
         self.currentTurnCursor = pygame.image.load("spr/battle/cursor-turn.png")
         self.currentTargetCursor = pygame.image.load("spr/battle/cursor-target.png")
         self.currentTargetTurnCursor = pygame.image.load("spr/battle/cursor-target2.png")
@@ -459,14 +459,17 @@ class BattleUI (object):
 
     def render_turn_cursor(self):
         if self.BC.currentBattler:
-            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.battlerAnchors[self.BC.currentBattler.battlerIndex], self.battlerCursorOffset))
+            finalOffset = utility.add_tuple((0, -self.BC.currentBattler.size), self.battlerCursorOffset)
+            if self.BC.currentBattler:
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.battlerAnchors[self.BC.currentBattler.battlerIndex], finalOffset))
 
     def render_target_cursor(self):
         battler = self.validTargets[self.cursorIndex]
         if battler:
-            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[battler.battlerIndex], self.battlerCursorOffset))
+            finalOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
+            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(self.battlerAnchors[battler.battlerIndex], finalOffset))
             if battler.turnOrder >= 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], self.battlerCursorOffset))
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
 
     def render_battlers(self):
         dt = self.BC.CONTROLLER.CLOCK.get_time()
@@ -831,7 +834,7 @@ class BattleActor (object):
 
     def aggro_down(self, value=-1):
         if value < 0:
-            value = random.randint(1, 1+self.hpPercent//2)
+            value = random.randint(1, self.hpPercent//4)
         self.aggro -= value
         if (self.aggro < 0):
             self.aggro = 0
