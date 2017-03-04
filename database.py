@@ -48,7 +48,7 @@ class Hero (object):
 		self.size = size
 		self.spr = spr
 		if not self.spr:
-			self.spr = "spr/battle/battler-anim.png"
+			self.spr = "spr/battle/hero-asa.png"
 
 		self.icon = icon
 		if not self.icon:
@@ -158,9 +158,9 @@ def create_data():
 	resD = {}
 	resS = {}
 
-	spr = "spr/battle/battler-anim.png"
-	size = 48
-	icon = pygame.image.load("spr/battle/hero-asa.png")
+	spr = "spr/battle/hero-asa.png"
+	size = 16
+	icon = pygame.image.load("spr/battle/icon-asa.png")
 ##	spr = {}
 ##	spr['battle'] = pygame.image.load("spr/battle/hero-asa.png")
 ##	spr['icon'] = pygame.image.load("spr/battle/hero-asa.png")
@@ -181,9 +181,9 @@ def create_data():
 	resD = {}
 	resS = {}
 
-	spr = "spr/battle/battler-anim.png"
-	size = 48
-	icon = pygame.image.load("spr/battle/hero-elle.png")
+	spr = "spr/battle/hero-elle.png"
+	size = 16
+	icon = pygame.image.load("spr/battle/icon-elle.png")
 ##	spr = {}
 ##	spr['battle'] = pygame.image.load("spr/battle/hero-elle.png")
 ##	spr['icon'] = pygame.image.load("spr/battle/hero-elle.png")
@@ -204,9 +204,9 @@ def create_data():
 	resD = {}
 	resS = {}
 
-	spr = "spr/battle/battler-anim.png"
-	size = 48
-	icon = pygame.image.load("spr/battle/hero-lux.png")
+	spr = "spr/battle/hero-asa.png"
+	size = 16
+	icon = pygame.image.load("spr/battle/icon-lux.png")
 ##	spr = {}
 ##	spr['battle'] = pygame.image.load("spr/battle/hero-lux.png")
 ##	spr['icon'] = pygame.image.load("spr/battle/hero-lux.png")

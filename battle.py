@@ -709,24 +709,26 @@ class Sprite (pygame.sprite.Sprite):
                      (0,1),
                      (1,1),
                      (2,1)]
+        self.create_animation("defend", framelist)
+        framelist = [(0,1)]
         self.create_animation("attack", framelist)
         framelist = [(0,4)]
         self.create_animation("dead", framelist)
+        framelist = [(0,2)]
+        self.create_animation("damage", framelist)
+        framelist = [(0,2)]
+        self.create_animation("stun", framelist)
+        framelist = [(1,3),
+                     (0,3),
+                     (1,3),
+                     (2,3)]
+        self.create_animation("poison", framelist)
         framelist = [(1,5),
                      (0,5),
                      (1,5),
                      (2,5)]
-        self.create_animation("damage", framelist)
-        framelist = [(1,6),
-                     (0,6),
-                     (1,6),
-                     (2,6)]
-        self.create_animation("poison", framelist)
-        framelist = [(1,7),
-                     (0,7),
-                     (1,7),
-                     (2,7)]
-        self.create_animation("defend", framelist)
+        self.create_animation("sleep", framelist)
+
 
     def create_animation(self, key, framelist):
         framecount = len(framelist)
@@ -816,12 +818,20 @@ class BattleActor (object):
             self.commands.append(CmdAttack)
             self.commands.append(CmdDefend)
 
-    def aggro_up(self, value=10):
+    @property
+    def hpPercent (self):
+        return (self.HP / self.MAXHP)*100
+
+    def aggro_up(self, value=-1):
+        if value < 0:
+            value = random.randint(1, 1+self.hpPercent//2)
         self.aggro += value
         if (self.aggro > 100):
             self.aggro = 100
 
-    def aggro_down(self, value=10):
+    def aggro_down(self, value=-1):
+        if value < 0:
+            value = random.randint(1, 1+self.hpPercent//2)
         self.aggro -= value
         if (self.aggro < 0):
             self.aggro = 0
@@ -852,28 +862,24 @@ class BattleActor (object):
             utility.log("It's " + self.NAME + "'s turn.", g.LogLevel.FEEDBACK)
             return True
 
-    def stun(self, rate = 100):  
-        if self.BC.status_calc(self, g.BattlerStatus.STUN, rate):
-            if self.mods[g.BattlerStatus.DEFEND] > 0:
-                self.mods[g.BattlerStatus.DEFEND] = 0
-                self.BC.UI.create_popup("BREAK", self.pos)
-                utility.log(self.NAME + "'s defense was broken!", g.LogLevel.FEEDBACK)
+    def reset_anim(self):
+        if self.spr.animated:
+            if self.HP > 0:
+                if self.mods[g.BattlerStatus.DEFEND]:
+                    self.spr.set_anim("defend")
+                elif self.mods[g.BattlerStatus.STUN]:
+                    self.spr.set_anim("stun")
+                elif self.mods[g.BattlerStatus.POISON]:
+                    self.spr.set_anim("poison")
+                elif self.mods[g.BattlerStatus.SLEEP]:
+                    self.spr.set_anim("sleep")
+                elif self.mods[g.BattlerStatus.PARALYZE]:
+                    self.spr.set_anim("stun")
+                else:
+                    self.spr.set_anim("idle")
             else:
-                self.BC.UI.create_popup("STUN", self.pos)
-                utility.log(self.NAME + " is stunned!", g.LogLevel.FEEDBACK)
-                self.mods[g.BattlerStatus.STUN] = 1
-        else:
-            self.BC.UI.create_popup("RES", self.pos)
-            utility.log(self.NAME + " resisted stun", g.LogLevel.FEEDBACK)
+                self.spr.set_anim("dead")
 
-    def poison(self, rate = 100):
-        if self.BC.status_calc(self, g.BattlerStatus.POISON, rate):
-            self.BC.UI.create_popup("PSN", self.pos)
-            self.mods[g.BattlerStatus.POISON] = 999
-            self.reset_anim()
-        else:
-            self.BC.UI.create_popup("RES", self.pos)
-            utility.log(self.NAME + " resisted poison", g.LogLevel.FEEDBACK)
             
     def before_turn(self):
         
@@ -888,24 +894,9 @@ class BattleActor (object):
 
         self.reset_anim()
 
-    def reset_anim(self):
-        if self.spr.animated:
-            if self.HP > 0:
-                if self.mods[g.BattlerStatus.DEFEND]:
-                    self.spr.set_anim("defend")
-                elif self.mods[g.BattlerStatus.SLEEP]:
-                    self.spr.set_anim("idle")
-                elif self.mods[g.BattlerStatus.PARALYZE]:
-                    self.spr.set_anim("idle")
-                elif self.mods[g.BattlerStatus.POISON]:
-                    self.spr.set_anim("poison")
-                else:
-                    self.spr.set_anim("idle")
-            else:
-                self.spr.set_anim("dead")
-
     def after_turn(self):
         self.mods[g.BattlerStatus.STUN] -= 1
+        self.min_mods()
         self.BC.change_state(g.BattleState.FIGHT)
 
     def min_mods(self):
@@ -927,7 +918,34 @@ class BattleActor (object):
             else:
                 self.after_turn()
 
+    def stun(self, rate = 100):
+        self.aggro_down()
+        if self.BC.status_calc(self, g.BattlerStatus.STUN, rate):
+            if self.mods[g.BattlerStatus.DEFEND] > 0:
+                self.mods[g.BattlerStatus.DEFEND] = 0
+                self.BC.UI.create_popup("BREAK", self.pos)
+                utility.log(self.NAME + "'s defense was broken!", g.LogLevel.FEEDBACK)
+            else:
+                self.BC.UI.create_popup("STUN", self.pos)
+                utility.log(self.NAME + " is stunned!", g.LogLevel.FEEDBACK)
+                self.mods[g.BattlerStatus.STUN] = 1
+                self.reset_anim()
+        else:
+            self.BC.UI.create_popup("RES", self.pos)
+            utility.log(self.NAME + " resisted stun", g.LogLevel.FEEDBACK)
+
+    def poison(self, rate = 100):
+        self.aggro_down()
+        if self.BC.status_calc(self, g.BattlerStatus.POISON, rate):
+            self.BC.UI.create_popup("PSN", self.pos)
+            self.mods[g.BattlerStatus.POISON] = 999
+            self.reset_anim()
+        else:
+            self.BC.UI.create_popup("RES", self.pos)
+            utility.log(self.NAME + " resisted poison", g.LogLevel.FEEDBACK)
+
     def take_damage(self, damage, damageType = g.DamageType.NONE):
+        self.aggro_down()
         #TODO: implement damage types and resistances
         damage -= math.floor(damage * self.resD[damageType])
         if damage >= 0:
@@ -936,7 +954,6 @@ class BattleActor (object):
             col = g.GREEN
             
         self.HP -= damage
-        self.aggro_down()
         self.BC.UI.print_line(self.NAME + " takes " + str(damage) + " damage!")
         utility.log(self.NAME + " takes " + str(damage) + " damage!")
         self.BC.UI.create_popup(str(abs(damage)), self.pos, col)
