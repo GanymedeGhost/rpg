@@ -1,6 +1,5 @@
-import math
 import random
-import battle
+import battle_command as cmd
 
 class Slime ():
 
@@ -10,9 +9,9 @@ class Slime ():
         if battler.can_act():
             roll = random.randint(0, 100)
             if (roll < 50):
-                battle.CmdAttack.start(battler)
+                cmd.Attack.start(battler)
             else:
-                battle.CmdDefend.start(battler)
+                cmd.Defend.start(battler)
         else:
             battler.after_turn()
 
@@ -24,9 +23,9 @@ class Mold ():
         if battler.can_act():
             roll = random.randint(0, 100)
             if (battler.HP == battler.MAXHP):
-                battle.CmdPoison.start(battler)
+                cmd.Poison.start(battler)
             else:
-                battle.CmdAttack.start(battler)
+                cmd.Attack.start(battler)
         else:
             battler.after_turn()
 

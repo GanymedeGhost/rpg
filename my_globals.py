@@ -71,8 +71,9 @@ class BattlerStatus():
     SILENCE = 3
     STUN = 4
     PARALYZE = 5
+    DEATH = 6
 
-    SIZE = 6
+    SIZE = 7
 
 class DamageType():
     NONE = 0
