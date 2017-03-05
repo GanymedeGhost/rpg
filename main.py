@@ -25,9 +25,9 @@ class Control(object):
         self.BATTLE = None
         self.MENU = None
         
-        g.PARTY_LIST.append(db.Hero.dic["Asa"])
+        g.PARTY_LIST.append(db.Hero.dic["Luxe"])
         g.PARTY_LIST.append(db.Hero.dic["Elle"])
-        g.PARTY_LIST.append(db.Hero.dic["Lux"])
+        g.PARTY_LIST.append(db.Hero.dic["Asa"])
 
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
@@ -36,6 +36,7 @@ class Control(object):
         self.skipRender = False
 
     def start_battle(self, monsters, initiative = -1):
+        """monsters = a list of monster keys"""
         g.MONSTER_LIST = []
         for key in monsters:
             g.MONSTER_LIST.append(db.Monster.dic[key])
