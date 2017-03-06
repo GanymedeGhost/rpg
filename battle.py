@@ -830,7 +830,7 @@ class BattleActor (object):
             self.commands = []
             self.commands.append(cmd.Attack)
             self.commands.append(cmd.Defend)
-            self.commands.append(cmd.Poison)
+            self.commands.append(cmd.Potion)
 
     @property
     def hpPercent (self):
@@ -972,7 +972,22 @@ class BattleActor (object):
         self.HP -= damage
         utility.log(self.NAME + " takes " + str(damage) + " damage!")
         self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
+        self.check_hp()
         
+
+    def heal_hp(self, damage, damageType = g.DamageType.NONE):
+        damage -= math.floor(damage * self.resD[damageType])
+        if damage >= 0:
+            col = g.GREEN
+        else:
+            col = g.WHITE
+            
+        self.HP += damage
+        utility.log(self.NAME + " restores " + str(damage) + " HP!")
+        self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
+        self.check_hp()
+
+    def check_hp(self):
         if (self.HP < 0):
             self.HP = 0
         if (self.HP > self.MAXHP):

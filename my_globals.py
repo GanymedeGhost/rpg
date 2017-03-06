@@ -141,3 +141,4 @@ LOG_FILTER[LogLevel.FEEDBACK] = False
 
 PARTY_LIST = []
 MONSTER_LIST = []
+INVENTORY = [] #stores tuples (item, quantity)

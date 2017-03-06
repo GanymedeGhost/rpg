@@ -3,6 +3,7 @@ import utility
 import my_globals as g
 import battle as b
 import battle_ai as bai
+import battle_command as cmd
 
 class Hero (object):
 	dic = {}
@@ -80,9 +81,6 @@ class Hero (object):
 	@property
 	def baseMDef(self):
 		return min(self.attr["spr"] + self.attr["lvl"], g.HERO_MAX_STAT)
-	
-def InvItem (object):
-	dic = {}
 
 class Monster (object):
 	dic = {}
@@ -125,6 +123,28 @@ class Monster (object):
 			self.icon = pygame.image.load("spr/battle/mon-slime.png")
 
 		Monster.dic[index] = self
+
+class InvItem (object):
+	dic = {}
+
+	def __init__(self, index, desc, limit = 99, useAction = None, battleAction = None):
+		self.name = index
+		self.desc = desc
+		self.limit = limit
+		
+		self.useAction = useAction
+		if useAction != None:
+			usableField = True
+		else:
+			usableField = False
+			
+		self.battleAction = battleAction
+		if battleAction != None:
+			usableBattle = True
+		else:
+			usableBattle = False
+			
+		InvItem.dic[index] = self
 
 def create_data():
 	##########
@@ -243,5 +263,16 @@ def create_data():
 	icon = pygame.image.load("spr/battle/mon-mold.png")
 	
 	Monster(attr["name"], attr, resD, resS, spr, size, icon)
+
+	#########
+	##ITEMS##
+	#########
+	name = "Potion"
+	desc = "Restores 50 HP"
+	limit = 99
+	useAction = None
+	battleAction = cmd.Potion
+	
+	InvItem(name, desc, limit, useAction, battleAction)
 
 create_data()
