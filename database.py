@@ -1,4 +1,5 @@
 import pygame
+
 import utility
 import my_globals as g
 import battle as b
@@ -267,6 +268,14 @@ def create_data():
 	#########
 	##ITEMS##
 	#########
+	name = ""
+	desc = ""
+	limit = 1
+	useAction = None
+	battleAction = None
+
+	InvItem(name, desc, limit, useAction, battleAction)
+	
 	name = "Potion"
 	desc = "Restores 50 HP"
 	limit = 99

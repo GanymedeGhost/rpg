@@ -40,6 +40,8 @@ HERO_MAX_STAT = 999
 HERO_MAX_RATE = 100
 HERO_MAX_DAMAGE = 999
 
+INVENTORY_MAX_SLOTS = 99
+
 FONT_SML = pygame.font.Font('font/percy.ttf', 8)
 FONT_MED = pygame.font.Font('font/pixel8.ttf', 8)
 FONT_MED_BOLD = pygame.font.Font('font/pixel8b.ttf', 8)
@@ -96,8 +98,10 @@ class BattleState():
     TARGET = 3
     COMMAND = 4
     AI = 5
+    ITEM = 6
+    SKILL = 7
 
-    SIZE = 6
+    SIZE = 8
 
 class BattleUIState():
     DEFAULT = 0

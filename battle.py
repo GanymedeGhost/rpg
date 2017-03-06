@@ -1,8 +1,10 @@
 import math
 import random
 import heapq
+
 import pygame
 import pygame.locals
+
 import my_globals as g
 import database as db
 import battle_command as cmd
@@ -129,7 +131,9 @@ class BattleController (object):
                     g.AI_TIMER -= self.CONTROLLER.CLOCK.get_time()
                 else:
                     self.currentBattler.take_turn()
-            elif self.BATTLE_STATE == g.BattleState.COMMAND:
+            elif (self.BATTLE_STATE == g.BattleState.COMMAND or
+                  self.BATTLE_STATE == g.BattleState.ITEM or
+                  self.BATTLE_STATE == g.BattleState.SKILL):
                 self.UI_CALLBACK = self.UI.update()
                 if self.UI_CALLBACK != None:
                     self.UI_CALLBACK.start(self.currentBattler)
@@ -349,6 +353,7 @@ class BattleUI (object):
         self.heroStatusAnchors = [(101, 91), (101, 109), (101, 127)]
         self.cmdAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.tgtAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
+        self.itemAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.outAnchors = [(2, 66), (2, 58), (2,50), (2,42), (2,34), (2, 26), (2, 18), (2,10), (2,2)]
         self.battlerAnchors = [(124, 48), (132, 64), (140, 80), (38, 64), (22, 80), (54, 48), (62, 76), (78, 60)]
         self.turnBannerAnchor = (2, 0)
@@ -359,6 +364,8 @@ class BattleUI (object):
         self.targetCursor = 0
         self.skillCursor = 0
         self.itemCursor = 0
+        self.skillSelectOffset = 0
+        self.itemSelectOffset = 0
 
         self.windowImage = pygame.image.load("spr/battle/ui-window.png")
         self.windowAnchors = [(0,85)]
@@ -407,6 +414,15 @@ class BattleUI (object):
 
         self.change_state(g.BattleUIState.TARGET)
 
+    def get_item(self, user):
+        self.currentUser = user
+        self.selectedThing = None
+        
+        self.cursorIndex = self.itemCursor
+        self.init_cursor()
+
+        self.change_state(g.BattleUIState.ITEM)
+
     def process_get_command(self):
         selection = self.process_input(0, len(self.currentUser.commands)-1)
         if (selection > -1):
@@ -417,6 +433,14 @@ class BattleUI (object):
         selection = self.process_input(0, len(self.validTargets)-1)
         if (selection > -1):
             self.selectedThing = self.validTargets[selection]
+            self.UI_STATE = g.BattleUIState.DEFAULT
+
+    def process_get_item(self):
+        minIndex = max(0, self.itemSelectOffset)
+        maxIndex = min(99, self.itemSelectOffset + 5)
+        selection = self.process_input(0, 4)
+        if (selection > -1):
+            self.selectedThing = db.InvItem.dic[g.INVENTORY[selection + self.itemSelectOffset][0].name].battleAction
             self.UI_STATE = g.BattleUIState.DEFAULT
 
     def render_command_window(self):
@@ -432,6 +456,19 @@ class BattleUI (object):
             self.BC.CONTROLLER.TEXT_MANAGER.draw_text(target.NAME, self.tgtAnchors[index], g.WHITE)
             index += 1
         self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.tgtAnchors[self.cursorIndex],(-self.cursorImage.get_width(),0)))
+
+    def render_item_window(self):
+##        if self.cursorIndex  < 0:
+##            self.cursorIndex = 0
+##        if self.cursorIndex > 4:
+##            self.cursorIndex = 4
+        index = self.itemSelectOffset
+        for i in range(self.itemSelectOffset, self.itemSelectOffset+5):
+            if i < g.INVENTORY_MAX_SLOTS - 5:
+                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(g.INVENTORY[index][0].name, self.itemAnchors[index], g.WHITE)
+                index += 1
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
+                
 
     def render_hero_status(self):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.windowImage, self.windowAnchors[0])
@@ -552,6 +589,9 @@ class BattleUI (object):
         elif (self.UI_STATE == g.BattleUIState.COMMAND):
             self.process_get_command()
             self.render_command_window()
+        elif (self.UI_STATE == g.BattleUIState.ITEM):
+            self.process_get_item()
+            self.render_item_window()
 
         if self.messageList:
             if self.messageList[0].life > 0:
@@ -830,7 +870,7 @@ class BattleActor (object):
             self.commands = []
             self.commands.append(cmd.Attack)
             self.commands.append(cmd.Defend)
-            self.commands.append(cmd.Potion)
+            self.commands.append(cmd.UseItem)
 
     @property
     def hpPercent (self):

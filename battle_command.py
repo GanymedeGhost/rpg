@@ -2,6 +2,27 @@ import my_globals as g
 import event
 import utility
 
+class UseItem():
+
+    def __init__(self, user, action):
+        self.user = user
+        self.action = action
+
+    def name():
+        return "Items"
+
+    def start(user):
+        UseItem.get_item(user)
+
+    def get_item(user):
+        user.BC.change_state(g.BattleState.ITEM)
+        user.BC.UI.get_item(user)
+        user.BC.queuedAction = UseItem.queue
+
+    def queue(user, action):
+        user.BC.eventQueue.queue(action)
+
+
 class Attack():
 
     def __init__(self, user, target):

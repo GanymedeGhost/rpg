@@ -1,9 +1,11 @@
 import pygame
 import pygame.locals
+
 import my_globals as g
 import database as db
 import world
 import battle
+import inventory
 import utility
 
 class Control(object):
@@ -28,6 +30,9 @@ class Control(object):
         g.PARTY_LIST.append(db.Hero.dic["Luxe"])
         g.PARTY_LIST.append(db.Hero.dic["Elle"])
         g.PARTY_LIST.append(db.Hero.dic["Asa"])
+        
+        inventory.init()
+        inventory.add_item("Potion", 5)
 
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
