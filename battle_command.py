@@ -65,11 +65,11 @@ class Attack():
         pos = utility.add_tuple(user.spr.pos, (6*f, 0))
         lastAnim = user.spr.curAnim
         user.BC.animationStack.queue(animation.ChangeAnimation(user.spr, "idle"))
-        user.BC.animationStack.queue(animation.MoveToPos(user.spr, pos, 2))
-        user.BC.animationStack.queue(animation.PlayAnimation(user.spr, "poison"))
+        user.BC.animationStack.queue(animation.BattlerStepForward(user, 2))
+        user.BC.animationStack.queue(animation.PlayAnimation(user.spr, "sleep"))
         user.BC.animationStack.queue(Attack(user, target))
         user.BC.animationStack.queue(animation.ChangeAnimation(user.spr, "idle"))
-        user.BC.animationStack.queue(animation.MoveToPos(user.spr, user.spr.anchor))
+        user.BC.animationStack.queue(animation.BattlerReturn(user))
         user.BC.animationStack.queue(animation.ChangeAnimation(user.spr, lastAnim))
     
     def run(self):
@@ -101,6 +101,7 @@ class Defend():
         Defend.queue(user)
 
     def queue(user):
+        user.BC.UI.create_message(Defend.name())
         user.BC.animationStack.queue(Defend(user))
 
     def run(self):

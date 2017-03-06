@@ -19,45 +19,9 @@ class AnimationStack:
         else:
             return -1
 
-class MoveToPos:
-    """Moves a Sprite to target position at a given speed"""
-    def __init__(self, spr, targetPos, speed = 1):
-        self.spr = spr
-        self.targetPos = targetPos
-        self.speed = speed
-    
-    def run(self):
-        if (self.spr.pos != self.targetPos):
-            distX = self.targetPos[0] - self.spr.pos[0]
-            distY = self.targetPos[1] - self.spr.pos[1]
-            
-            if abs(distX) < self.speed:
-                self.spr.pos = (self.targetPos[0], self.spr.pos[1])
-                distX = 0
-                
-            if abs(distY) < self.speed:
-                self.spr.pos = (self.spr.pos[0], self.targetPos[1])
-                distY = 0
-
-            if (distY < 0):
-                deltaY = -self.speed
-            elif (distY > 0):
-                deltaY = self.speed
-            else:
-                deltaY = 0
-                
-            if (distX < 0):
-                deltaX = -self.speed
-            elif (distX > 0):
-                deltaX = self.speed
-            else:
-                deltaX = 0
-
-            if deltaX != 0 or deltaY != 0:
-                self.spr.move_ip((deltaX, deltaY))
-
-            return True
-        return -1
+############################
+##Sprite Animation Control##
+############################
 
 class ChangeAnimation:
     """Changes a Sprite's current animation"""
@@ -115,4 +79,123 @@ class PlayAnimation:
                 return -1
             else:
                 return True
+        return -1
+
+###########################
+##Sprite Movement Control##
+###########################
+
+class MoveToPos:
+    """Moves a Sprite to target position at a given speed"""
+    def __init__(self, spr, targetPos, speed = 1):
+        self.spr = spr
+        self.targetPos = targetPos
+        self.speed = speed
+    
+    def run(self):
+        if (self.spr.pos != self.targetPos):
+            distX = self.targetPos[0] - self.spr.pos[0]
+            distY = self.targetPos[1] - self.spr.pos[1]
+            
+            if abs(distX) < self.speed:
+                self.spr.pos = (self.targetPos[0], self.spr.pos[1])
+                distX = 0
+                
+            if abs(distY) < self.speed:
+                self.spr.pos = (self.spr.pos[0], self.targetPos[1])
+                distY = 0
+
+            if (distY < 0):
+                deltaY = -self.speed
+            elif (distY > 0):
+                deltaY = self.speed
+            else:
+                deltaY = 0
+                
+            if (distX < 0):
+                deltaX = -self.speed
+            elif (distX > 0):
+                deltaX = self.speed
+            else:
+                deltaX = 0
+
+            if deltaX != 0 or deltaY != 0:
+                self.spr.move_ip((deltaX, deltaY))
+
+            return True
+        return -1
+
+class BattlerStepForward:
+    
+    def __init__(self, battler, speed = 1):
+        self.spr = battler.spr
+        self.speed = speed
+        
+        if battler.isHero:
+            f = 1
+        else:
+            f = -1
+
+        self.targetX = battler.spr.anchor[0] - 8*f
+
+    def run(self):
+        if (self.spr.pos[0] != self.targetX):
+            distX = self.targetX - self.spr.pos[0]
+            
+            if abs(distX) < self.speed:
+                self.spr.pos = (self.targetX, self.spr.pos[1])
+                distX = 0
+                
+            if (distX < 0):
+                deltaX = -self.speed
+            elif (distX > 0):
+                deltaX = self.speed
+            else:
+                deltaX = 0
+
+            if deltaX != 0:
+                self.spr.move_ip((deltaX, 0))
+
+            return True
+        return -1
+
+class BattlerReturn:
+    
+    """Moves a Sprite to target position at a given speed"""
+    def __init__(self, battler, speed = 1):
+        self.spr = battler.spr
+        self.targetPos = battler.spr.anchor
+        self.speed = speed
+    
+    def run(self):
+        if (self.spr.pos != self.targetPos):
+            distX = self.targetPos[0] - self.spr.pos[0]
+            distY = self.targetPos[1] - self.spr.pos[1]
+            
+            if abs(distX) < self.speed:
+                self.spr.pos = (self.targetPos[0], self.spr.pos[1])
+                distX = 0
+                
+            if abs(distY) < self.speed:
+                self.spr.pos = (self.spr.pos[0], self.targetPos[1])
+                distY = 0
+
+            if (distY < 0):
+                deltaY = -self.speed
+            elif (distY > 0):
+                deltaY = self.speed
+            else:
+                deltaY = 0
+                
+            if (distX < 0):
+                deltaX = -self.speed
+            elif (distX > 0):
+                deltaX = self.speed
+            else:
+                deltaX = 0
+
+            if deltaX != 0 or deltaY != 0:
+                self.spr.move_ip((deltaX, deltaY))
+
+            return True
         return -1
