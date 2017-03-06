@@ -28,28 +28,34 @@ class MoveToPos:
     
     def run(self):
         if (self.spr.pos != self.targetPos):
-            dX = self.targetPos[0] - self.spr.pos[0]
-            dY = self.targetPos[1] - self.spr.pos[1]
+            distX = self.targetPos[0] - self.spr.pos[0]
+            distY = self.targetPos[1] - self.spr.pos[1]
             
-            if abs(dX) < self.speed:
+            if abs(distX) < self.speed:
                 self.spr.pos = (self.targetPos[0], self.spr.pos[1])
-                dX = 0
-            if abs(dY) < self.speed:
+                distX = 0
+                
+            if abs(distY) < self.speed:
                 self.spr.pos = (self.spr.pos[0], self.targetPos[1])
-                dY = 0
+                distY = 0
 
-            if (dY < 0):
-                self.spr.move_ip((0, -self.speed))
-            elif (dY > 0):
-                self.spr.move_ip((0, self.speed))
+            if (distY < 0):
+                deltaY = -self.speed
+            elif (distY > 0):
+                deltaY = self.speed
+            else:
+                deltaY = 0
                 
-            if (dX < 0):
-                self.spr.move_ip((-self.speed, 0))
-            elif (dX > 0):
-                self.spr.move_ip((self.speed, 0))
-                
-            
-                
+            if (distX < 0):
+                deltaX = -self.speed
+            elif (distX > 0):
+                deltaX = self.speed
+            else:
+                deltaX = 0
+
+            if deltaX != 0 or deltaY != 0:
+                self.spr.move_ip((deltaX, deltaY))
+
             return True
         return -1
 
@@ -95,22 +101,18 @@ class PlayAnimation:
         except KeyError:
             self.length = 0
         self.repeats = repeats * self.length
-        self.plays = -1
+        self.frameCount = -1
 
     def run(self):
         if self.spr.animated:
-            if self.plays < 0:
+            if self.frameCount < 0:
                 self.spr.set_anim(self.animation, True)
-                self.plays += 1
+                self.frameCount += 1
             if self.spr.curFrame == self.length:
-                self.plays += 1
-                utility.log(str(self.plays))
-            if self.plays > self.repeats:
+                self.frameCount += 1
+                utility.log(str(self.frameCount))
+            if self.frameCount > self.repeats:
                 return -1
             else:
                 return True
         return -1
-
-
-
-    
