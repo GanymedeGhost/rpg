@@ -8,7 +8,7 @@ import database as db
 import battle_command as cmd
 import battle_ai as bai
 import utility
-import animation
+import event
 
 ###################
 ##CONTROL CLASSES##
@@ -108,7 +108,7 @@ class BattleController (object):
         self.currentBattler = None
         self.queuedAction = None
         self.UI_CALLBACK = None
-        self.animationStack = animation.AnimationStack()
+        self.eventQueue = event.EventQueue()
 
     def change_state(self, state):
         self.PREV_BATTLE_STATE = self.BATTLE_STATE
@@ -120,9 +120,9 @@ class BattleController (object):
         self.BATTLE_STATE = self.PREV_BATTLE_STATE
 
     def update(self):
-        animationCallback = self.animationStack.run()
+        eventCallback = self.eventQueue.run()
         
-        if not self.UI.messageList and animationCallback < 0:
+        if not self.UI.messageList and eventCallback < 0:
             if self.BATTLE_STATE == g.BattleState.AI:
                 self.UI.update()
                 if g.AI_TIMER > 0 and self.currentBattler.HP > 0:
@@ -167,7 +167,6 @@ class BattleController (object):
         return nextBattler
 
     def next_round(self):
-        
         self.rounds += 1
         
         utility.log("", g.LogLevel.FEEDBACK)
@@ -289,7 +288,7 @@ class BattleController (object):
 
     def crit_calc(self, user, target):
         roll = random.randint(0, 255)
-        #utility.log("Crit roll : " + str(roll))
+        utility.log("Crit roll : " + str(roll))
         if roll < user.LCK:
             utility.log("Crit!", g.LogLevel.FEEDBACK)
             return True
@@ -316,14 +315,14 @@ class BattleController (object):
             utility.log(target.NAME + " has a defense bonus", g.LogLevel.FEEDBACK)
             modValue = target.DEF // 2
         defTotal = target.DEF + modValue
-        #utility.log("DEF: " + str(target.DEF) + " (+" + str(modValue) + ")")
+        utility.log("DEF: " + str(target.DEF) + " (+" + str(modValue) + ")")
         return defTotal
 
     def phys_dmg_calc(self, user, target):
         dmgMax = user.ATK * 2
         dmgMin = dmgMax - (user.ATK // 2)
         dmg = random.randint(dmgMin, dmgMax)
-        #utility.log("ATK: " + str(dmg) + " (" + str(dmgMin) + "," + str(dmgMax) + ")")
+        utility.log("ATK: " + str(dmg) + " (" + str(dmgMin) + "," + str(dmgMax) + ")")
         if (dmg < 0):
             dmg = 0
         return dmg
@@ -382,7 +381,6 @@ class BattleUI (object):
 
         self.currentUser = 0
         self.validTargets = []
-        #self.commandList = []
 
         self.popupList = []
         self.messageList = []
@@ -583,11 +581,12 @@ class BattleUI (object):
         utility.log("UI STATE CHANGED: " + str(self.PREV_UI_STATE) + " >> " + str(self.UI_STATE))
 
     def prev_state(self):
-
         utility.log(self.UI_STATE)
         utility.log(self.BC.BATTLE_STATE)
+        
         self.UI_STATE = self.PREV_UI_STATE
         self.BC.prev_state()
+        
         utility.log()
         utility.log(self.UI_STATE)
         utility.log(self.BC.BATTLE_STATE)
@@ -599,7 +598,6 @@ class BattleUI (object):
         if (g.CONFIRM_TIMER >= 0):
             g.CONFIRM_TIMER -= dT   
         
-        ##self.BC.CONTROLLER.event_loop()
         if self.BC.CONTROLLER.KEYS[g.KEY_DOWN]:
             if g.CURSOR_TIMER < 0:
                 g.CURSOR_TIMER = g.CURSOR_DELAY
@@ -717,24 +715,31 @@ class Sprite (pygame.sprite.Sprite):
                      (1,0),
                      (2,0)]
         self.create_animation("idle", framelist)
+        
         framelist = [(1,1),
                      (0,1),
                      (1,1),
                      (2,1)]
         self.create_animation("defend", framelist)
+        
         framelist = [(0,1)]
         self.create_animation("attack", framelist)
+        
         framelist = [(0,4)]
         self.create_animation("dead", framelist)
+        
         framelist = [(0,2)]
         self.create_animation("damage", framelist)
+        
         framelist = [(0,2)]
         self.create_animation("stun", framelist)
+        
         framelist = [(1,3),
                      (0,3),
                      (1,3),
                      (2,3)]
         self.create_animation("poison", framelist)
+        
         framelist = [(1,5),
                      (0,5),
                      (1,5),
@@ -797,23 +802,9 @@ class BattleActor (object):
         self.HIT = HIT
         self.EVA = EVA
 
-        self.currentTurnPos = 0
-
         self.resD = resD
         self.resS = resS
 
-        self.battlerIndex = self.BC.battlerCount
-        self.BC.battlerCount += 1
-
-        self.size = size
-        self.spr = Sprite(spr, size, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
-        self.icon = icon
-
-        #TODO: Add damage resistances
-
-        
-        self.aggro = random.randint(0, math.floor(self.HP // 10))
-        
         self.mods = {}
         self.mods[g.BattlerStatus.DEFEND] = 0
         self.mods[g.BattlerStatus.SLEEP] = 0
@@ -821,6 +812,17 @@ class BattleActor (object):
         self.mods[g.BattlerStatus.SILENCE] = 0
         self.mods[g.BattlerStatus.STUN] = 0
         self.mods[g.BattlerStatus.PARALYZE] = 0
+
+        self.currentTurnPos = 0
+
+        self.battlerIndex = self.BC.battlerCount
+        self.BC.battlerCount += 1
+
+        self.size = size
+        self.spr = Sprite(spr, size, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
+        self.icon = icon
+        
+        self.aggro = random.randint(0, math.floor(self.HP // 10))
 
         self.ai = ai
         self.isAI = (not self.isHero)
@@ -960,7 +962,7 @@ class BattleActor (object):
 
     def take_damage(self, damage, damageType = g.DamageType.NONE):
         self.aggro_down()
-        #TODO: implement damage types and resistances
+
         damage -= math.floor(damage * self.resD[damageType])
         if damage >= 0:
             col = g.WHITE

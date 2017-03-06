@@ -1,5 +1,5 @@
 import my_globals as g
-import animation
+import event
 import utility
 
 class Attack():
@@ -64,13 +64,13 @@ class Attack():
             f = 1
         pos = utility.add_tuple(user.spr.pos, (6*f, 0))
         lastAnim = user.spr.curAnim
-        user.BC.animationStack.queue(animation.ChangeAnimation(user.spr, "idle"))
-        user.BC.animationStack.queue(animation.BattlerStepForward(user, 2))
-        user.BC.animationStack.queue(animation.PlayAnimation(user.spr, "sleep"))
-        user.BC.animationStack.queue(Attack(user, target))
-        user.BC.animationStack.queue(animation.ChangeAnimation(user.spr, "idle"))
-        user.BC.animationStack.queue(animation.BattlerReturn(user))
-        user.BC.animationStack.queue(animation.ChangeAnimation(user.spr, lastAnim))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Attack(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
     
     def run(self):
         utility.log(self.user.NAME + " attacks " + self.target.NAME)
@@ -102,7 +102,7 @@ class Defend():
 
     def queue(user):
         user.BC.UI.create_message(Defend.name())
-        user.BC.animationStack.queue(Defend(user))
+        user.BC.eventQueue.queue(Defend(user))
 
     def run(self):
         utility.log(self.user.NAME + " is defending.", g.LogLevel.FEEDBACK)
@@ -171,13 +171,11 @@ class Poison():
         
         pos = utility.add_tuple(user.spr.pos, (0, -4))
         lastAnim = user.spr.curAnim
-        user.BC.animationStack.queue(animation.ChangeAnimation(user.spr, "idle"))
-        user.BC.animationStack.queue(animation.MoveToPos(user.spr, pos, 2))
-        user.BC.animationStack.queue(animation.MoveToPos(user.spr, user.spr.anchor))
-        user.BC.animationStack.queue(animation.MoveToPos(user.spr, pos, 2))
-        user.BC.animationStack.queue(animation.MoveToPos(user.spr, user.spr.anchor))
-        user.BC.animationStack.queue(Poison(user, target))
-        user.BC.animationStack.queue(animation.ChangeAnimation(user.spr, lastAnim))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
+        user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
+        user.BC.eventQueue.queue(Poison(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
 
     def run(self):
         utility.log(self.user.NAME + " uses Poison on " + self.target.NAME)

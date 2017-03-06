@@ -3,21 +3,25 @@ import pygame.locals
 import my_globals as g
 import utility
 
-class AnimationStack:
-    def __init__(self, stack=[]):
-        self.stack = stack
+class EventQueue:
+    def __init__(self, _queue=[]):
+        self._queue = _queue
 
     def queue(self, action):
-        self.stack.append(action)
+        self._queue.append(action)
+
+    def queueAt(self, action, index):
+        self._queue.insert(index, action)
 
     def run (self):
-        if (self.stack):
-            currentAnimCallback = self.stack[0].run()
-            if currentAnimCallback < 0:
-                del self.stack[0]
+        if (self._queue):
+            currentEventCallback = self._queue[0].run()
+            if currentEventCallback < 0:
+                del self._queue[0]
             return True
         else:
             return -1
+        
 
 ############################
 ##Sprite Animation Control##
@@ -123,6 +127,20 @@ class MoveToPos:
                 self.spr.move_ip((deltaX, deltaY))
 
             return True
+        return -1
+
+class JumpInPlace:
+
+    def __init__(self, queue, spr, speed = 2, height = 8):
+        self.queue = queue
+        self.spr = spr
+        self.speed = speed
+        self.height = height
+
+    def run(self):
+        maxHeight = (self.spr.pos[0], self.spr.pos[1] - self.height)
+        self.queue.queueAt(MoveToPos(self.spr, maxHeight, self.speed), 1)
+        self.queue.queueAt(MoveToPos(self.spr, self.spr.pos, self.speed), 2)
         return -1
 
 class BattlerStepForward:
