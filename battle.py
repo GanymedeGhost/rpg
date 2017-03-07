@@ -9,8 +9,10 @@ import my_globals as g
 import database as db
 import battle_command as cmd
 import battle_ai as bai
-import utility
 import event
+import inventory
+import utility
+
 
 ###################
 ##CONTROL CLASSES##
@@ -427,12 +429,14 @@ class BattleUI (object):
         selection = self.process_input(0, len(self.currentUser.commands)-1)
         if (selection > -1):
             self.selectedThing = self.currentUser.commands[selection]
+            self.commandCursor = self.cursorIndex
             self.UI_STATE = g.BattleUIState.DEFAULT
 
     def process_get_target(self):
         selection = self.process_input(0, len(self.validTargets)-1)
         if (selection > -1):
             self.selectedThing = self.validTargets[selection]
+            self.targetCursor = self.cursorIndex
             self.UI_STATE = g.BattleUIState.DEFAULT
 
     def process_get_item(self):
@@ -440,8 +444,12 @@ class BattleUI (object):
         maxIndex = min(99, self.itemSelectOffset + 5)
         selection = self.process_input(0, 4)
         if (selection > -1):
-            self.selectedThing = db.InvItem.dic[g.INVENTORY[selection + self.itemSelectOffset][0].name].battleAction
-            self.UI_STATE = g.BattleUIState.DEFAULT
+            #item = g.INVENTORY[selection + self.itemSelectOffset][0]
+            if item.battleAction != None:
+                inventory.remove_item(item.name)
+                self.selectedThing = db.InvItem.dic[item.name].battleAction
+                self.itemCursor = self.cursorIndex
+                self.UI_STATE = g.BattleUIState.DEFAULT
 
     def render_command_window(self):
         index = 0
@@ -465,7 +473,10 @@ class BattleUI (object):
         index = self.itemSelectOffset
         for i in range(self.itemSelectOffset, self.itemSelectOffset+5):
             if i < g.INVENTORY_MAX_SLOTS - 5:
-                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(g.INVENTORY[index][0].name, self.itemAnchors[index], g.WHITE)
+                item = g.INVENTORY[index][0]
+                if (item.name != ""):
+                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text(item.name, self.itemAnchors[index], g.WHITE)
+                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(g.INVENTORY[index][1]), utility.add_tuple(self.itemAnchors[index], (80, 0)), g.WHITE)
                 index += 1
         self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
                 
@@ -657,7 +668,10 @@ class BattleUI (object):
         elif self.BC.CONTROLLER.KEYS[g.KEY_CANCEL]:
             if g.CONFIRM_TIMER < 0:
                 g.CURSOR_TIMER = g.CURSOR_DELAY
-                if (self.UI_STATE == g.BattleUIState.TARGET):
+                if (self.UI_STATE == g.BattleUIState.TARGET or
+                    self.UI_STATE == g.BattleUIState.ITEM or
+                    self.UI_STATE == g.BattleUIState.SKILL):
+                    
                     self.cursorIndex = self.commandCursor
                     self.change_state(g.BattleUIState.COMMAND)
                     self.BC.change_state(g.BattleState.COMMAND)
