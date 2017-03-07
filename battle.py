@@ -361,6 +361,8 @@ class BattleUI (object):
         self.turnBannerAnchor = (2, 0)
         self.turnAnchors = [(8, 0), (34, 0), (59, 0), (84, 0), (109, 0), (134, 0), (159, 0), (185, 0), (185, 0), (185, 0), (185, 0)]
 
+        self.helpLabel = ""
+
         self.cursorIndex = 0
         self.commandCursor = []
         self.targetCursor = []
@@ -377,6 +379,7 @@ class BattleUI (object):
             self.itemSelectOffset.append(0)
 
         self.windowImage = pygame.image.load("spr/battle/ui-window.png")
+        self.helpImage = pygame.image.load("spr/battle/ui-help.png")
         self.windowAnchors = [(0,85)]
 
         self.battlerCursorOffset = (-4, -8)
@@ -450,6 +453,7 @@ class BattleUI (object):
                 self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
                 self.BC.change_state(g.BattleState.FIGHT)
         else:
+            self.helpLabel = ""
             self.BC.prev_state()
             self.restore_cursor()
 
@@ -460,6 +464,7 @@ class BattleUI (object):
         if (selection > -1):
             item = g.INVENTORY[selection + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]][0]
             if item.battleAction != None:
+                self.helpLabel = item.name
                 self.selectedThing = db.InvItem.dic[item.name].battleAction
                 self.itemCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
                 self.BC.change_state(g.BattleState.FIGHT)
@@ -493,7 +498,6 @@ class BattleUI (object):
                 index += 1
         self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
                 
-
     def render_hero_status(self):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.windowImage, self.windowAnchors[0])
         index = 0
@@ -586,15 +590,11 @@ class BattleUI (object):
             if battler.mods[g.BattlerStatus.POISON] > 0:
                 self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
-               
 
-    def render_output(self, maxLines = 6):
-        lineCount = 0
-        for line in reversed(self.output):
-            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(line, self.outAnchors[lineCount])
-            lineCount += 1
-            if lineCount > maxLines-1:
-                break
+    def render_help(self):
+        if (self.helpLabel != ""):
+            self.BC.CONTROLLER.VIEW_SURF.blit(self.helpImage, utility.add_tuple(self.windowAnchors[0], (0,-11)))
+            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(self.helpLabel, utility.add_tuple(self.windowAnchors[0], (4,-6)), g.WHITE)
 
     def init_cursor(self):
         g.CURSOR_TIMER = 0
@@ -602,8 +602,9 @@ class BattleUI (object):
 
     def update(self):
         self.BC.CONTROLLER.VIEW_SURF.fill(g.GREEN_BLUE)
-        self.render_hero_status()
         self.render_battlers()
+        self.render_hero_status()
+        self.render_help()
         
         self.render_turns()
         self.render_turn_cursor()
@@ -662,6 +663,7 @@ class BattleUI (object):
         elif self.BC.CONTROLLER.KEYS[g.KEY_CONFIRM]:
             if g.CONFIRM_TIMER < 0:
                 g.CONFIRM_TIMER = g.CONFIRM_DELAY
+                self.helpLabel = ""
                 return self.cursorIndex
         elif self.BC.CONTROLLER.KEYS[g.KEY_CANCEL]:
             if g.CONFIRM_TIMER < 0:
@@ -669,6 +671,7 @@ class BattleUI (object):
                 if self.BC.BATTLE_STATE != g.BattleState.COMMAND:
                     if self.BC.BATTLE_STATE == g.BattleState.TARGET:
                         self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
+                    self.helpLabel = ""
                     self.BC.prev_state()
                     self.restore_cursor()         
         return -1
