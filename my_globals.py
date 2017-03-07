@@ -103,16 +103,6 @@ class BattleState():
 
     SIZE = 8
 
-class BattleUIState():
-    DEFAULT = 0
-    TARGET = 1
-    COMMAND = 2
-    SKILL = 3
-    ITEM = 4
-    AI = 5
-
-    SIZE = 6
-
 class Initiative():
     NONE = 0
     PARTY = 1

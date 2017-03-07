@@ -284,11 +284,19 @@ def create_data():
 	
 	InvItem(name, desc, limit, useAction, battleAction)
 
-	name = "Soul Stone"
+	name = "Revive"
 	desc = "Restores life"
 	limit = 99
 	useAction = None
-	battleAction = cmd.PhoenixDown
+	battleAction = cmd.Revive
+	
+	InvItem(name, desc, limit, useAction, battleAction)
+
+	name = "Antidote"
+	desc = "Cures poison"
+	limit = 99
+	useAction = None
+	battleAction = cmd.Antidote
 	
 	InvItem(name, desc, limit, useAction, battleAction)
 

@@ -33,7 +33,8 @@ class Control(object):
         
         inventory.init()
         inventory.add_item("Potion", 5)
-        inventory.add_item("Soul Stone", 2)
+        inventory.add_item("Antidote", 5)
+        inventory.add_item("Revive", 2)
 
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
