@@ -39,7 +39,6 @@ def remove_item(item, quantity=1):
             if g.INVENTORY[i][1] <= quantity:
                 clear_slot(i)
             else:
-                utility.log()
                 newItem = db.InvItem.dic[item]
                 newQuantity = g.INVENTORY[i][1]-1
                 g.INVENTORY[i] = (newItem, newQuantity)

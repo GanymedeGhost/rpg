@@ -362,12 +362,19 @@ class BattleUI (object):
         self.turnAnchors = [(8, 0), (34, 0), (59, 0), (84, 0), (109, 0), (134, 0), (159, 0), (185, 0), (185, 0), (185, 0), (185, 0)]
 
         self.cursorIndex = 0
-        self.commandCursor = 0
-        self.targetCursor = 0
-        self.skillCursor = 0
-        self.itemCursor = 0
-        self.skillSelectOffset = 0
-        self.itemSelectOffset = 0
+        self.commandCursor = []
+        self.targetCursor = []
+        self.skillCursor = []
+        self.itemCursor = []
+        self.skillSelectOffset = []
+        self.itemSelectOffset = []
+        for i in range(0,7):
+            self.commandCursor.append(0)
+            self.targetCursor.append(0)
+            self.skillCursor.append(0)
+            self.itemCursor.append(0)
+            self.skillSelectOffset.append(0)
+            self.itemSelectOffset.append(0)
 
         self.windowImage = pygame.image.load("spr/battle/ui-window.png")
         self.windowAnchors = [(0,85)]
@@ -401,7 +408,7 @@ class BattleUI (object):
         self.currentUser = user
         self.selectedThing = None
         
-        self.cursorIndex = self.targetCursor
+        self.cursorIndex = self.commandCursor[user.battlerIndex]
         self.init_cursor()
 
         self.change_state(g.BattleUIState.COMMAND)
@@ -410,8 +417,11 @@ class BattleUI (object):
         self.currentUser = user
         self.validTargets = validTargets
         self.selectedThing = None
-        
-        self.cursorIndex = self.targetCursor
+
+        if len(validTargets) > self.targetCursor[self.BC.currentBattler.battlerIndex]:
+            self.cursorIndex = self.targetCursor[self.BC.currentBattler.battlerIndex]
+        else:
+            self.cursorIndex = 0
         self.init_cursor()
 
         self.change_state(g.BattleUIState.TARGET)
@@ -420,7 +430,7 @@ class BattleUI (object):
         self.currentUser = user
         self.selectedThing = None
         
-        self.cursorIndex = self.itemCursor
+        self.cursorIndex = self.itemCursor[user.battlerIndex]
         self.init_cursor()
 
         self.change_state(g.BattleUIState.ITEM)
@@ -429,26 +439,25 @@ class BattleUI (object):
         selection = self.process_input(0, len(self.currentUser.commands)-1)
         if (selection > -1):
             self.selectedThing = self.currentUser.commands[selection]
-            self.commandCursor = self.cursorIndex
+            self.commandCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
             self.UI_STATE = g.BattleUIState.DEFAULT
 
     def process_get_target(self):
         selection = self.process_input(0, len(self.validTargets)-1)
         if (selection > -1):
             self.selectedThing = self.validTargets[selection]
-            self.targetCursor = self.cursorIndex
+            self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
             self.UI_STATE = g.BattleUIState.DEFAULT
 
     def process_get_item(self):
-        minIndex = max(0, self.itemSelectOffset)
-        maxIndex = min(99, self.itemSelectOffset + 5)
+        minIndex = max(0, self.itemSelectOffset[self.BC.currentBattler.battlerIndex])
+        maxIndex = min(99, self.itemSelectOffset[self.BC.currentBattler.battlerIndex] + 5)
         selection = self.process_input(0, 4)
         if (selection > -1):
-            #item = g.INVENTORY[selection + self.itemSelectOffset][0]
+            item = g.INVENTORY[selection + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]][0]
             if item.battleAction != None:
-                inventory.remove_item(item.name)
                 self.selectedThing = db.InvItem.dic[item.name].battleAction
-                self.itemCursor = self.cursorIndex
+                self.itemCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
                 self.UI_STATE = g.BattleUIState.DEFAULT
 
     def render_command_window(self):
@@ -470,8 +479,8 @@ class BattleUI (object):
 ##            self.cursorIndex = 0
 ##        if self.cursorIndex > 4:
 ##            self.cursorIndex = 4
-        index = self.itemSelectOffset
-        for i in range(self.itemSelectOffset, self.itemSelectOffset+5):
+        index = self.itemSelectOffset[self.BC.currentBattler.battlerIndex]
+        for i in range(self.itemSelectOffset[self.BC.currentBattler.battlerIndex], self.itemSelectOffset[self.BC.currentBattler.battlerIndex]+5):
             if i < g.INVENTORY_MAX_SLOTS - 5:
                 item = g.INVENTORY[index][0]
                 if (item.name != ""):
@@ -509,13 +518,14 @@ class BattleUI (object):
                 self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.BC.currentBattler.spr.pos, cursorOffset))
 
     def render_target_cursor(self):
-        battler = self.validTargets[self.cursorIndex]
-        if battler:
-            cursorOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
-            self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(battler.spr.pos, cursorOffset))
-            if battler.turnOrder >= 0:
-                #this is currently rendering over any icons in the turn area
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
+        if len(self.validTargets) > self.cursorIndex:
+            battler = self.validTargets[self.cursorIndex]
+            if battler:
+                cursorOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(battler.spr.pos, cursorOffset))
+                if battler.turnOrder >= 0:
+                    #this is currently rendering over any icons in the turn area
+                    self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
 
     def render_battlers(self):
         dt = self.BC.CONTROLLER.CLOCK.get_time()
@@ -668,15 +678,21 @@ class BattleUI (object):
         elif self.BC.CONTROLLER.KEYS[g.KEY_CANCEL]:
             if g.CONFIRM_TIMER < 0:
                 g.CURSOR_TIMER = g.CURSOR_DELAY
-                if (self.UI_STATE == g.BattleUIState.TARGET or
-                    self.UI_STATE == g.BattleUIState.ITEM or
-                    self.UI_STATE == g.BattleUIState.SKILL):
-                    
-                    self.cursorIndex = self.commandCursor
-                    self.change_state(g.BattleUIState.COMMAND)
-                    self.BC.change_state(g.BattleState.COMMAND)
-                    
+                if self.UI_STATE == g.BattleUIState.TARGET:
+                    self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
+                    self.revert_to_command()
+                elif self.UI_STATE == g.BattleUIState.ITEM:
+                    self.itemCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
+                    self.revert_to_command()
+                elif self.UI_STATE == g.BattleUIState.SKILL:
+                    self.skillCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
+                    self.revert_to_command()               
         return -1
+
+    def revert_to_command(self):
+        self.cursorIndex = self.commandCursor[self.BC.currentBattler.battlerIndex]
+        self.change_state(g.BattleUIState.COMMAND)
+        self.BC.change_state(g.BattleState.COMMAND)
 
     def create_popup(self, string, pos, col = g.WHITE, life = g.BATTLE_POPUP_LIFE):
         self.popupList.append(BattleUIPopup(self, string, pos, col, life))

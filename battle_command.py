@@ -1,5 +1,6 @@
 import my_globals as g
 import event
+import inventory
 import utility
 
 class UseItem():
@@ -334,6 +335,7 @@ class Potion():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
     
     def run(self):
+        inventory.remove_item("Potion")
         utility.log(self.user.NAME + " potions " + self.target.NAME)
         self.target.heal_hp(50)
         self.user.after_turn()
