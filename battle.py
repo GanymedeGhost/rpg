@@ -443,11 +443,15 @@ class BattleUI (object):
             self.UI_STATE = g.BattleUIState.DEFAULT
 
     def process_get_target(self):
-        selection = self.process_input(0, len(self.validTargets)-1)
-        if (selection > -1):
-            self.selectedThing = self.validTargets[selection]
-            self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
-            self.UI_STATE = g.BattleUIState.DEFAULT
+        if self.validTargets:
+            selection = self.process_input(0, len(self.validTargets)-1)
+            if (selection > -1):
+                self.selectedThing = self.validTargets[selection]
+                self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
+                self.UI_STATE = g.BattleUIState.DEFAULT
+        else:
+            self.revert_to_item()
+
 
     def process_get_item(self):
         minIndex = max(0, self.itemSelectOffset[self.BC.currentBattler.battlerIndex])
@@ -485,7 +489,7 @@ class BattleUI (object):
                 item = g.INVENTORY[index][0]
                 if (item.name != ""):
                     self.BC.CONTROLLER.TEXT_MANAGER.draw_text(item.name, self.itemAnchors[index], g.WHITE)
-                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(g.INVENTORY[index][1]), utility.add_tuple(self.itemAnchors[index], (80, 0)), g.WHITE)
+                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(g.INVENTORY[index][1]), utility.add_tuple(self.itemAnchors[index], (86, 0)), g.WHITE)
                 index += 1
         self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
                 
@@ -518,14 +522,15 @@ class BattleUI (object):
                 self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.BC.currentBattler.spr.pos, cursorOffset))
 
     def render_target_cursor(self):
-        if len(self.validTargets) > self.cursorIndex:
-            battler = self.validTargets[self.cursorIndex]
-            if battler:
-                cursorOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(battler.spr.pos, cursorOffset))
-                if battler.turnOrder >= 0:
-                    #this is currently rendering over any icons in the turn area
-                    self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
+        if self.validTargets:
+            if len(self.validTargets) > self.cursorIndex:
+                battler = self.validTargets[self.cursorIndex]
+                if battler:
+                    cursorOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
+                    self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(battler.spr.pos, cursorOffset))
+                    if battler.turnOrder >= 0:
+                        #this is currently rendering over any icons in the turn area
+                        self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
 
     def render_battlers(self):
         dt = self.BC.CONTROLLER.CLOCK.get_time()
@@ -634,12 +639,12 @@ class BattleUI (object):
             return returnVal
         else:
             return None
-        
 
     def change_state(self, state):
         self.PREV_UI_STATE = self.UI_STATE
-        self.UI_STATE = state
-        utility.log("UI STATE CHANGED: " + str(self.PREV_UI_STATE) + " >> " + str(self.UI_STATE))
+        if self.UI_STATE != state:
+            self.UI_STATE = state
+            utility.log("UI STATE CHANGED: " + str(self.PREV_UI_STATE) + " >> " + str(self.UI_STATE))
 
     def prev_state(self):
         utility.log(self.UI_STATE)
@@ -686,13 +691,18 @@ class BattleUI (object):
                     self.revert_to_command()
                 elif self.UI_STATE == g.BattleUIState.SKILL:
                     self.skillCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
-                    self.revert_to_command()               
+                    self.revert_to_command()              
         return -1
 
     def revert_to_command(self):
         self.cursorIndex = self.commandCursor[self.BC.currentBattler.battlerIndex]
         self.change_state(g.BattleUIState.COMMAND)
         self.BC.change_state(g.BattleState.COMMAND)
+
+    def revert_to_item(self):
+        self.cursorIndex = self.itemCursor[self.BC.currentBattler.battlerIndex]
+        self.change_state(g.BattleUIState.ITEM)
+        self.BC.change_state(g.BattleState.ITEM)
 
     def create_popup(self, string, pos, col = g.WHITE, life = g.BATTLE_POPUP_LIFE):
         self.popupList.append(BattleUIPopup(self, string, pos, col, life))
@@ -1057,18 +1067,56 @@ class BattleActor (object):
         self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
         self.check_hp()
 
+    def take_sp_damage(self, damage, damageType = g.DamageType.NONE):
+        self.aggro_down()
+
+        damage -= math.floor(damage * self.resD[damageType])
+        if damage >= 0:
+            col = g.RED
+        else:
+            col = g.Blue
+            
+        self.SP -= damage
+        utility.log(self.NAME + " takes " + str(damage) + " SP damage!")
+        self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
+        self.check_sp()
+
+    def heal_sp(self, damage, damageType = g.DamageType.NONE):
+        damage -= math.floor(damage * self.resD[damageType])
+        if damage >= 0:
+            col = g.BLUE
+        else:
+            col = g.GREEN
+            
+        self.SP += damage
+        utility.log(self.NAME + " restores " + str(damage) + " SP!")
+        self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
+        self.check_sp()
+
     def check_hp(self):
-        if (self.HP < 0):
-            self.HP = 0
-        if (self.HP > self.MAXHP):
-            self.HP = self.MAXHP
-        if (self.HP == 0):
+        if (self.HP <= 0):
             self.kill()
             utility.log(self.NAME + " died!")
+        elif (self.HP > self.MAXHP):
+            self.HP = self.MAXHP
+            
+
+    def check_sp(self):
+        if (self.SP < 0):
+            self.SP = 0
+        elif (self.SP > self.MAXSP):
+            self.SP = self.MAXSP
 
     def kill(self):
         self.reset_anim()
         for mod in self.mods:
             utility.log(str (mod))
             self.mods[mod] = 0
+        self.HP = 0
         self.mods[g.BattlerStatus.DEATH] = 1
+
+    def revive(self, hpPercent):
+        self.BC.UI.create_popup("REVIVE", self.spr.pos, g.GREEN)
+        self.HP = max(1, math.floor(self.MAXHP * hpPercent / 100))
+        self.reset_anim()
+        self.mods[g.BattlerStatus.DEATH] = 0
