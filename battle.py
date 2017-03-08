@@ -382,6 +382,7 @@ class BattleUI (object):
 
         self.windowImage = pygame.image.load("spr/battle/ui-window.png")
         self.helpImage = pygame.image.load("spr/battle/ui-help.png")
+        self.spWindowImage = pygame.image.load("spr/battle/ui-sp.png")
         self.windowAnchors = [(0,85)]
 
         self.battlerCursorOffset = (-4, -8)
@@ -393,6 +394,15 @@ class BattleUI (object):
         self.iconDown = pygame.image.load("spr/battle/icon-down.png")
         self.iconDefend = pygame.image.load("spr/battle/icon-shield.png")
         self.iconPoison = pygame.image.load("spr/battle/icon-poison.png")
+        self.iconBlood = pygame.image.load("spr/battle/icon-blood.png")
+        self.iconMoon = pygame.image.load("spr/battle/icon-moon.png")
+        self.iconNotes = []
+        self.iconNotes.append(pygame.image.load("spr/battle/icon-note-wht.png"))
+        self.iconNotes.append(pygame.image.load("spr/battle/icon-note-wht.png"))
+        self.iconNotes.append(pygame.image.load("spr/battle/icon-note-red.png"))
+        self.iconNotes.append(pygame.image.load("spr/battle/icon-note-blu.png"))
+        self.iconNotes.append(pygame.image.load("spr/battle/icon-note-ylw.png"))
+        self.iconNotes.append(pygame.image.load("spr/battle/icon-note-grn.png"))
 
         self.turnImage = pygame.image.load("spr/battle/turn.png")
         self.heroTurnImage = pygame.image.load("spr/battle/turn-hero.png")
@@ -523,9 +533,15 @@ class BattleUI (object):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
 
     def render_skill_window(self):
+        battler = self.BC.currentBattler
+        
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.SP) + "/" + str(battler.MAXSP), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
+        
         minIndex = 0
         maxIndex = 5
-        battler = self.BC.currentBattler
+        
         index = self.skillSelectOffset[battler.battlerIndex]
         for i in range(minIndex, min(len(battler.skills), maxIndex)):
             if i < 50:
