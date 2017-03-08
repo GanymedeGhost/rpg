@@ -36,10 +36,10 @@ class BattleController (object):
             self.initiative = initiative
         else:
             roll = random.randint(0, 100)
-            if (roll < 50):
+            if (roll < 80):
                 utility.log ("Initiative NONE")
                 self.initiative = g.Initiative.NONE
-            elif (roll < 75):
+            elif (roll < 90):
                 utility.log ("Initiative PARTY")
                 self.UI.create_message("First strike!")
                 self.initiative = g.Initiative.PARTY
@@ -604,15 +604,15 @@ class BattleUI (object):
         self.BC.CONTROLLER.VIEW_SURF.fill(g.GREEN_BLUE)
         self.render_battlers()
         self.render_hero_status()
-        self.render_help()
+        #self.render_help()
         
         self.render_turns()
         self.render_turn_cursor()
 
         if (self.BC.BATTLE_STATE == g.BattleState.TARGET):
-            self.process_get_target()
             self.render_target_window()
             self.render_target_cursor()
+            self.process_get_target()
         elif (self.BC.BATTLE_STATE == g.BattleState.COMMAND):
             self.process_get_command()
             self.render_command_window()
