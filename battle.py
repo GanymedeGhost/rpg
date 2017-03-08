@@ -70,8 +70,9 @@ class BattleController (object):
             icon = hero.icon
             resD = hero.resD
             resS = hero.resS
+            skills = hero.skills
             
-            battler = BattleActor(self, isHero, NAME, SPR, size, icon, resD, resS, None, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
+            battler = BattleActor(self, isHero, NAME, SPR, size, icon, resD, resS, skills, None, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
 
         #enemies
@@ -103,7 +104,7 @@ class BattleController (object):
             else:
                 self.monsterCounters[NAME] = 1
             
-            battler = BattleActor(self, isHero, NAME, SPR, size, icon, resD, resS, ai, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
+            battler = BattleActor(self, isHero, NAME, SPR, size, icon, resD, resS, None, ai, LV, HP, MAXHP, SP, MAXSP, ATK, DEF, MATK, MDEF, AGI, LCK, HIT, EVA)
             self.battlers.append(battler)
         
         self.rounds = 0
@@ -356,6 +357,7 @@ class BattleUI (object):
         self.cmdAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.tgtAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.itemAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
+        self.skillAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.outAnchors = [(2, 66), (2, 58), (2,50), (2,42), (2,34), (2, 26), (2, 18), (2,10), (2,2)]
         self.battlerAnchors = [(124, 48), (132, 64), (140, 80), (38, 64), (22, 80), (54, 48), (62, 76), (78, 60)]
         self.turnBannerAnchor = (2, 0)
@@ -438,6 +440,15 @@ class BattleUI (object):
 
         self.BC.change_state(g.BattleState.ITEM)
 
+    def get_skill(self, user):
+        self.currentUser = user
+        self.selectedThing = None
+        
+        self.cursorIndex = self.skillCursor[user.battlerIndex]
+        self.init_cursor()
+
+        self.BC.change_state(g.BattleState.SKILL)
+
     def process_get_command(self):
         selection = self.process_input(0, len(self.currentUser.commands)-1)
         if (selection > -1):
@@ -463,10 +474,23 @@ class BattleUI (object):
         selection = self.process_input(0, 4)
         if (selection > -1):
             item = g.INVENTORY[selection + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]][0]
-            if item.battleAction != None:
+            if item.usableBattle != None:
                 self.helpLabel = item.name
                 self.selectedThing = db.InvItem.dic[item.name].battleAction
                 self.itemCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
+                self.BC.change_state(g.BattleState.FIGHT)
+
+    def process_get_skill(self):
+        minIndex = max(0, self.skillSelectOffset[self.BC.currentBattler.battlerIndex])
+        maxIndex = min(99, self.skillSelectOffset[self.BC.currentBattler.battlerIndex] + 5)
+        selection = self.process_input(0, 4)
+        battler = self.BC.currentBattler
+        if (selection > -1 and selection < len(battler.skills)):
+            skill = battler.skills[selection]
+            if skill.usableBattle and db.Skill.check_cost(battler, skill):
+                self.helpLabel = skill.name
+                self.selectedThing = db.Skill.dic[skill.name].battleAction
+                self.skillCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
                 self.BC.change_state(g.BattleState.FIGHT)
 
     def render_command_window(self):
@@ -492,12 +516,30 @@ class BattleUI (object):
         for i in range(self.itemSelectOffset[self.BC.currentBattler.battlerIndex], self.itemSelectOffset[self.BC.currentBattler.battlerIndex]+5):
             if i < g.INVENTORY_MAX_SLOTS - 5:
                 item = g.INVENTORY[index][0]
-                if (item.name != ""):
+                if (item.name != "" and item.usableBattle):
                     self.BC.CONTROLLER.TEXT_MANAGER.draw_text(item.name, self.itemAnchors[index], g.WHITE)
                     self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(g.INVENTORY[index][1]), utility.add_tuple(self.itemAnchors[index], (86, 0)), g.WHITE)
                 index += 1
         self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
-                
+
+    def render_skill_window(self):
+        minIndex = 0
+        maxIndex = 5
+        battler = self.BC.currentBattler
+        index = self.skillSelectOffset[battler.battlerIndex]
+        for i in range(minIndex, min(len(battler.skills), maxIndex)):
+            if i < 50:
+                skill = battler.skills[i]
+                if (skill.name != "" and skill.usableBattle):
+                    if db.Skill.check_cost(battler, skill):
+                        col = g.WHITE
+                    else:
+                        col = g.GRAY
+                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text(skill.name, self.skillAnchors[index], col)
+                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(skill.spCost), utility.add_tuple(self.skillAnchors[index], (86, 0)), g.WHITE)
+                index += 1
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.skillAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
+        
     def render_hero_status(self):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.windowImage, self.windowAnchors[0])
         index = 0
@@ -619,6 +661,9 @@ class BattleUI (object):
         elif (self.BC.BATTLE_STATE == g.BattleState.ITEM):
             self.process_get_item()
             self.render_item_window()
+        elif (self.BC.BATTLE_STATE == g.BattleState.SKILL):
+            self.process_get_skill()
+            self.render_skill_window()
 
         if self.messageList:
             if self.messageList[0].life > 0:
@@ -681,7 +726,9 @@ class BattleUI (object):
             self.cursorIndex = self.commandCursor[self.BC.currentBattler.battlerIndex]
         elif self.BC.BATTLE_STATE == g.BattleState.ITEM:
             self.cursorIndex = self.itemCursor[self.BC.currentBattler.battlerIndex]
-
+        elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
+            self.cursorIndex = self.skillCursor[self.BC.currentBattler.battlerIndex]
+        
     def create_popup(self, string, pos, col = g.WHITE, life = g.BATTLE_POPUP_LIFE):
         self.popupList.append(BattleUIPopup(self, string, pos, col, life))
 
@@ -842,7 +889,7 @@ class Sprite (pygame.sprite.Sprite):
 
 class BattleActor (object):
     
-    def __init__(self, BC, isHero, NAME, spr, size, icon, resD, resS, ai = None, LV = 1, HP=10, MAXHP = 10, SP = 10, MAXSP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5, RES = {}):
+    def __init__(self, BC, isHero, NAME, spr, size, icon, resD, resS, skills = [], ai = None, LV = 1, HP=10, MAXHP = 10, SP = 10, MAXSP = 10, ATK = 5, DEF = 5, MATK = 5, MDEF = 5, AGI = 5, LCK = 5, HIT = 95, EVA = 5, RES = {}):
         self.BC = BC
         self.isHero = isHero
         self.NAME = NAME
@@ -882,13 +929,17 @@ class BattleActor (object):
         
         self.aggro = random.randint(0, math.floor(self.HP // 10))
 
+        self.skills = skills
+        
         self.ai = ai
         self.isAI = (not self.isHero)
         if not self.isAI:
             self.commands = []
             self.commands.append(cmd.Attack)
-            self.commands.append(cmd.Defend)
+            self.commands.append(cmd.UseSkill)
             self.commands.append(cmd.UseItem)
+            self.commands.append(cmd.Defend)
+            
 
     @property
     def hpPercent (self):

@@ -26,6 +26,7 @@ WIN_HEIGHT = VIEW_HEIGHT * VIEW_SCALE
 
 BLACK = (0,0,0)
 WHITE = (255, 255, 255)
+GRAY = (127, 127, 127)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
@@ -76,6 +77,14 @@ class BattlerStatus():
     DEATH = 6
 
     SIZE = 7
+
+class SkillType():
+    NONE = 0
+    BLOOD = 1
+    MUSIC = 2
+    MOON = 3
+
+    SIZE = 4
 
 class DamageType():
     NONE = 0
@@ -136,3 +145,8 @@ LOG_FILTER[LogLevel.FEEDBACK] = False
 PARTY_LIST = []
 MONSTER_LIST = []
 INVENTORY = [] #stores tuples (item, quantity)
+
+METER = {}
+METER[SkillType.BLOOD] = 0
+METER[SkillType.MUSIC] = [] #fills with damage types
+METER[SkillType.MOON] = 0

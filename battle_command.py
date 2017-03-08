@@ -1,7 +1,12 @@
 import my_globals as g
+import database as db
 import event
 import inventory
 import utility
+
+##################
+##BASIC COMMANDS##
+##################
 
 class UseItem():
 
@@ -22,6 +27,23 @@ class UseItem():
     def queue(user, action):
         user.BC.eventQueue.queue(action)
 
+class UseSkill():
+    def __init__(self, user, action):
+        self.user = user
+        self.action = action
+
+    def name():
+        return "Skills"
+
+    def start(user):
+        UseSkill.get_skill(user)
+
+    def get_skill(user):
+        user.BC.UI.get_skill(user)
+        user.BC.queuedAction = UseSkill.queue
+
+    def queue(user, action):
+        user.BC.eventQueue.queue(action)
 
 class Attack():
 
@@ -78,11 +100,6 @@ class Attack():
         Attack.queue(user, bestTarget)
 
     def queue(user, target):
-        if (user.isHero):
-            f = -1
-        else:
-            f = 1
-        pos = utility.add_tuple(user.spr.pos, (6*f, 0))
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
@@ -108,6 +125,7 @@ class Attack():
 
         self.user.after_turn()
         return -1
+
 
 class DoubleAttack():
 
@@ -164,12 +182,6 @@ class DoubleAttack():
         DoubleAttack.queue(user, bestTarget)
 
     def queue(user, target):
-        user.BC.UI.create_message(DoubleAttack.name())
-        if (user.isHero):
-            f = -1
-        else:
-            f = 1
-        pos = utility.add_tuple(user.spr.pos, (6*f, 0))
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
@@ -203,6 +215,272 @@ class Defend():
         self.user.reset_anim()
         self.user.after_turn()
         return -1
+
+#################
+##ITEM COMMANDS##
+#################
+
+class Potion():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
+    
+    def name():
+        return "Potion"
+
+    def start(user):
+        if (user.isHero):
+            Potion.get_targets(user)
+        else:
+            Potion.get_targets_auto(user)
+    
+    def get_targets(user):
+        ALL = False
+        USER = False
+        OPPOSITE = False
+        SAME = True
+        ALIVE = True    
+        DEAD = False
+
+        validTargets = []
+        selectedTargets = []
+        index = 0
+        for target in user.BC.battlers:
+            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
+                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                    validTargets.append(target)
+            index += 1
+
+        user.BC.UI.get_target(user, validTargets)
+        user.BC.queuedAction = Potion.queue
+
+    def get_targets_auto(user, mostAggro=True):
+        Potion.queue(user, user)
+
+    def queue(user, target):
+        lastAnim = user.spr.curAnim
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Potion(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+    
+    def run(self):
+        inventory.remove_item("Potion")
+        utility.log(self.user.NAME + " Potions " + self.target.NAME)
+        self.target.heal_hp(50)
+        self.user.after_turn()
+        return -1
+
+class Revive():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
+    
+    def name():
+        return "Revive"
+
+    def start(user):
+        if (user.isHero):
+            Revive.get_targets(user)
+        else:
+            Revive.get_targets_auto(user)
+    
+    def get_targets(user):
+        ALL = False
+        USER = False
+        OPPOSITE = False
+        SAME = True
+        ALIVE = False    
+        DEAD = True
+
+        validTargets = []
+        selectedTargets = []
+        index = 0
+        for target in user.BC.battlers:
+            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
+                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                    validTargets.append(target)
+            index += 1
+
+        user.BC.UI.get_target(user, validTargets)
+        user.BC.queuedAction = Revive.queue
+
+    def get_targets_auto(user, mostAggro=True):
+        Revive.queue(user, user)
+
+    def queue(user, target):
+        lastAnim = user.spr.curAnim
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Revive(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+    
+    def run(self):
+        inventory.remove_item("Revive")
+        utility.log(self.user.NAME + " Revives " + self.target.NAME)
+        self.target.revive(33)
+        self.user.after_turn()
+        return -1
+
+class Antidote():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
+    
+    def name():
+        return "Antidote"
+
+    def start(user):
+        if (user.isHero):
+            Antidote.get_targets(user)
+        else:
+            Antidote.get_targets_auto(user)
+    
+    def get_targets(user):
+        ALL = False
+        USER = False
+        OPPOSITE = False
+        SAME = True
+        ALIVE = True    
+        DEAD = False
+
+        validTargets = []
+        selectedTargets = []
+        index = 0
+        for target in user.BC.battlers:
+            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
+                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                    validTargets.append(target)
+            index += 1
+
+        user.BC.UI.get_target(user, validTargets)
+        user.BC.queuedAction = Antidote.queue
+
+    def get_targets_auto(user, mostAggro=True):
+        Antidote.queue(user, user)
+
+    def queue(user, target):
+        lastAnim = user.spr.curAnim
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Antidote(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+    
+    def run(self):
+        inventory.remove_item("Antidote")
+        utility.log(self.user.NAME + " Antidotes " + self.target.NAME)
+        self.target.mods[g.BattlerStatus.POISON] = 0
+        if self.target.spr.animated:
+            if self.target.spr.curAnim == "poison":
+                self.target.spr.set_anim("idle")
+        self.user.after_turn()
+        return -1
+
+
+
+##################
+##SKILL COMMANDS##
+##################
+
+class BloodSlash():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
+    
+    def name():
+        return "Blood Slash"
+
+    def start(user):
+        if (user.isHero):
+            BloodSlash.get_targets(user)
+        else:
+            BloodSlash.get_targets_auto(user)
+    
+    def get_targets(user):
+        ALL = False
+        USER = False
+        OPPOSITE = True
+        SAME = False
+        ALIVE = True    
+        DEAD = False
+
+        validTargets = []
+        selectedTargets = []
+        index = 0
+        for target in user.BC.battlers:
+            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
+                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                    validTargets.append(target)
+            index += 1
+
+        user.BC.UI.get_target(user, validTargets)
+        user.BC.queuedAction = BloodSlash.queue
+
+    def get_targets_auto(user, mostAggro=True):
+        if mostAggro:
+            bestAggro = -1
+        else:
+            bestAggro = 101
+        bestTarget = None
+        for target in user.BC.battlers:
+            if (user.isHero != target.isHero and target.HP > 0):
+                if mostAggro:
+                    if target.aggro > bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+                else:
+                    if target.aggro < bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+
+        BloodSlash.queue(user, bestTarget)
+
+    def queue(user, target):
+        user.BC.UI.create_message(BloodSlash.name())
+        lastAnim = user.spr.curAnim
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(BloodSlash(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+    
+    def run(self):
+        self.user.SP -= db.Skill.dic[BloodSlash.name()].spCost
+        utility.log(self.user.NAME + " uses Blood Slash on " + self.target.NAME)
+        if self.user.BC.hit_calc(self.user, self.target):
+            if not self.user.BC.dodge_calc(self.user, self.target):
+                dmg = self.user.BC.phys_dmg_calc(self.user, self.target)
+                if self.user.BC.crit_calc(self.user, self.target):
+                    dmg*=2
+                    self.target.stun()
+                dmg *= 2
+                dmg -= self.user.BC.phys_def_calc(self.user, self.target)
+                if (dmg < 0):
+                    dmg = 0
+                self.user.aggro_up()
+                self.target.take_damage(dmg, g.DamageType.NONE)
+
+        self.user.after_turn()
+        return -1
+
+##################
+##ENEMY COMMANDS##
+##################
 
 class Poison():
 
@@ -260,8 +538,6 @@ class Poison():
 
     def queue(user, target):
         user.BC.UI.create_message(Poison.name())
-        
-        pos = utility.add_tuple(user.spr.pos, (0, -4))
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
@@ -275,185 +551,3 @@ class Poison():
         self.user.after_turn()
         return -1
 
-class Potion():
-
-    def __init__(self, user, target):
-        self.user = user
-        self.target = target
-    
-    def name():
-        return "Potion"
-
-    def start(user):
-        if (user.isHero):
-            Potion.get_targets(user)
-        else:
-            Potion.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = False
-        SAME = True
-        ALIVE = True    
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Potion.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        Potion.queue(user, user)
-
-    def queue(user, target):
-        if (user.isHero):
-            f = -1
-        else:
-            f = 1
-        pos = utility.add_tuple(user.spr.pos, (6*f, 0))
-        lastAnim = user.spr.curAnim
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
-        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
-        user.BC.eventQueue.queue(Potion(user, target))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
-        user.BC.eventQueue.queue(event.BattlerReturn(user))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
-    
-    def run(self):
-        inventory.remove_item("Potion")
-        utility.log(self.user.NAME + " Potions " + self.target.NAME)
-        self.target.heal_hp(50)
-        self.user.after_turn()
-        return -1
-
-class Revive():
-
-    def __init__(self, user, target):
-        self.user = user
-        self.target = target
-    
-    def name():
-        return "Revive"
-
-    def start(user):
-        if (user.isHero):
-            Revive.get_targets(user)
-        else:
-            Revive.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = False
-        SAME = True
-        ALIVE = False    
-        DEAD = True
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Revive.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        Revive.queue(user, user)
-
-    def queue(user, target):
-        if (user.isHero):
-            f = -1
-        else:
-            f = 1
-        pos = utility.add_tuple(user.spr.pos, (6*f, 0))
-        lastAnim = user.spr.curAnim
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
-        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
-        user.BC.eventQueue.queue(Revive(user, target))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
-        user.BC.eventQueue.queue(event.BattlerReturn(user))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
-    
-    def run(self):
-        inventory.remove_item("Revive")
-        utility.log(self.user.NAME + " Revives " + self.target.NAME)
-        self.target.revive(33)
-        self.user.after_turn()
-        return -1
-
-class Antidote():
-
-    def __init__(self, user, target):
-        self.user = user
-        self.target = target
-    
-    def name():
-        return "Antidote"
-
-    def start(user):
-        if (user.isHero):
-            Antidote.get_targets(user)
-        else:
-            Antidote.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = False
-        SAME = True
-        ALIVE = True    
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Antidote.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        Antidote.queue(user, user)
-
-    def queue(user, target):
-        if (user.isHero):
-            f = -1
-        else:
-            f = 1
-        pos = utility.add_tuple(user.spr.pos, (6*f, 0))
-        lastAnim = user.spr.curAnim
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
-        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
-        user.BC.eventQueue.queue(Antidote(user, target))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
-        user.BC.eventQueue.queue(event.BattlerReturn(user))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
-    
-    def run(self):
-        inventory.remove_item("Antidote")
-        utility.log(self.user.NAME + " Antidotes " + self.target.NAME)
-        self.target.mods[g.BattlerStatus.POISON] = 0
-        if self.target.spr.animated:
-            if self.target.spr.curAnim == "poison":
-                self.target.spr.set_anim("idle")
-        self.user.after_turn()
-        return -1

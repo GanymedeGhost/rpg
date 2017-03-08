@@ -9,7 +9,7 @@ import battle_command as cmd
 class Hero (object):
 	dic = {}
 	
-	def __init__(self, index, attr = {}, resD = {}, resS = {}, equip = {}, spr = None, size = 32, icon = None):
+	def __init__(self, index, attr = {}, resD = {}, resS = {}, skills = [], equip = {}, spr = None, size = 32, icon = None):
 		self.index = ""
 
 		self.attr = attr
@@ -36,7 +36,9 @@ class Hero (object):
 		if not self.resS:
 			for status in range(0, g.BattlerStatus.SIZE):
 				self.resS[status] = 0
-			
+
+		self.skills = skills
+		
 		self.attrMods = {}
 		
 		if not equip:
@@ -135,19 +137,96 @@ class InvItem (object):
 		
 		self.useAction = useAction
 		if useAction != None:
-			usableField = True
+			self.usableField = True
 		else:
-			usableField = False
+			self.usableField = False
 			
 		self.battleAction = battleAction
 		if battleAction != None:
-			usableBattle = True
+			self.usableBattle = True
 		else:
-			usableBattle = False
+			self.usableBattle = False
 			
 		InvItem.dic[index] = self
 
+class Skill (object):
+        dic = {}
+
+        def __init__(self, index, desc, skillType, spCost, meterReq, useAction, battleAction):
+                self.name = index
+                self.desc = desc
+                self.skillType = skillType
+                self.spCost = spCost
+                self.meterReq = meterReq
+                self.useAction = useAction
+                if (useAction != None):
+                        self.usableField = True
+                else:
+                        self.usableField = False
+                self.battleAction = battleAction
+                if (battleAction != None):
+                        self.usableBattle = True
+                else:
+                        self.usableBattle = False
+
+                Skill.dic[index] = self
+
+        def check_cost(battler, skill):
+                if battler.SP >= skill.spCost:
+                        if g.METER[skill.skillType] >= skill.meterReq:
+                                return True
+                return False
+
 def create_data():
+        #########
+	##ITEMS##
+	#########
+	name = ""
+	desc = ""
+	limit = 1
+	useAction = None
+	battleAction = None
+
+	InvItem(name, desc, limit, useAction, battleAction)
+	
+	name = "Potion"
+	desc = "Restores 50 HP"
+	limit = 99
+	useAction = None
+	battleAction = cmd.Potion
+	
+	InvItem(name, desc, limit, useAction, battleAction)
+
+	name = "Revive"
+	desc = "Restores life"
+	limit = 99
+	useAction = None
+	battleAction = cmd.Revive
+	
+	InvItem(name, desc, limit, useAction, battleAction)
+
+	name = "Antidote"
+	desc = "Cures poison"
+	limit = 99
+	useAction = None
+	battleAction = cmd.Antidote
+	
+	InvItem(name, desc, limit, useAction, battleAction)
+
+	##########
+	##SKILLS##
+	##########
+	name = "Blood Slash"
+	desc = "Deals heavy neutral damage to an enemy"
+	skillType = g.SkillType.BLOOD
+	spCost = 5
+	meterReq = 0
+	useAction = None
+	battleAction = cmd.BloodSlash
+
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+
+        
 	##########
 	##HEROES##
 	##########
@@ -169,12 +248,13 @@ def create_data():
 
 	resD = {}
 	resS = {}
+	skills = [Skill.dic["Blood Slash"]]
 
 	spr = "spr/battle/hero-Luxe.png"
 	size = 16
 	icon = pygame.image.load("spr/battle/icon-Luxe.png")
 
-	Hero(attr["name"], attr, resD, resS, equip, spr, size, icon)
+	Hero(attr["name"], attr, resD, resS, skills, equip, spr, size, icon)
 
 	attr = {}
 	attr["name"] = "Elle"
@@ -189,12 +269,13 @@ def create_data():
 
 	resD = {}
 	resS = {}
+	skills = [Skill.dic["Blood Slash"]]
 
 	spr = "spr/battle/hero-elle.png"
 	size = 16
 	icon = pygame.image.load("spr/battle/icon-elle.png")
 
-	Hero(attr["name"], attr, resD, resS, equip, spr, size, icon)
+	Hero(attr["name"], attr, resD, resS, skills, equip, spr, size, icon)
 
 	attr = {}
 	attr["name"] = "Asa"
@@ -209,12 +290,13 @@ def create_data():
 
 	resD = {}
 	resS = {}
+	skills = [Skill.dic["Blood Slash"]]
 
 	spr = "spr/battle/hero-asa.png"
 	size = 16
 	icon = pygame.image.load("spr/battle/icon-asa.png")
 
-	Hero(attr["name"], attr, resD, resS, equip, spr, size, icon)
+	Hero(attr["name"], attr, resD, resS, skills, equip, spr, size, icon)
 
 	############
 	##MONSTERS##
@@ -264,40 +346,5 @@ def create_data():
 	icon = pygame.image.load("spr/battle/mon-mold.png")
 	
 	Monster(attr["name"], attr, resD, resS, spr, size, icon)
-
-	#########
-	##ITEMS##
-	#########
-	name = ""
-	desc = ""
-	limit = 1
-	useAction = None
-	battleAction = None
-
-	InvItem(name, desc, limit, useAction, battleAction)
 	
-	name = "Potion"
-	desc = "Restores 50 HP"
-	limit = 99
-	useAction = None
-	battleAction = cmd.Potion
-	
-	InvItem(name, desc, limit, useAction, battleAction)
-
-	name = "Revive"
-	desc = "Restores life"
-	limit = 99
-	useAction = None
-	battleAction = cmd.Revive
-	
-	InvItem(name, desc, limit, useAction, battleAction)
-
-	name = "Antidote"
-	desc = "Cures poison"
-	limit = 99
-	useAction = None
-	battleAction = cmd.Antidote
-	
-	InvItem(name, desc, limit, useAction, battleAction)
-
 create_data()
