@@ -150,35 +150,35 @@ class InvItem (object):
 		InvItem.dic[index] = self
 
 class Skill (object):
-        dic = {}
+	dic = {}
 
-        def __init__(self, index, desc, skillType, spCost, meterReq, useAction, battleAction):
-                self.name = index
-                self.desc = desc
-                self.skillType = skillType
-                self.spCost = spCost
-                self.meterReq = meterReq
-                self.useAction = useAction
-                if (useAction != None):
-                        self.usableField = True
-                else:
-                        self.usableField = False
-                self.battleAction = battleAction
-                if (battleAction != None):
-                        self.usableBattle = True
-                else:
-                        self.usableBattle = False
+	def __init__(self, index, desc, skillType, spCost, meterReq, useAction, battleAction):
+		self.name = index
+		self.desc = desc
+		self.skillType = skillType
+		self.spCost = spCost
+		self.meterReq = meterReq
+		self.useAction = useAction
+		if (useAction != None):
+			self.usableField = True
+		else:
+			self.usableField = False
+		self.battleAction = battleAction
+		if (battleAction != None):
+			self.usableBattle = True
+		else:
+			self.usableBattle = False
 
-                Skill.dic[index] = self
+		Skill.dic[index] = self
 
-        def check_cost(battler, skill):
-                if battler.SP >= skill.spCost:
-                        if g.METER[skill.skillType] >= skill.meterReq:
-                                return True
-                return False
+	def check_cost(battler, skill):
+		if battler.SP >= skill.spCost:
+			if g.METER[skill.skillType] >= skill.meterReq:
+				return True
+		return False
 
 def create_data():
-        #########
+	#########
 	##ITEMS##
 	#########
 	name = ""
@@ -225,8 +225,16 @@ def create_data():
 	battleAction = cmd.BloodSlash
 
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+	name = "Blood Slash2"
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+	name = "Blood Slash3"
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+	name = "Blood Slash4"
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+	name = "Blood Slash5"
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-        
+	
 	##########
 	##HEROES##
 	##########
@@ -249,6 +257,16 @@ def create_data():
 	resD = {}
 	resS = {}
 	skills = [Skill.dic["Blood Slash"]]
+	skills.append(Skill.dic["Blood Slash"])
+	skills.append(Skill.dic["Blood Slash2"])
+	skills.append(Skill.dic["Blood Slash3"])
+	skills.append(Skill.dic["Blood Slash4"])
+	skills.append(Skill.dic["Blood Slash5"])
+	skills.append(Skill.dic["Blood Slash"])
+	skills.append(Skill.dic["Blood Slash2"])
+	skills.append(Skill.dic["Blood Slash3"])
+	skills.append(Skill.dic["Blood Slash4"])
+	skills.append(Skill.dic["Blood Slash5"])
 
 	spr = "spr/battle/hero-Luxe.png"
 	size = 16
@@ -270,6 +288,7 @@ def create_data():
 	resD = {}
 	resS = {}
 	skills = [Skill.dic["Blood Slash"]]
+	
 
 	spr = "spr/battle/hero-elle.png"
 	size = 16
