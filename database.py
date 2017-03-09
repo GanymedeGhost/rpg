@@ -9,7 +9,7 @@ import battle_command as cmd
 class Hero (object):
 	dic = {}
 	
-	def __init__(self, index, attr = {}, resD = {}, resS = {}, skills = [], equip = {}, spr = None, size = 32, icon = None):
+	def __init__(self, index, attr = {}, resD = {}, resS = {}, skillType = None, commands = [], skills = [], equip = {}, spr = None, size = 32, icon = None):
 		self.index = ""
 
 		self.attr = attr
@@ -37,6 +37,8 @@ class Hero (object):
 			for status in range(0, g.BattlerStatus.SIZE):
 				self.resS[status] = 0
 
+		self.skillType = skillType
+		self.commands = commands
 		self.skills = skills
 		
 		self.attrMods = {}
@@ -173,8 +175,12 @@ class Skill (object):
 
 	def check_cost(battler, skill):
 		if battler.SP >= skill.spCost:
-			if g.METER[skill.skillType] >= skill.meterReq:
-				return True
+			if skill.skillType != g.SkillType.MUSIC:
+				if g.METER[skill.skillType] >= skill.meterReq:
+					return True
+			else:
+				if len(g.METER[skill.skillType]) >= skill.meterReq:
+					return True
 		return False
 
 def create_data():
@@ -216,11 +222,21 @@ def create_data():
 	##########
 	##SKILLS##
 	##########
+	name = "Sacrifice"
+	desc = "Lowers Max HP to restore the party's SP"
+	skillType = g.SkillType.BLOOD
+	spCost = 0
+	meterReq = 0
+	useAction = None
+	battleAction = cmd.Sacrifice
+
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+
 	name = "Blood Slash"
 	desc = "Deals heavy neutral damage to an enemy"
 	skillType = g.SkillType.BLOOD
 	spCost = 5
-	meterReq = 0
+	meterReq = 1
 	useAction = None
 	battleAction = cmd.BloodSlash
 
@@ -256,12 +272,13 @@ def create_data():
 
 	resD = {}
 	resS = {}
-	skills = [Skill.dic["Blood Slash"]]
-	skills.append(Skill.dic["Blood Slash"])
-	skills.append(Skill.dic["Blood Slash2"])
-	skills.append(Skill.dic["Blood Slash3"])
-	skills.append(Skill.dic["Blood Slash4"])
-	skills.append(Skill.dic["Blood Slash5"])
+	skillType = g.SkillType.BLOOD
+	commands = []
+	commands.append(cmd.Attack)
+	commands.append(cmd.UseSkill)
+	commands.append(cmd.UseItem)
+	commands.append(cmd.Defend)
+	skills = [Skill.dic["Sacrifice"]]
 	skills.append(Skill.dic["Blood Slash"])
 	skills.append(Skill.dic["Blood Slash2"])
 	skills.append(Skill.dic["Blood Slash3"])
@@ -272,7 +289,7 @@ def create_data():
 	size = 16
 	icon = pygame.image.load("spr/battle/icon-Luxe.png")
 
-	Hero(attr["name"], attr, resD, resS, skills, equip, spr, size, icon)
+	Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
 
 	attr = {}
 	attr["name"] = "Elle"
@@ -287,6 +304,12 @@ def create_data():
 
 	resD = {}
 	resS = {}
+	skillType = g.SkillType.MUSIC
+	commands = []
+	commands.append(cmd.Attack)
+	commands.append(cmd.UseSkill)
+	commands.append(cmd.UseItem)
+	commands.append(cmd.Defend)
 	skills = [Skill.dic["Blood Slash"]]
 	
 
@@ -294,7 +317,7 @@ def create_data():
 	size = 16
 	icon = pygame.image.load("spr/battle/icon-elle.png")
 
-	Hero(attr["name"], attr, resD, resS, skills, equip, spr, size, icon)
+	Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
 
 	attr = {}
 	attr["name"] = "Asa"
@@ -309,13 +332,19 @@ def create_data():
 
 	resD = {}
 	resS = {}
+	skillType = g.SkillType.MOON
+	commands = []
+	commands.append(cmd.Attack)
+	commands.append(cmd.UseSkill)
+	commands.append(cmd.UseItem)
+	commands.append(cmd.Defend)
 	skills = [Skill.dic["Blood Slash"]]
 
 	spr = "spr/battle/hero-asa.png"
 	size = 16
 	icon = pygame.image.load("spr/battle/icon-asa.png")
 
-	Hero(attr["name"], attr, resD, resS, skills, equip, spr, size, icon)
+	Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
 
 	############
 	##MONSTERS##

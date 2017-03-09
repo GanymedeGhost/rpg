@@ -1,3 +1,4 @@
+import math
 import my_globals as g
 import database as db
 import event
@@ -394,6 +395,37 @@ class Antidote():
 ##SKILL COMMANDS##
 ##################
 
+class Sacrifice():
+
+    def __init__(self, user):
+        self.user = user
+
+    def name():
+        return "Sacrifice"
+
+    def start(user):
+        Sacrifice.queue(user)
+
+    def queue(user):
+        user.BC.UI.create_message(Sacrifice.name())
+        user.BC.eventQueue.queue(Sacrifice(user))
+
+    def run(self):
+        utility.log(self.user.NAME + " uses Sacrifice.", g.LogLevel.FEEDBACK)
+        if g.METER[g.SkillType.BLOOD] < g.METER_MAX:
+            g.METER[g.SkillType.BLOOD] += 1
+        self.user.BC.UI.create_popup("MAX HP DOWN", self.user.spr.pos, g.RED)
+        self.user.MAXHP = self.user.baseMaxHP - math.floor(self.user.baseMaxHP * 0.1 * g.METER[g.SkillType.BLOOD])
+        if (self.user.HP > self.user.MAXHP):
+            self.user.HP = self.user.MAXHP
+        for hero in self.user.BC.battlers:
+            if hero.isHero:
+                hero.SP = hero.MAXSP
+                self.user.BC.UI.create_popup("FULL SP", hero.spr.pos, g.BLUE)
+        self.user.reset_anim()
+        self.user.after_turn()
+        return -1
+
 class BloodSlash():
 
     def __init__(self, user, target):
@@ -468,7 +500,7 @@ class BloodSlash():
                 if self.user.BC.crit_calc(self.user, self.target):
                     dmg*=2
                     self.target.stun()
-                dmg *= 2
+                dmg += dmg*g.METER[g.SkillType.BLOOD]
                 dmg -= self.user.BC.phys_def_calc(self.user, self.target)
                 if (dmg < 0):
                     dmg = 0

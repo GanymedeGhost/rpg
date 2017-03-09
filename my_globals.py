@@ -42,6 +42,7 @@ HERO_MAX_RATE = 100
 HERO_MAX_DAMAGE = 999
 
 INVENTORY_MAX_SLOTS = 99
+METER_MAX = 5
 
 FONT_SML = pygame.font.Font('font/percy.ttf', 8)
 FONT_MED = pygame.font.Font('font/pixel8.ttf', 8)
@@ -148,5 +149,5 @@ INVENTORY = [] #stores tuples (item, quantity)
 
 METER = {}
 METER[SkillType.BLOOD] = 0
-METER[SkillType.MUSIC] = [] #fills with damage types
+METER[SkillType.MUSIC] = [DamageType.FIRE, DamageType.ICE, DamageType.ELEC] #fills with damage types
 METER[SkillType.MOON] = 0
