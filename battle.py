@@ -1008,7 +1008,16 @@ class BattleActor (object):
         self.HIT = HIT
         self.EVA = EVA
 
+        self.baseLv = self.LV
         self.baseMaxHP = self.MAXHP
+        self.baseMaxSP = self.MAXSP
+        self.baseAtk = self.ATK
+        self.baseDef = self.DEF
+        self.baseMAtk = self.MATK
+        self.baseMDef = self.MDEF
+        self.baseLck = self.LCK
+        self.baseHit = self.HIT
+        self.baseEva = self.EVA
 
         self.resD = resD
         self.resS = resS
@@ -1020,6 +1029,7 @@ class BattleActor (object):
         self.mods[g.BattlerStatus.SILENCE] = 0
         self.mods[g.BattlerStatus.STUN] = 0
         self.mods[g.BattlerStatus.PARALYZE] = 0
+        self.mods[g.BattlerStatus.WOLF] = 0
 
         self.currentTurnPos = 0
 
@@ -1166,6 +1176,28 @@ class BattleActor (object):
             self.BC.UI.create_popup("RES", self.spr.pos)
             utility.log(self.NAME + " resisted poison", g.LogLevel.FEEDBACK)
 
+    def transform(self):
+        if self.skillType == g.SkillType.MOON:
+            if self.mods[g.BattlerStatus.WOLF] == 0:
+                for mod in self.mods:
+                    self.mods[mod] = 0
+                self.mods[g.BattlerStatus.WOLF] = 1
+                self.ATK = math.floor(self.baseAtk * 1.5)
+                self.DEF = math.floor(self.baseDef * 1.5)
+                self.MATK = math.floor(self.baseMAtk * 0.5)
+                self.MDEF = math.floor(self.baseMDef * 0.5)
+                self.AGI = math.floor(self.baseAgi * 2)
+                self.LCK = math.floor(self.baseLck * 0.25)
+            else:
+                for mod in self.mods:
+                    self.mods[mod] = 0
+                self.ATK = self.baseAtk
+                self.DEF = self.baseDef
+                self.MATK = self.baseMAtk
+                self.MDEF = self.baseMDef
+                self.AGI = self.baseAgi
+                self.LCK = self.baseLck
+
     def take_damage(self, damage, damageType = g.DamageType.NONE):
         self.aggro_down()
 
@@ -1228,7 +1260,6 @@ class BattleActor (object):
             utility.log(self.NAME + " died!")
         elif (self.HP > self.MAXHP):
             self.HP = self.MAXHP
-            
 
     def check_sp(self):
         if (self.SP < 0):

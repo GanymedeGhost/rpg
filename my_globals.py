@@ -76,8 +76,9 @@ class BattlerStatus():
     STUN = 4
     PARALYZE = 5
     DEATH = 6
+    WOLF = 7
 
-    SIZE = 7
+    SIZE = 8
 
 class SkillType():
     NONE = 0
