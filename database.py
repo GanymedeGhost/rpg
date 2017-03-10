@@ -235,12 +235,33 @@ def create_data():
 	name = "Blood Slash"
 	desc = "Deals heavy neutral damage to an enemy"
 	skillType = g.SkillType.BLOOD
-	spCost = 5
+	spCost = 7
 	meterReq = 1
 	useAction = None
 	battleAction = cmd.BloodSlash
 
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+
+	name = "Finale"
+	desc = "Resolve the melody"
+	skillType = g.SkillType.MUSIC
+	spCost = 0
+	meterReq = 1
+	useAction = None
+	battleAction = cmd.Finale
+
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+
+	name = "Stacatto"
+	desc = "Deals ELEC damage to an enemy"
+	skillType = g.SkillType.MUSIC
+	spCost = 5
+	meterReq = 0
+	useAction = None
+	battleAction = cmd.Stacatto
+
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+
 	name = "Blood Slash2"
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 	name = "Blood Slash3"
@@ -280,10 +301,6 @@ def create_data():
 	commands.append(cmd.Defend)
 	skills = [Skill.dic["Sacrifice"]]
 	skills.append(Skill.dic["Blood Slash"])
-	skills.append(Skill.dic["Blood Slash2"])
-	skills.append(Skill.dic["Blood Slash3"])
-	skills.append(Skill.dic["Blood Slash4"])
-	skills.append(Skill.dic["Blood Slash5"])
 
 	spr = "spr/battle/hero-Luxe.png"
 	size = 16
@@ -310,7 +327,8 @@ def create_data():
 	commands.append(cmd.UseSkill)
 	commands.append(cmd.UseItem)
 	commands.append(cmd.Defend)
-	skills = [Skill.dic["Blood Slash"]]
+	skills = [Skill.dic["Finale"]]
+	skills.append(Skill.dic["Stacatto"])
 	
 
 	spr = "spr/battle/hero-elle.png"
@@ -338,7 +356,7 @@ def create_data():
 	commands.append(cmd.UseSkill)
 	commands.append(cmd.UseItem)
 	commands.append(cmd.Defend)
-	skills = [Skill.dic["Blood Slash"]]
+	skills = [Skill.dic["Stacatto"]]
 
 	spr = "spr/battle/hero-asa.png"
 	size = 16

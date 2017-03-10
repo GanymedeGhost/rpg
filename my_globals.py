@@ -149,5 +149,10 @@ INVENTORY = [] #stores tuples (item, quantity)
 
 METER = {}
 METER[SkillType.BLOOD] = 0
-METER[SkillType.MUSIC] = [DamageType.FIRE, DamageType.ICE, DamageType.ELEC] #fills with damage types
+METER[SkillType.MUSIC] = [] #fills with damage types
 METER[SkillType.MOON] = 0
+
+def music_meter_add(damageType):
+    METER[SkillType.MUSIC].insert(0, damageType)
+    if len(METER[SkillType.MUSIC]) > METER_MAX:
+        del METER[SkillType.MUSIC][METER_MAX]

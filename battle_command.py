@@ -1,4 +1,5 @@
 import math
+import random
 import my_globals as g
 import database as db
 import event
@@ -426,12 +427,70 @@ class Sacrifice():
         self.user.after_turn()
         return -1
 
+class Finale():
+
+    def __init__(self, user, targets):
+        self.user = user
+        self.targets = targets
+
+    def name():
+        return "Finale"
+
+    def start(user):
+        targets = []
+        index = 0
+        for target in user.BC.battlers:
+            if not target.isHero:
+                if target.HP > 0:
+                    targets.append(target)
+            index += 1
+
+        Finale.queue(user, targets)
+
+    def queue(user, targets):
+        lastAnim = user.spr.curAnim
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Finale(user, targets))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+
+    def run(self):
+        utility.log(self.user.NAME + " uses Finale.", g.LogLevel.FEEDBACK)
+        red = 0
+        ylw = 0
+        blu = 0
+        grn = 0
+        wht = 0
+        blk = 0
+
+        hash = ""
+
+        for note in g.METER[g.SkillType.MUSIC]:
+            hash += str(note)
+        g.METER[g.SkillType.MUSIC] = []
+
+        if hash == "4":
+            self.user.BC.UI.create_message("Thunderstorm")
+            for target in self.targets:
+                target.take_damage(50, g.DamageType.ELEC)
+        else:
+            self.user.BC.UI.create_message("Dissonance")
+            for target in self.targets:
+                target.take_damage(25, g.DamageType.NONE)
+
+        self.user.reset_anim()
+        self.user.after_turn()
+        return -1
+
 class BloodSlash():
 
     def __init__(self, user, target):
         self.user = user
         self.target = target
-    
+
     def name():
         return "Blood Slash"
 
@@ -440,13 +499,13 @@ class BloodSlash():
             BloodSlash.get_targets(user)
         else:
             BloodSlash.get_targets_auto(user)
-    
+
     def get_targets(user):
         ALL = False
         USER = False
         OPPOSITE = True
         SAME = False
-        ALIVE = True    
+        ALIVE = True
         DEAD = False
 
         validTargets = []
@@ -490,7 +549,7 @@ class BloodSlash():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
-    
+
     def run(self):
         self.user.SP -= db.Skill.dic[BloodSlash.name()].spCost
         utility.log(self.user.NAME + " uses Blood Slash on " + self.target.NAME)
@@ -506,6 +565,89 @@ class BloodSlash():
                     dmg = 0
                 self.user.aggro_up()
                 self.target.take_damage(dmg, g.DamageType.NONE)
+
+        self.user.after_turn()
+        return -1
+
+class Stacatto():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
+
+    def name():
+        return "Stacatto"
+
+    def start(user):
+        if (user.isHero):
+            Stacatto.get_targets(user)
+        else:
+            Stacatto.get_targets_auto(user)
+
+    def get_targets(user):
+        ALL = False
+        USER = False
+        OPPOSITE = True
+        SAME = False
+        ALIVE = True
+        DEAD = False
+
+        validTargets = []
+        selectedTargets = []
+        index = 0
+        for target in user.BC.battlers:
+            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
+                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                    validTargets.append(target)
+            index += 1
+
+        user.BC.UI.get_target(user, validTargets)
+        user.BC.queuedAction = Stacatto.queue
+
+    def get_targets_auto(user, mostAggro=True):
+        if mostAggro:
+            bestAggro = -1
+        else:
+            bestAggro = 101
+        bestTarget = None
+        for target in user.BC.battlers:
+            if (user.isHero != target.isHero and target.HP > 0):
+                if mostAggro:
+                    if target.aggro > bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+                else:
+                    if target.aggro < bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+
+        BloodSlash.queue(user, bestTarget)
+
+    def queue(user, target):
+        user.BC.UI.create_message(Stacatto.name())
+        lastAnim = user.spr.curAnim
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Stacatto(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+
+    def run(self):
+        self.user.SP -= db.Skill.dic[Stacatto.name()].spCost
+        g.music_meter_add(g.DamageType.ELEC)
+        utility.log(self.user.NAME + " uses Stacatto on " + self.target.NAME)
+        if self.user.BC.hit_calc(self.user, self.target):
+            if not self.user.BC.dodge_calc(self.user, self.target):
+                dmg = random.randint(50, 50+self.user.MATK*2) - self.target.MDEF
+                if self.user.BC.crit_calc(self.user, self.target):
+                    dmg *= 2
+                    self.target.stun()
+                if (dmg < 0):
+                    dmg = 0
+                self.user.aggro_up()
+                self.target.take_damage(dmg, g.DamageType.ELEC)
 
         self.user.after_turn()
         return -1

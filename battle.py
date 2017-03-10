@@ -1096,7 +1096,6 @@ class BattleActor (object):
                     self.spr.set_anim("idle")
             else:
                 self.spr.set_anim("dead")
-
             
     def before_turn(self):
         self.mods[g.BattlerStatus.DEFEND] -= 1
@@ -1175,12 +1174,15 @@ class BattleActor (object):
             col = g.WHITE
         else:
             col = g.GREEN
+
+        if (self.resD[damageType] < 0):
+            self.BC.UI.create_popup("WEAK", self.spr.pos, col)
+            self.stun()
             
         self.HP -= damage
         utility.log(self.NAME + " takes " + str(damage) + " damage!")
         self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
         self.check_hp()
-        
 
     def heal_hp(self, damage, damageType = g.DamageType.NONE):
         damage -= math.floor(damage * self.resD[damageType])
