@@ -233,10 +233,10 @@ def create_data():
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
 	name = "Blood Slash"
-	desc = "Deals heavy neutral damage to an enemy"
+	desc = "Deals neutral damage to an enemy"
 	skillType = g.SkillType.BLOOD
 	spCost = 7
-	meterReq = 1
+	meterReq = 0
 	useAction = None
 	battleAction = cmd.BloodSlash
 
@@ -262,13 +262,24 @@ def create_data():
 
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	name = "Blood Slash2"
+	name = "Transform"
+	desc = "Change physical form"
+	skillType = g.SkillType.MOON
+	spCost = 0
+	meterReq = 1
+	useAction = None
+	battleAction = cmd.Transform
+
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
-	name = "Blood Slash3"
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
-	name = "Blood Slash4"
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
-	name = "Blood Slash5"
+
+	name = "Double Cut"
+	desc = "Attack twice"
+	skillType = g.SkillType.MOON
+	spCost = 6
+	meterReq = 1
+	useAction = None
+	battleAction = cmd.DoubleCut
+
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
 	
@@ -356,7 +367,8 @@ def create_data():
 	commands.append(cmd.UseSkill)
 	commands.append(cmd.UseItem)
 	commands.append(cmd.Defend)
-	skills = [Skill.dic["Stacatto"]]
+	skills = [Skill.dic["Transform"]]
+	skills.append(Skill.dic["Double Cut"])
 
 	spr = "spr/battle/hero-asa.png"
 	size = 16

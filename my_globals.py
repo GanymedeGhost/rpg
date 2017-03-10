@@ -151,7 +151,7 @@ INVENTORY = [] #stores tuples (item, quantity)
 METER = {}
 METER[SkillType.BLOOD] = 0
 METER[SkillType.MUSIC] = [] #fills with damage types
-METER[SkillType.MOON] = 0
+METER[SkillType.MOON] = 1
 
 def music_meter_add(damageType):
     METER[SkillType.MUSIC].insert(0, damageType)

@@ -1015,6 +1015,7 @@ class BattleActor (object):
         self.baseDef = self.DEF
         self.baseMAtk = self.MATK
         self.baseMDef = self.MDEF
+        self.baseAgi = self.AGI
         self.baseLck = self.LCK
         self.baseHit = self.HIT
         self.baseEva = self.EVA
@@ -1043,6 +1044,11 @@ class BattleActor (object):
         self.aggro = random.randint(0, math.floor(self.HP // 10))
 
         self.skillType = skillType
+
+        if skillType == g.SkillType.BLOOD:
+            for i in range(0, g.METER[g.SkillType.BLOOD]):
+                self.sacrifice()
+
         self.commands = commands
         self.skills = skills
         
@@ -1062,7 +1068,7 @@ class BattleActor (object):
 
     def aggro_down(self, value=-1):
         if value < 0:
-            value = random.randint(1, self.hpPercent//4)
+            value = random.randint(1, 1+self.hpPercent//4)
         self.aggro -= value
         if (self.aggro < 0):
             self.aggro = 0
@@ -1176,12 +1182,20 @@ class BattleActor (object):
             self.BC.UI.create_popup("RES", self.spr.pos)
             utility.log(self.NAME + " resisted poison", g.LogLevel.FEEDBACK)
 
+    def sacrifice(self):
+        self.MAXHP = self.baseMaxHP - math.floor(self.baseMaxHP * 0.1 * g.METER[g.SkillType.BLOOD])
+        if (self.HP > self.MAXHP):
+            self.HP = self.MAXHP
+
     def transform(self):
         if self.skillType == g.SkillType.MOON:
             if self.mods[g.BattlerStatus.WOLF] == 0:
                 for mod in self.mods:
                     self.mods[mod] = 0
                 self.mods[g.BattlerStatus.WOLF] = 1
+                del self.spr
+                self.spr = Sprite("spr/battle/hero-asa-wolf.png", 16, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
+                self.MAXHP = math.floor(self.baseMaxHP * 1.5)
                 self.ATK = math.floor(self.baseAtk * 1.5)
                 self.DEF = math.floor(self.baseDef * 1.5)
                 self.MATK = math.floor(self.baseMAtk * 0.5)
@@ -1191,12 +1205,10 @@ class BattleActor (object):
             else:
                 for mod in self.mods:
                     self.mods[mod] = 0
-                self.ATK = self.baseAtk
-                self.DEF = self.baseDef
-                self.MATK = self.baseMAtk
-                self.MDEF = self.baseMDef
-                self.AGI = self.baseAgi
-                self.LCK = self.baseLck
+                del self.spr
+                self.spr = Sprite("spr/battle/hero-asa.png", 16, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
+                self.spr.init_basic_animations()
+                self.reset_stats()
 
     def take_damage(self, damage, damageType = g.DamageType.NONE):
         self.aggro_down()
@@ -1254,6 +1266,19 @@ class BattleActor (object):
         self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
         self.check_sp()
 
+    def reset_stats(self):
+        self.LV = self.baseLv
+        self.MAXHP = self.baseMaxHP
+        self.MAXSP = self.baseMaxSP
+        self.ATK = self.baseAtk
+        self.DEF = self.baseDef
+        self.MATK = self.baseMAtk
+        self.MDEF = self.baseMDef
+        self.AGI = self.baseAgi
+        self.LCK = self.baseLck
+        self.HIT = self.baseHit
+        self.EVA = self.baseEva
+
     def check_hp(self):
         if (self.HP <= 0):
             self.kill()
@@ -1273,6 +1298,7 @@ class BattleActor (object):
             utility.log(str (mod))
             self.mods[mod] = 0
         self.HP = 0
+        self.reset_stats()
         self.mods[g.BattlerStatus.DEATH] = 1
 
     def revive(self, hpPercent):

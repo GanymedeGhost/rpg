@@ -128,74 +128,6 @@ class Attack():
         self.user.after_turn()
         return -1
 
-
-class DoubleAttack():
-
-    def __init__(self, user, target):
-        self.user = user
-        self.target = target
-    
-    def name():
-        return "2x Attack"
-
-    def start(user):
-        if (user.isHero):
-            DoubleAttack.get_targets(user)
-        else:
-            DoubleAttack.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = True
-        SAME = False
-        ALIVE = True    
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = DoubleAttack.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        if mostAggro:
-            bestAggro = -1
-        else:
-            bestAggro = 101
-        bestTarget = None
-        for target in user.BC.battlers:
-            if (user.isHero != target.isHero and target.HP > 0):
-                if mostAggro:
-                    if target.aggro > bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-                else:
-                    if target.aggro < bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-
-        DoubleAttack.queue(user, bestTarget)
-
-    def queue(user, target):
-        lastAnim = user.spr.curAnim
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
-        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
-        user.BC.eventQueue.queue(Attack(user, target))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
-        user.BC.eventQueue.queue(Attack(user, target))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
-        user.BC.eventQueue.queue(event.BattlerReturn(user))
-        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
-
 class Defend():
 
     def __init__(self, user):
@@ -415,14 +347,15 @@ class Sacrifice():
         utility.log(self.user.NAME + " uses Sacrifice.", g.LogLevel.FEEDBACK)
         if g.METER[g.SkillType.BLOOD] < g.METER_MAX:
             g.METER[g.SkillType.BLOOD] += 1
-        self.user.BC.UI.create_popup("MAX HP DOWN", self.user.spr.pos, g.RED)
-        self.user.MAXHP = self.user.baseMaxHP - math.floor(self.user.baseMaxHP * 0.1 * g.METER[g.SkillType.BLOOD])
-        if (self.user.HP > self.user.MAXHP):
-            self.user.HP = self.user.MAXHP
-        for hero in self.user.BC.battlers:
-            if hero.isHero:
-                hero.SP = hero.MAXSP
-                self.user.BC.UI.create_popup("FULL SP", hero.spr.pos, g.BLUE)
+            self.user.BC.UI.create_popup("MAX HP DOWN", self.user.spr.pos, g.RED)
+            self.user.sacrifice()
+
+            for hero in self.user.BC.battlers:
+                if hero.isHero:
+                    hero.SP = hero.MAXSP
+                    self.user.BC.UI.create_popup("FULL SP", hero.spr.pos, g.BLUE)
+        else:
+            self.user.BC.UI.create_popup("NO EFFECT", self.user.spr.pos, g.RED)
         self.user.reset_anim()
         self.user.after_turn()
         return -1
@@ -472,15 +405,39 @@ class Finale():
             hash += str(note)
         g.METER[g.SkillType.MUSIC] = []
 
-        if hash == "4":
-            self.user.BC.UI.create_message("Thunderstorm")
+        if hash == "44":
+            self.user.BC.UI.create_message("Thunderclap")
             for target in self.targets:
-                target.take_damage(50, g.DamageType.ELEC)
+                dmg = 20 + self.user.MATK * 2 - target.MDEF
+                target.take_damage(dmg, g.DamageType.ELEC)
         else:
             self.user.BC.UI.create_message("Dissonance")
             for target in self.targets:
-                target.take_damage(25, g.DamageType.NONE)
+                dmg = 10 + self.user.MATK * 2 - target.MDEF
+                target.take_damage(dmg, g.DamageType.NONE)
 
+        self.user.reset_anim()
+        self.user.after_turn()
+        return -1
+
+class Transform():
+
+    def __init__(self, user):
+        self.user = user
+
+    def name():
+        return "Transform"
+
+    def start(user):
+        Transform.queue(user)
+
+    def queue(user):
+        user.BC.UI.create_message(Transform.name())
+        user.BC.eventQueue.queue(Transform(user))
+
+    def run(self):
+        utility.log(self.user.NAME + " uses Transform.", g.LogLevel.FEEDBACK)
+        self.user.transform()
         self.user.reset_anim()
         self.user.after_turn()
         return -1
@@ -640,7 +597,7 @@ class Stacatto():
         utility.log(self.user.NAME + " uses Stacatto on " + self.target.NAME)
         if self.user.BC.hit_calc(self.user, self.target):
             if not self.user.BC.dodge_calc(self.user, self.target):
-                dmg = random.randint(50, 50+self.user.MATK*2) - self.target.MDEF
+                dmg = random.randint(25, 50+self.user.MATK*2) - self.target.MDEF
                 if self.user.BC.crit_calc(self.user, self.target):
                     dmg *= 2
                     self.target.stun()
@@ -651,6 +608,74 @@ class Stacatto():
 
         self.user.after_turn()
         return -1
+
+class DoubleCut():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
+
+    def name():
+        return "Double Cut"
+
+    def start(user):
+        if (user.isHero):
+            DoubleCut.get_targets(user)
+        else:
+            DoubleCut.get_targets_auto(user)
+
+    def get_targets(user):
+        ALL = False
+        USER = False
+        OPPOSITE = True
+        SAME = False
+        ALIVE = True
+        DEAD = False
+
+        validTargets = []
+        selectedTargets = []
+        index = 0
+        for target in user.BC.battlers:
+            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
+                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                    validTargets.append(target)
+            index += 1
+
+        user.BC.UI.get_target(user, validTargets)
+        user.BC.queuedAction = DoubleCut.queue
+
+    def get_targets_auto(user, mostAggro=True):
+        if mostAggro:
+            bestAggro = -1
+        else:
+            bestAggro = 101
+        bestTarget = None
+        for target in user.BC.battlers:
+            if (user.isHero != target.isHero and target.HP > 0):
+                if mostAggro:
+                    if target.aggro > bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+                else:
+                    if target.aggro < bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+
+        DoubleCut.queue(user, bestTarget)
+
+    def queue(user, target):
+        lastAnim = user.spr.curAnim
+        user.SP -= db.Skill.dic["Double Cut"].spCost
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Attack(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Attack(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
 
 ##################
 ##ENEMY COMMANDS##
