@@ -310,6 +310,14 @@ class Player(Actor):
             if (mDir != ""):
                 self.set_anim(mDir, False)
                 self.try_move(mDir)
+                g.STEP_COUNTER += 1
+                g.MOON_COUNTER -= 1
+                if g.MOON_COUNTER < 0:
+                    g.MOON_COUNTER = g.MOON_COUNTER_MAX
+                    g.METER[g.SkillType.MOON] += 1
+                    if g.METER[g.SkillType.MOON] > g.METER_MAX:
+                        g.METER[g.SkillType.MOON] = 0
+
 
     def try_interact(self):
         tX = self.pos[0] + self.facing[0]

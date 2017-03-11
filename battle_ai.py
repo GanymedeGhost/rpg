@@ -1,5 +1,6 @@
 import random
 import battle_command as cmd
+import database as db
 
 class Slime ():
 
@@ -21,9 +22,8 @@ class Mold ():
         battler.before_turn()
         
         if battler.can_act():
-            roll = random.randint(0, 100)
-            if (battler.attr['hp'] == battler.attr['maxHP']):
-                cmd.Poison.start(battler)
+            if (battler.attr['hp'] == battler.attr['maxHP'] and battler.attr['sp'] >= db.Skill.dic['Toxic'].spCost):
+                db.Skill.dic['Toxic'].battleAction.start(battler)
             else:
                 cmd.Attack.start(battler)
         else:

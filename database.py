@@ -219,9 +219,9 @@ def create_data():
 	
 	InvItem(name, desc, limit, useAction, battleAction)
 
-	##########
-	##SKILLS##
-	##########
+	################
+	##BLOOD SKILLS##
+	################
 	name = "Sacrifice"
 	desc = "Lowers Max HP to restore the party's SP"
 	skillType = g.SkillType.BLOOD
@@ -241,6 +241,10 @@ def create_data():
 	battleAction = cmd.BloodSlash
 
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+
+	################
+	##MUSIC SKILLS##
+	################
 
 	name = "Finale"
 	desc = "Resolve the melody"
@@ -262,6 +266,10 @@ def create_data():
 
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
+	################
+	##MOON SKILLS##
+	################
+
 	name = "Transform"
 	desc = "Change physical form"
 	skillType = g.SkillType.MOON
@@ -282,6 +290,18 @@ def create_data():
 
 	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
+	################
+	##ENEMY SKILLS##
+	################
+	name = "Toxic"
+	desc = "Small chance to inflict Poison"
+	skillType = g.SkillType.ENEMY
+	spCost = 5
+	meterReq = 0
+	useAction = None
+	battleAction = cmd.Toxic
+
+	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 	
 	##########
 	##HEROES##

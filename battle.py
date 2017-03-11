@@ -172,6 +172,7 @@ class BattleController (object):
         return nextBattler
 
     def next_round(self):
+        self.PREV_BATTLE_STATE = [self.BATTLE_STATE]
         self.rounds += 1
         
         utility.log("", g.LogLevel.FEEDBACK)
@@ -1017,7 +1018,7 @@ class BattleActor (object):
         self.name = baseAttr['name']
 
         self.baseAttr = baseAttr
-        self.attr = baseAttr
+        self.attr = baseAttr.copy()
 
         self.resD = resD
         self.resS = resS
@@ -1074,7 +1075,7 @@ class BattleActor (object):
 
     def aggro_down(self, value=-1):
         if value < 0:
-            value = random.randint(1, 1+self.hpPercent//4)
+            value = random.randint(1, 1+self.hpPercent//3)
         self.aggro -= value
         if (self.aggro < 0):
             self.aggro = 0
@@ -1196,21 +1197,19 @@ class BattleActor (object):
     def transform(self):
         if self.skillType == g.SkillType.MOON:
             if self.mods[g.BattlerStatus.WOLF] == 0:
-                for mod in self.mods:
-                    self.mods[mod] = 0
+                self.clear_mods()
                 self.mods[g.BattlerStatus.WOLF] = 1
                 del self.spr
                 self.spr = Sprite("spr/battle/hero-asa-wolf.png", 16, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
-                self.attr['maxHP'] = math.floor(self.baseAttr['maxHP'] * 1.5)
-                self.attr['atk'] = math.floor(self.baseAttr['atk'] * 1.5)
-                self.attr['def'] = math.floor(self.baseAttr['def'] * 1.5)
-                self.attr['matk'] = math.floor(self.baseAttr['matk'] * 0.5)
-                self.attr['mdef'] = math.floor(self.baseAttr['mdef'] * 0.5)
-                self.attr['agi'] = math.floor(self.baseAttr['agi'] * 2)
-                self.attr['lck'] = math.floor(self.baseAttr['lck'] * 0.25)
+                self.attr['maxHP'] = self.baseAttr['maxHP'] + math.ceil(self.baseAttr['maxHP'] * 0.1 * g.METER[g.SkillType.MOON])
+                self.attr['atk'] = self.baseAttr['atk'] + math.ceil(self.baseAttr['atk'] * 0.1 * g.METER[g.SkillType.MOON])
+                self.attr['def'] = self.baseAttr['def'] + math.ceil(self.baseAttr['def'] * 0.1 * g.METER[g.SkillType.MOON])
+                self.attr['matk'] = self.baseAttr['matk'] - math.ceil(self.baseAttr['matk']  * 0.1 * g.METER[g.SkillType.MOON])
+                self.attr['mdef'] = self.baseAttr['mdef'] - math.ceil(self.baseAttr['mdef']  * 0.1 * g.METER[g.SkillType.MOON])
+                self.attr['agi'] = self.baseAttr['agi'] + math.ceil(self.baseAttr['agi'] * 0.1 * g.METER[g.SkillType.MOON])
+                self.attr['lck'] = self.baseAttr['lck'] - math.ceil(self.baseAttr['lck']  * 0.2 * g.METER[g.SkillType.MOON])
             else:
-                for mod in self.mods:
-                    self.mods[mod] = 0
+                self.clear_mods()
                 del self.spr
                 self.spr = Sprite("spr/battle/hero-asa.png", 16, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
                 self.spr.init_basic_animations()
@@ -1255,7 +1254,7 @@ class BattleActor (object):
         else:
             col = g.Blue
             
-        self.SP -= damage
+        self.attr['sp'] -= damage
         utility.log(self.attr['name'] + " takes " + str(damage) + " SP damage!")
         self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
         self.check_sp()
@@ -1273,9 +1272,15 @@ class BattleActor (object):
         self.check_sp()
 
     def reset_stats(self):
-        self.attr = self.baseAttr
+        for stat in self.attr:
+            self.attr[stat] = self.baseAttr[stat]
+
+    def clear_mods(self):
+        for mod in self.mods:
+            self.mods[mod] = 0
 
     def check_hp(self):
+        utility.log("HP: " + str(self.attr['hp']))
         if (self.attr['hp'] <= 0):
             self.kill()
             utility.log(self.attr['name'] + " died!")
@@ -1290,11 +1295,9 @@ class BattleActor (object):
 
     def kill(self):
         self.reset_anim()
-        for mod in self.mods:
-            utility.log(str (mod))
-            self.mods[mod] = 0
-        self.attr['hp'] = 0
+        self.clear_mods()
         self.reset_stats()
+        self.attr['hp'] = 0
         self.mods[g.BattlerStatus.DEATH] = 1
 
     def revive(self, hpPercent):

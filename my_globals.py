@@ -44,6 +44,8 @@ HERO_MAX_DAMAGE = 999
 INVENTORY_MAX_SLOTS = 99
 METER_MAX = 5
 
+MOON_COUNTER_MAX = 50
+
 FONT_SML = pygame.font.Font('font/percy.ttf', 8)
 FONT_MED = pygame.font.Font('font/pixel8.ttf', 8)
 FONT_MED_BOLD = pygame.font.Font('font/pixel8b.ttf', 8)
@@ -85,8 +87,9 @@ class SkillType():
     BLOOD = 1
     MUSIC = 2
     MOON = 3
+    ENEMY = 4
 
-    SIZE = 4
+    SIZE = 5
 
 class DamageType():
     NONE = 0
@@ -144,6 +147,10 @@ LOG_FILTER[LogLevel.DEBUG] = False
 LOG_FILTER[LogLevel.ERROR] = True
 LOG_FILTER[LogLevel.FEEDBACK] = False
 
+STEP_COUNTER = 0
+
+MOON_COUNTER = MOON_COUNTER_MAX
+
 PARTY_LIST = []
 MONSTER_LIST = []
 INVENTORY = [] #stores tuples (item, quantity)
@@ -151,7 +158,7 @@ INVENTORY = [] #stores tuples (item, quantity)
 METER = {}
 METER[SkillType.BLOOD] = 0
 METER[SkillType.MUSIC] = [] #fills with damage types
-METER[SkillType.MOON] = 1
+METER[SkillType.MOON] = 0
 
 def music_meter_add(damageType):
     METER[SkillType.MUSIC].insert(0, damageType)

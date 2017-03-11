@@ -503,33 +503,34 @@ class DoubleCut():
 ##ENEMY COMMANDS##
 ##################
 
-class Poison():
+class Toxic():
 
     def __init__(self, user, target):
         self.user = user
         self.target = target
     
     def name():
-        return "Poison"
+        return "Toxic"
 
     def start(user):
         if (user.isHero):
-            get_target(user, Poison)
+            get_target(user, Toxic)
         else:
-            get_target_auto(user, Poison)
+            get_target_auto(user, Toxic)
 
     def queue(user, target):
-        user.BC.UI.create_message(Poison.name())
+        user.BC.UI.create_message(Toxic.name())
+        user.attr['sp'] -= db.Skill.dic[Toxic.name()].spCost
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
         user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
-        user.BC.eventQueue.queue(Poison(user, target))
+        user.BC.eventQueue.queue(Toxic(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
 
     def run(self):
         utility.log(self.user.attr['name'] + " uses Poison on " + self.target.attr['name'])
-        self.target.poison(50)
+        self.target.poison(33)
         self.user.after_turn()
         return -1
 
