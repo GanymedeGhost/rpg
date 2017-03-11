@@ -273,18 +273,18 @@ class BattleController (object):
                     return True
         return False
 
-    def hit_calc(self, user, target):
+    def hit_calc(self, user, target, bonus = 0):
         roll = random.randint(0, 100)
-        if roll < user.attr['hit']:
+        if roll < user.attr['hit'] + bonus:
             return True
         else:
             self.UI.create_popup("MISS", target.spr.pos)
             utility.log("Missed!", g.LogLevel.FEEDBACK)
             return False
 
-    def dodge_calc(self, user, target):
+    def dodge_calc(self, user, target, bonus = 0):
         roll = random.randint(0, 100)
-        if roll < target.attr['eva']:
+        if roll < target.attr['eva'] + bonus:
             self.UI.create_popup("DODGE", target.spr.pos)
             utility.log("Dodged!", g.LogLevel.FEEDBACK)
             return True
@@ -296,6 +296,7 @@ class BattleController (object):
         utility.log("Crit roll : " + str(roll))
         if roll < user.attr['lck']:
             utility.log("Crit!", g.LogLevel.FEEDBACK)
+            self.UI.create_popup("CRIT", target.spr.pos)
             return True
         else:
             return False
@@ -311,6 +312,9 @@ class BattleController (object):
         utility.log("Roll Range: " + str(minRoll) + " - " + str(maxRoll))
         utility.log("Roll: " + str(roll))
         utility.log("Roll needed: " + str(rate))
+
+        if (maxRoll < rate):
+            self.UI.create_popup("RES", battler.spr.pos, g.GREEN)
 
         return roll >= rate
 
@@ -1172,7 +1176,7 @@ class BattleActor (object):
             self.mods[g.BattlerStatus.POISON] = 1
             self.reset_anim()
         else:
-            self.BC.UI.create_popup("RES", self.spr.pos)
+            self.BC.UI.create_popup("FAIL", self.spr.pos)
             utility.log(self.attr['name'] + " resisted poison", g.LogLevel.FEEDBACK)
 
     def death(self, rate = 100):

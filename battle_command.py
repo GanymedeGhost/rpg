@@ -6,6 +6,42 @@ import event
 import inventory
 import utility
 
+def get_target(user, cmdClass, opposite = True, same = False, alive = True, dead = False):
+
+    validTargets = []
+    selectedTargets = []
+    index = 0
+    for target in user.BC.battlers:
+        if (opposite and user.isHero != target.isHero) or (same and user.isHero == target.isHero):
+            if alive and not target.isDead or dead and target.isDead:
+                validTargets.append(target)
+        index += 1
+
+    user.BC.UI.get_target(user, validTargets)
+    user.BC.queuedAction = cmdClass.queue
+
+def get_target_auto(user, cmdClass, mostAggro = True, opposite = True, same = False, alive = True, dead = False):
+    if mostAggro:
+        bestAggro = -1
+    else:
+        bestAggro = 101
+    bestTarget = None
+    for target in user.BC.battlers:
+        if (opposite and user.isHero != target.isHero) or (same and user.isHero == target.isHero):
+            if alive and not target.isDead or dead and target.isDead:
+                if mostAggro:
+                    if target.aggro > bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+                else:
+                    if target.aggro < bestAggro:
+                        bestAggro = target.aggro
+                        bestTarget = target
+    if bestTarget == None:
+        bestTarget = user
+
+    cmdClass.queue(user, bestTarget)
+
 ##################
 ##BASIC COMMANDS##
 ##################
@@ -58,48 +94,9 @@ class Attack():
 
     def start(user):
         if (user.isHero):
-            Attack.get_targets(user)
+            get_target(user, Attack)
         else:
-            Attack.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = True
-        SAME = False
-        ALIVE = True    
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Attack.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        if mostAggro:
-            bestAggro = -1
-        else:
-            bestAggro = 101
-        bestTarget = None
-        for target in user.BC.battlers:
-            if (user.isHero != target.isHero and not target.isDead):
-                if mostAggro:
-                    if target.aggro > bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-                else:
-                    if target.aggro < bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-
-        Attack.queue(user, bestTarget)
+            get_target_auto(user, Attack)
 
     def queue(user, target):
         lastAnim = user.spr.curAnim
@@ -165,33 +162,9 @@ class Potion():
 
     def start(user):
         if (user.isHero):
-            Potion.get_targets(user)
+            get_target(user, Potion, False, True)
         else:
-            Potion.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = False
-        SAME = True
-        ALIVE = True    
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.showHP = True
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Potion.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        Potion.queue(user, user)
+            get_target_auto(user, Potion, True, False, True)
 
     def queue(user, target):
         lastAnim = user.spr.curAnim
@@ -204,7 +177,8 @@ class Potion():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
     
     def run(self):
-        inventory.remove_item("Potion")
+        if self.user.isHero:
+            inventory.remove_item("Potion")
         utility.log(self.user.attr['name'] + " Potions " + self.target.attr['name'])
         self.target.heal_hp(50)
         self.user.after_turn()
@@ -221,33 +195,9 @@ class Revive():
 
     def start(user):
         if (user.isHero):
-            Revive.get_targets(user)
+            get_target(user, Revive, False, True, False, True)
         else:
-            Revive.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = False
-        SAME = True
-        ALIVE = False    
-        DEAD = True
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.showHP = True
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Revive.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        Revive.queue(user, user)
+            get_target_auto(user, Revive, True, False, True, False, True)
 
     def queue(user, target):
         lastAnim = user.spr.curAnim
@@ -260,7 +210,9 @@ class Revive():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
     
     def run(self):
-        inventory.remove_item("Revive")
+        if self.user.isHero:
+            inventory.remove_item("Revive")
+
         utility.log(self.user.attr['name'] + " Revives " + self.target.attr['name'])
         self.target.revive(33)
         self.user.after_turn()
@@ -277,33 +229,9 @@ class Antidote():
 
     def start(user):
         if (user.isHero):
-            Antidote.get_targets(user)
+            get_target(user, Antidote, False, True)
         else:
-            Antidote.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = False
-        SAME = True
-        ALIVE = True    
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.showHP = True
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Antidote.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        Antidote.queue(user, user)
+            get_target_auto(user, Antidote, True, False, True)
 
     def queue(user, target):
         lastAnim = user.spr.curAnim
@@ -316,7 +244,8 @@ class Antidote():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
     
     def run(self):
-        inventory.remove_item("Antidote")
+        if self.user.isHero:
+            inventory.remove_item("Antidote")
         utility.log(self.user.attr['name'] + " Antidotes " + self.target.attr['name'])
         self.target.mods[g.BattlerStatus.POISON] = 0
         if self.target.spr.animated:
@@ -327,9 +256,9 @@ class Antidote():
 
 
 
-##################
-##SKILL COMMANDS##
-##################
+####################
+##SPECIAL COMMANDS##
+####################
 
 class Sacrifice():
 
@@ -410,13 +339,15 @@ class Finale():
 
         if hash == "44":
             self.user.BC.UI.create_message("Thunderclap")
+            baseDmg = 15 + self.user.attr['matk']
             for target in self.targets:
-                dmg = 20 + self.user.attr['matk'] * 2 - target.attr['mdef']
+                dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - target.attr['mdef']
                 target.take_damage(dmg, g.DamageType.ELEC)
         else:
             self.user.BC.UI.create_message("Dissonance")
+            baseDmg = 10 + self.user.attr['matk']
             for target in self.targets:
-                dmg = 10 + self.user.attr['matk'] * 2 - target.attr['mdef']
+                dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - target.attr['mdef']
                 target.take_damage(dmg, g.DamageType.NONE)
 
         self.user.reset_anim()
@@ -445,6 +376,10 @@ class Transform():
         self.user.after_turn()
         return -1
 
+##################
+##SKILL COMMANDS##
+##################
+
 class BloodSlash():
 
     def __init__(self, user, target):
@@ -456,48 +391,9 @@ class BloodSlash():
 
     def start(user):
         if (user.isHero):
-            BloodSlash.get_targets(user)
+            get_target(user, BloodSlash)
         else:
-            BloodSlash.get_targets_auto(user)
-
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = True
-        SAME = False
-        ALIVE = True
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = BloodSlash.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        if mostAggro:
-            bestAggro = -1
-        else:
-            bestAggro = 101
-        bestTarget = None
-        for target in user.BC.battlers:
-            if (user.isHero != target.isHero and not target.isDead):
-                if mostAggro:
-                    if target.aggro > bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-                else:
-                    if target.aggro < bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-
-        BloodSlash.queue(user, bestTarget)
+            get_target_auto(user, BloodSlash)
 
     def queue(user, target):
         user.BC.UI.create_message(BloodSlash.name())
@@ -515,7 +411,7 @@ class BloodSlash():
         utility.log(self.user.attr['name'] + " uses Blood Slash on " + self.target.attr['name'])
         if self.user.BC.hit_calc(self.user, self.target):
             if not self.user.BC.dodge_calc(self.user, self.target):
-                dmg = self.user.BC.phys_dmg_calc(self.user, self.target)
+                dmg = (self.user.attr['atk'] // 2) + self.user.BC.phys_dmg_calc(self.user, self.target)
                 if self.user.BC.crit_calc(self.user, self.target):
                     dmg*=2
                     self.target.stun()
@@ -540,48 +436,9 @@ class Stacatto():
 
     def start(user):
         if (user.isHero):
-            Stacatto.get_targets(user)
+            get_target(user, Stacatto)
         else:
-            Stacatto.get_targets_auto(user)
-
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = True
-        SAME = False
-        ALIVE = True
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Stacatto.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        if mostAggro:
-            bestAggro = -1
-        else:
-            bestAggro = 101
-        bestTarget = None
-        for target in user.BC.battlers:
-            if (user.isHero != target.isHero and not target.isDead):
-                if mostAggro:
-                    if target.aggro > bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-                else:
-                    if target.aggro < bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-
-        BloodSlash.queue(user, bestTarget)
+            get_target_auto(user, Stacatto)
 
     def queue(user, target):
         user.BC.UI.create_message(Stacatto.name())
@@ -598,9 +455,10 @@ class Stacatto():
         self.user.attr['sp'] -= db.Skill.dic[Stacatto.name()].spCost
         g.music_meter_add(g.DamageType.ELEC)
         utility.log(self.user.attr['name'] + " uses Stacatto on " + self.target.attr['name'])
-        if self.user.BC.hit_calc(self.user, self.target):
+        baseDmg = 15 + self.user.attr['matk']
+        if self.user.BC.hit_calc(self.user, self.target, 5):
             if not self.user.BC.dodge_calc(self.user, self.target):
-                dmg = random.randint(25, 50+self.user.attr['matk']*2) - self.target.attr['mdef']
+                dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - self.target.attr['mdef']
                 if self.user.BC.crit_calc(self.user, self.target):
                     dmg *= 2
                     self.target.stun()
@@ -623,48 +481,9 @@ class DoubleCut():
 
     def start(user):
         if (user.isHero):
-            DoubleCut.get_targets(user)
+            get_target(user, DoubleCut)
         else:
-            DoubleCut.get_targets_auto(user)
-
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = True
-        SAME = False
-        ALIVE = True
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = DoubleCut.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        if mostAggro:
-            bestAggro = -1
-        else:
-            bestAggro = 101
-        bestTarget = None
-        for target in user.BC.battlers:
-            if (user.isHero != target.isHero and not target.isDead):
-                if mostAggro:
-                    if target.aggro > bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-                else:
-                    if target.aggro < bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-
-        DoubleCut.queue(user, bestTarget)
+            get_target_auto(user, DoubleCut)
 
     def queue(user, target):
         lastAnim = user.spr.curAnim
@@ -695,48 +514,9 @@ class Poison():
 
     def start(user):
         if (user.isHero):
-            Poison.get_targets(user)
+            get_target(user, Poison)
         else:
-            Poison.get_targets_auto(user)
-    
-    def get_targets(user):
-        ALL = False
-        USER = False
-        OPPOSITE = True
-        SAME = False
-        ALIVE = True
-        DEAD = False
-
-        validTargets = []
-        selectedTargets = []
-        index = 0
-        for target in user.BC.battlers:
-            if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
-                    validTargets.append(target)
-            index += 1
-
-        user.BC.UI.get_target(user, validTargets)
-        user.BC.queuedAction = Poison.queue
-
-    def get_targets_auto(user, mostAggro=True):
-        if mostAggro:
-            bestAggro = -1
-        else:
-            bestAggro = 101
-        bestTarget = None
-        for target in user.BC.battlers:
-            if (user.isHero != target.isHero and not target.isDead):
-                if mostAggro:
-                    if target.aggro > bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-                else:
-                    if target.aggro < bestAggro:
-                        bestAggro = target.aggro
-                        bestTarget = target
-
-        Poison.queue(user, bestTarget)
+            get_target_auto(user, Poison)
 
     def queue(user, target):
         user.BC.UI.create_message(Poison.name())
