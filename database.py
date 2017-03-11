@@ -315,9 +315,9 @@ def create_data():
 	attr["name"] = "Luxe"
 	attr["lvl"] = 1
 	attr["exp"] = 0
-	attr["str"] = 6
-	attr["end"] = 5
-	attr["wis"] = 6
+	attr["str"] = 5
+	attr["end"] = 6
+	attr["wis"] = 5
 	attr["spr"] = 4
 	attr["agi"] = 7
 	attr["lck"] = 4
@@ -344,7 +344,7 @@ def create_data():
 	attr["lvl"] = 1
 	attr["exp"] = 0
 	attr["str"] = 3
-	attr["end"] = 3
+	attr["end"] = 4
 	attr["wis"] = 7
 	attr["spr"] = 7
 	attr["agi"] = 6
@@ -373,7 +373,7 @@ def create_data():
 	attr["lvl"] = 1
 	attr["exp"] = 0
 	attr["str"] = 7
-	attr["end"] = 6
+	attr["end"] = 7
 	attr["wis"] = 4
 	attr["spr"] = 5
 	attr["agi"] = 3
