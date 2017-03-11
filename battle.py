@@ -51,7 +51,7 @@ class BattleController (object):
         #heroes
         for hero in g.PARTY_LIST:
             isHero = True
-            baseAttr = hero.attr
+            baseAttr = hero.attr.copy()
             baseAttr['atk'] = hero.baseAtk
             baseAttr['def'] = hero.baseDef
             baseAttr['matk'] = hero.baseMAtk
@@ -76,7 +76,7 @@ class BattleController (object):
         self.monsterCounters = {}
         for monster in g.MONSTER_LIST:
             isHero = False
-            baseAttr = monster.attr
+            baseAttr = monster.attr.copy()
             baseAttr['maxHP'] = monster.attr['hp']
             baseAttr['maxSP'] = monster.attr['sp']
             SPR = monster.spr
