@@ -186,6 +186,7 @@ class Potion():
                     validTargets.append(target)
             index += 1
 
+        user.BC.UI.showHP = True
         user.BC.UI.get_target(user, validTargets)
         user.BC.queuedAction = Potion.queue
 
@@ -241,6 +242,7 @@ class Revive():
                     validTargets.append(target)
             index += 1
 
+        user.BC.UI.showHP = True
         user.BC.UI.get_target(user, validTargets)
         user.BC.queuedAction = Revive.queue
 
@@ -296,6 +298,7 @@ class Antidote():
                     validTargets.append(target)
             index += 1
 
+        user.BC.UI.showHP = True
         user.BC.UI.get_target(user, validTargets)
         user.BC.queuedAction = Antidote.queue
 
@@ -351,7 +354,7 @@ class Sacrifice():
             self.user.sacrifice()
 
             for hero in self.user.BC.battlers:
-                if hero.isHero:
+                if hero.isHero and not hero.isDead:
                     hero.attr['sp'] = hero.attr['maxSP']
                     self.user.BC.UI.create_popup("FULL SP", hero.spr.pos, g.BLUE)
         else:

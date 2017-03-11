@@ -7,10 +7,8 @@ import pygame.locals
 
 import my_globals as g
 import database as db
-import battle_command as cmd
 import battle_ai as bai
 import event
-import inventory
 import utility
 
 
@@ -150,6 +148,16 @@ class BattleController (object):
                         self.next_round()
                 else:
                     if self.heroes_alive():
+                        for battler in self.battlers:
+                            if battler.isHero:
+                                if battler.attr['hp'] > db.Hero.dic[battler.attr['name']].baseMaxHP:
+                                    db.Hero.dic[battler.attr['name']].attr['hp'] = db.Hero.dic[battler.attr['name']].baseMaxHP
+                                else:
+                                    db.Hero.dic[battler.attr['name']].attr['hp'] = battler.attr['hp']
+                                if battler.attr['sp'] > db.Hero.dic[battler.attr['name']].baseMaxSP:
+                                    db.Hero.dic[battler.attr['name']].attr['sp'] = db.Hero.dic[battler.attr['name']].baseMaxSP
+                                else:
+                                    db.Hero.dic[battler.attr['name']].attr['sp'] = battler.attr['sp']
                         self.change_state(g.BattleState.WIN)
                     else:
                         self.change_state(g.BattleState.LOSE)
@@ -353,6 +361,8 @@ class BattleUI (object):
         self.meterIconOffset = (30, 7)
 
         self.helpLabel = ""
+        self.showHP = False
+        self.showSP = False
 
         self.cursorIndex = 0
         self.commandCursor = []
@@ -400,7 +410,7 @@ class BattleUI (object):
 
         self.messageBoxImage = pygame.image.load("spr/battle/message-box.png")
 
-        self.currentUser = 0
+        self.currentUser = None
         self.validTargets = []
 
         self.popupList = []
@@ -463,6 +473,8 @@ class BattleUI (object):
                 self.selectedThing = self.validTargets[selection]
                 self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
                 self.BC.change_state(g.BattleState.FIGHT)
+                self.showHP = False
+                self.showSP = False
         else:
             self.helpLabel = ""
             self.BC.prev_state()
@@ -503,6 +515,15 @@ class BattleUI (object):
         for target in self.validTargets:
             self.BC.CONTROLLER.TEXT_MANAGER.draw_text(target.attr['name'], self.tgtAnchors[index], g.WHITE)
             index += 1
+        if self.validTargets:
+            battler = self.validTargets[self.cursorIndex]
+            if battler:
+                if battler.isHero:
+                    if self.showHP:
+                        self.render_battler_hp(battler)
+                    elif self.showSP:
+                        self.render_battler_sp(battler)
+
         self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.tgtAnchors[self.cursorIndex],(-self.cursorImage.get_width(),0)))
 
     def render_item_window(self):
@@ -525,10 +546,8 @@ class BattleUI (object):
         battler = self.BC.currentBattler
         self.BC.CONTROLLER.VIEW_SURF.blit(self.indexImage, utility.add_tuple(self.windowAnchors[0], (2, -10)))
         self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(1 + self.cursorIndex + self.skillSelectOffset[battler.battlerIndex]) + "/" + str(len(battler.skills)), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
-        
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.attr['maxSP']), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
+
+        self.render_battler_sp(battler)
         
         minIndex = max(0, self.skillSelectOffset[self.BC.currentBattler.battlerIndex])
         maxIndex = minIndex + 5
@@ -568,6 +587,16 @@ class BattleUI (object):
                 self.render_meter(hero.skillType, self.heroStatusAnchors[index])
                 #self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(hero.SP), utility.add_tuple(self.heroStatusAnchors[index], (56, 0)), g.WHITE)
                 index += 1
+
+    def render_battler_hp(self, battler):
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text("HP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.attr['maxHP']), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
+
+    def render_battler_sp(self, battler):
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.attr['maxSP']), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
 
     def render_meter(self, skillType, pos):
         pos = utility.add_tuple(pos, self.meterIconOffset)
@@ -749,6 +778,8 @@ class BattleUI (object):
                 g.CONFIRM_TIMER = g.CONFIRM_DELAY
                 if self.BC.BATTLE_STATE != g.BattleState.COMMAND:
                     if self.BC.BATTLE_STATE == g.BattleState.TARGET:
+                        self.showHP = False
+                        self.showSP = False
                         self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
                     elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
                         self.skillCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
@@ -982,7 +1013,6 @@ class BattleActor (object):
         self.name = baseAttr['name']
 
         self.baseAttr = baseAttr
-
         self.attr = baseAttr
 
         self.resD = resD
@@ -1000,10 +1030,13 @@ class BattleActor (object):
         self.currentTurnPos = 0
 
         self.battlerIndex = self.BC.battlerCount
+        self.turnOrder = -1
         self.BC.battlerCount += 1
 
         self.size = size
         self.spr = Sprite(spr, size, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
+        if self.isDead:
+            self.spr.set_anim("dead")
         self.icon = icon
         
         self.aggro = random.randint(0, math.floor(self.attr['hp'] // 10))
@@ -1152,7 +1185,7 @@ class BattleActor (object):
             utility.log(self.attr['name'] + " resisted poison", g.LogLevel.FEEDBACK)
 
     def sacrifice(self):
-        self.attr['maxHP'] = self.baseAttr['maxHP'] - math.floor(self.baseAttr['maxHP'] * 0.1 * g.METER[g.SkillType.BLOOD])
+        self.attr['maxHP'] -= math.ceil(self.baseAttr['maxHP'] * 0.1)
         if self.attr['hp'] > self.attr['maxHP']:
             self.attr['hp'] = self.attr['maxHP']
 
@@ -1204,7 +1237,7 @@ class BattleActor (object):
         else:
             col = g.WHITE
             
-        self.HP += damage
+        self.attr['hp'] += damage
         utility.log(self.attr['name'] + " restores " + str(damage) + " HP!")
         self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
         self.check_hp()
