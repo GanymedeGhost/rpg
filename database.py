@@ -174,7 +174,7 @@ class Skill (object):
 		Skill.dic[index] = self
 
 	def check_cost(battler, skill):
-		if battler.SP >= skill.spCost:
+		if battler.attr['sp'] >= skill.spCost:
 			if skill.skillType != g.SkillType.MUSIC:
 				if g.METER[skill.skillType] >= skill.meterReq:
 					return True

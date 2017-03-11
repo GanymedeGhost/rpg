@@ -75,7 +75,7 @@ class Attack():
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
                     validTargets.append(target)
             index += 1
 
@@ -89,7 +89,7 @@ class Attack():
             bestAggro = 101
         bestTarget = None
         for target in user.BC.battlers:
-            if (user.isHero != target.isHero and target.HP > 0):
+            if (user.isHero != target.isHero and not target.isDead):
                 if mostAggro:
                     if target.aggro > bestAggro:
                         bestAggro = target.aggro
@@ -112,7 +112,7 @@ class Attack():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
     
     def run(self):
-        utility.log(self.user.NAME + " attacks " + self.target.NAME)
+        utility.log(self.user.attr['name'] + " attacks " + self.target.attr['name'])
         if self.user.BC.hit_calc(self.user, self.target):
             if not self.user.BC.dodge_calc(self.user, self.target):
                 dmg = self.user.BC.phys_dmg_calc(self.user, self.target)
@@ -144,7 +144,7 @@ class Defend():
         user.BC.eventQueue.queue(Defend(user))
 
     def run(self):
-        utility.log(self.user.NAME + " is defending.", g.LogLevel.FEEDBACK)
+        utility.log(self.user.attr['name'] + " is defending.", g.LogLevel.FEEDBACK)
         self.user.mods[g.BattlerStatus.DEFEND] += 1
         self.user.reset_anim()
         self.user.after_turn()
@@ -182,7 +182,7 @@ class Potion():
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
                     validTargets.append(target)
             index += 1
 
@@ -204,7 +204,7 @@ class Potion():
     
     def run(self):
         inventory.remove_item("Potion")
-        utility.log(self.user.NAME + " Potions " + self.target.NAME)
+        utility.log(self.user.attr['name'] + " Potions " + self.target.attr['name'])
         self.target.heal_hp(50)
         self.user.after_turn()
         return -1
@@ -237,7 +237,7 @@ class Revive():
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
                     validTargets.append(target)
             index += 1
 
@@ -259,7 +259,7 @@ class Revive():
     
     def run(self):
         inventory.remove_item("Revive")
-        utility.log(self.user.NAME + " Revives " + self.target.NAME)
+        utility.log(self.user.attr['name'] + " Revives " + self.target.attr['name'])
         self.target.revive(33)
         self.user.after_turn()
         return -1
@@ -292,7 +292,7 @@ class Antidote():
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
                     validTargets.append(target)
             index += 1
 
@@ -314,7 +314,7 @@ class Antidote():
     
     def run(self):
         inventory.remove_item("Antidote")
-        utility.log(self.user.NAME + " Antidotes " + self.target.NAME)
+        utility.log(self.user.attr['name'] + " Antidotes " + self.target.attr['name'])
         self.target.mods[g.BattlerStatus.POISON] = 0
         if self.target.spr.animated:
             if self.target.spr.curAnim == "poison":
@@ -344,7 +344,7 @@ class Sacrifice():
         user.BC.eventQueue.queue(Sacrifice(user))
 
     def run(self):
-        utility.log(self.user.NAME + " uses Sacrifice.", g.LogLevel.FEEDBACK)
+        utility.log(self.user.attr['name'] + " uses Sacrifice.", g.LogLevel.FEEDBACK)
         if g.METER[g.SkillType.BLOOD] < g.METER_MAX:
             g.METER[g.SkillType.BLOOD] += 1
             self.user.BC.UI.create_popup("MAX HP DOWN", self.user.spr.pos, g.RED)
@@ -352,7 +352,7 @@ class Sacrifice():
 
             for hero in self.user.BC.battlers:
                 if hero.isHero:
-                    hero.SP = hero.MAXSP
+                    hero.attr['sp'] = hero.attr['maxSP']
                     self.user.BC.UI.create_popup("FULL SP", hero.spr.pos, g.BLUE)
         else:
             self.user.BC.UI.create_popup("NO EFFECT", self.user.spr.pos, g.RED)
@@ -374,7 +374,7 @@ class Finale():
         index = 0
         for target in user.BC.battlers:
             if not target.isHero:
-                if target.HP > 0:
+                if not target.isDead:
                     targets.append(target)
             index += 1
 
@@ -391,7 +391,7 @@ class Finale():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
 
     def run(self):
-        utility.log(self.user.NAME + " uses Finale.", g.LogLevel.FEEDBACK)
+        utility.log(self.user.attr['name'] + " uses Finale.", g.LogLevel.FEEDBACK)
         red = 0
         ylw = 0
         blu = 0
@@ -408,12 +408,12 @@ class Finale():
         if hash == "44":
             self.user.BC.UI.create_message("Thunderclap")
             for target in self.targets:
-                dmg = 20 + self.user.MATK * 2 - target.MDEF
+                dmg = 20 + self.user.attr['matk'] * 2 - target.attr['mdef']
                 target.take_damage(dmg, g.DamageType.ELEC)
         else:
             self.user.BC.UI.create_message("Dissonance")
             for target in self.targets:
-                dmg = 10 + self.user.MATK * 2 - target.MDEF
+                dmg = 10 + self.user.attr['matk'] * 2 - target.attr['mdef']
                 target.take_damage(dmg, g.DamageType.NONE)
 
         self.user.reset_anim()
@@ -436,7 +436,7 @@ class Transform():
         user.BC.eventQueue.queue(Transform(user))
 
     def run(self):
-        utility.log(self.user.NAME + " uses Transform.", g.LogLevel.FEEDBACK)
+        utility.log(self.user.attr['name'] + " uses Transform.", g.LogLevel.FEEDBACK)
         self.user.transform()
         self.user.reset_anim()
         self.user.after_turn()
@@ -470,7 +470,7 @@ class BloodSlash():
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
                     validTargets.append(target)
             index += 1
 
@@ -484,7 +484,7 @@ class BloodSlash():
             bestAggro = 101
         bestTarget = None
         for target in user.BC.battlers:
-            if (user.isHero != target.isHero and target.HP > 0):
+            if (user.isHero != target.isHero and not target.isDead):
                 if mostAggro:
                     if target.aggro > bestAggro:
                         bestAggro = target.aggro
@@ -508,8 +508,8 @@ class BloodSlash():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
 
     def run(self):
-        self.user.SP -= db.Skill.dic[BloodSlash.name()].spCost
-        utility.log(self.user.NAME + " uses Blood Slash on " + self.target.NAME)
+        self.user.attr['sp'] -= db.Skill.dic[BloodSlash.name()].spCost
+        utility.log(self.user.attr['name'] + " uses Blood Slash on " + self.target.attr['name'])
         if self.user.BC.hit_calc(self.user, self.target):
             if not self.user.BC.dodge_calc(self.user, self.target):
                 dmg = self.user.BC.phys_dmg_calc(self.user, self.target)
@@ -554,7 +554,7 @@ class Stacatto():
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
                     validTargets.append(target)
             index += 1
 
@@ -568,7 +568,7 @@ class Stacatto():
             bestAggro = 101
         bestTarget = None
         for target in user.BC.battlers:
-            if (user.isHero != target.isHero and target.HP > 0):
+            if (user.isHero != target.isHero and not target.isDead):
                 if mostAggro:
                     if target.aggro > bestAggro:
                         bestAggro = target.aggro
@@ -592,12 +592,12 @@ class Stacatto():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
 
     def run(self):
-        self.user.SP -= db.Skill.dic[Stacatto.name()].spCost
+        self.user.attr['sp'] -= db.Skill.dic[Stacatto.name()].spCost
         g.music_meter_add(g.DamageType.ELEC)
-        utility.log(self.user.NAME + " uses Stacatto on " + self.target.NAME)
+        utility.log(self.user.attr['name'] + " uses Stacatto on " + self.target.attr['name'])
         if self.user.BC.hit_calc(self.user, self.target):
             if not self.user.BC.dodge_calc(self.user, self.target):
-                dmg = random.randint(25, 50+self.user.MATK*2) - self.target.MDEF
+                dmg = random.randint(25, 50+self.user.attr['matk']*2) - self.target.attr['mdef']
                 if self.user.BC.crit_calc(self.user, self.target):
                     dmg *= 2
                     self.target.stun()
@@ -637,7 +637,7 @@ class DoubleCut():
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
                     validTargets.append(target)
             index += 1
 
@@ -651,7 +651,7 @@ class DoubleCut():
             bestAggro = 101
         bestTarget = None
         for target in user.BC.battlers:
-            if (user.isHero != target.isHero and target.HP > 0):
+            if (user.isHero != target.isHero and not target.isDead):
                 if mostAggro:
                     if target.aggro > bestAggro:
                         bestAggro = target.aggro
@@ -665,7 +665,7 @@ class DoubleCut():
 
     def queue(user, target):
         lastAnim = user.spr.curAnim
-        user.SP -= db.Skill.dic["Double Cut"].spCost
+        user.attr['sp'] -= db.Skill.dic["Double Cut"].spCost
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
         user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
@@ -709,7 +709,7 @@ class Poison():
         index = 0
         for target in user.BC.battlers:
             if ((OPPOSITE and (user.isHero != target.isHero)) or (SAME and (user.isHero == target.isHero))):
-                if ((ALIVE and (target.HP > 0)) or (DEAD and (target.HP == 0))):
+                if ((ALIVE and not target.isDead) or (DEAD and target.isDead)):
                     validTargets.append(target)
             index += 1
 
@@ -723,7 +723,7 @@ class Poison():
             bestAggro = 101
         bestTarget = None
         for target in user.BC.battlers:
-            if (user.isHero != target.isHero and target.HP > 0):
+            if (user.isHero != target.isHero and not target.isDead):
                 if mostAggro:
                     if target.aggro > bestAggro:
                         bestAggro = target.aggro
@@ -745,7 +745,7 @@ class Poison():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
 
     def run(self):
-        utility.log(self.user.NAME + " uses Poison on " + self.target.NAME)
+        utility.log(self.user.attr['name'] + " uses Poison on " + self.target.attr['name'])
         self.target.poison(50)
         self.user.after_turn()
         return -1

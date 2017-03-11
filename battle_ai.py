@@ -22,7 +22,7 @@ class Mold ():
         
         if battler.can_act():
             roll = random.randint(0, 100)
-            if (battler.HP == battler.MAXHP):
+            if (battler.attr['hp'] == battler.attr['maxHP']):
                 cmd.Poison.start(battler)
             else:
                 cmd.Attack.start(battler)
