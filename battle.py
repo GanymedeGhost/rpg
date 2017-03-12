@@ -18,7 +18,7 @@ import utility
 
 class BattleController (object):
     
-    def __init__(self, controller, initiative = -1):
+    def __init__(self, controller, initiative = -1, escapable = False):
         self.CONTROLLER = controller
         self.UI = BattleUI(self)
         
@@ -45,6 +45,8 @@ class BattleController (object):
                 utility.log ("Initiative ENEMY")
                 self.UI.create_message("Ambush!")
                 self.initiative = g.Initiative.ENEMY
+
+        self.escapable = escapable
         
         #heroes
         for hero in g.PARTY_LIST:
@@ -147,22 +149,34 @@ class BattleController (object):
                     else:
                         self.next_round()
                 else:
-                    if self.heroes_alive():
-                        for battler in self.battlers:
-                            if battler.isHero:
-                                if battler.attr['hp'] > db.Hero.dic[battler.attr['name']].baseMaxHP:
-                                    db.Hero.dic[battler.attr['name']].attr['hp'] = db.Hero.dic[battler.attr['name']].baseMaxHP
-                                else:
-                                    db.Hero.dic[battler.attr['name']].attr['hp'] = battler.attr['hp']
-                                if battler.attr['sp'] > db.Hero.dic[battler.attr['name']].baseMaxSP:
-                                    db.Hero.dic[battler.attr['name']].attr['sp'] = db.Hero.dic[battler.attr['name']].baseMaxSP
-                                else:
-                                    db.Hero.dic[battler.attr['name']].attr['sp'] = battler.attr['sp']
-                        self.change_state(g.BattleState.WIN)
+                    if not self.UI.messageList and not self.UI.popupList:
+                        if self.heroes_alive():
+                            self.battle_cleanup()
+                            self.change_state(g.BattleState.WIN)
+                        else:
+                            self.change_state(g.BattleState.LOSE)
                     else:
-                        self.change_state(g.BattleState.LOSE)
+                        self.UI.update()
+            elif self.BATTLE_STATE == g.BattleState.ESCAPE:
+                if not self.UI.messageList:
+                    self.battle_cleanup()
+                    self.change_state(g.BattleState.EXIT)
+                else:
+                    self.UI.update()
         else:
             self.UI.update()
+
+    def battle_cleanup(self):
+        for battler in self.battlers:
+            if battler.isHero:
+                if battler.attr['hp'] > db.Hero.dic[battler.attr['name']].baseMaxHP:
+                    db.Hero.dic[battler.attr['name']].attr['hp'] = db.Hero.dic[battler.attr['name']].baseMaxHP
+                else:
+                    db.Hero.dic[battler.attr['name']].attr['hp'] = battler.attr['hp']
+                if battler.attr['sp'] > db.Hero.dic[battler.attr['name']].baseMaxSP:
+                    db.Hero.dic[battler.attr['name']].attr['sp'] = db.Hero.dic[battler.attr['name']].baseMaxSP
+                else:
+                    db.Hero.dic[battler.attr['name']].attr['sp'] = battler.attr['sp']
 
     def next_turn(self):
         nextBattler = self.turnOrder[0]

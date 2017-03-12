@@ -80,7 +80,8 @@ class Control(object):
                     self.TEXT_MANAGER.type_text(self.KEYS)
         elif (self.GAME_STATE == g.GameState.BATTLE):
             if (self.BATTLE.BATTLE_STATE != g.BattleState.WIN and
-                self.BATTLE.BATTLE_STATE != g.BattleState.LOSE):
+                self.BATTLE.BATTLE_STATE != g.BattleState.LOSE and
+                self.BATTLE.BATTLE_STATE != g.BattleState.EXIT):
                 self.BATTLE.update()
             else:
                 self.GAME_STATE = g.GameState.MAP

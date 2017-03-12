@@ -46,6 +46,44 @@ def get_target_auto(user, cmdClass, mostAggro = True, opposite = True, same = Fa
 ##BASIC COMMANDS##
 ##################
 
+class Escape():
+
+    def __init__(self, user):
+        self.user = user
+
+    def name():
+        return "Escape"
+
+    def start(user):
+        Escape.queue(user)
+
+    def queue(user):
+        user.BC.eventQueue.queue(Escape(user))
+
+    def run(self):
+        isHero = self.user.isHero
+        sameAgi = 0
+        oppAgi = 0
+
+        for battler in self.user.BC.battlers:
+            if battler.isHero == isHero:
+                sameAgi += battler.attr['agi']
+            else:
+                oppAgi += battler.attr['agi']
+
+        roll = random.randint(0, 100)
+        if roll + sameAgi - oppAgi > 25:
+            self.user.BC.UI.create_message("Escaped!")
+            self.user.BC.change_state(g.BattleState.ESCAPE)
+            return -1
+        else:
+            self.user.BC.UI.create_message("Couldn't escape!")
+
+        self.user.after_turn()
+        return -1
+
+
+
 class UseItem():
 
     def __init__(self, user, action):

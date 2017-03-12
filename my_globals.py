@@ -114,8 +114,10 @@ class BattleState():
     AI = 5
     ITEM = 6
     SKILL = 7
+    ESCAPE = 8
+    EXIT = 9
 
-    SIZE = 8
+    SIZE = 10
 
 class Initiative():
     NONE = 0

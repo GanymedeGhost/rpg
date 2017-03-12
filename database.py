@@ -330,6 +330,7 @@ def create_data():
 	commands.append(cmd.UseSkill)
 	commands.append(cmd.UseItem)
 	commands.append(cmd.Defend)
+	commands.append(cmd.Escape)
 	skills = [Skill.dic["Sacrifice"]]
 	skills.append(Skill.dic["Blood Slash"])
 
@@ -358,6 +359,7 @@ def create_data():
 	commands.append(cmd.UseSkill)
 	commands.append(cmd.UseItem)
 	commands.append(cmd.Defend)
+	commands.append(cmd.Escape)
 	skills = [Skill.dic["Finale"]]
 	skills.append(Skill.dic["Stacatto"])
 	
@@ -387,6 +389,7 @@ def create_data():
 	commands.append(cmd.UseSkill)
 	commands.append(cmd.UseItem)
 	commands.append(cmd.Defend)
+	commands.append(cmd.Escape)
 	skills = [Skill.dic["Transform"]]
 	skills.append(Skill.dic["Double Cut"])
 
