@@ -334,9 +334,9 @@ def create_data():
 	skills = [Skill.dic["Sacrifice"]]
 	skills.append(Skill.dic["Blood Slash"])
 
-	spr = "spr/battle/hero-Luxe.png"
+	spr = "spr/battle/hero-luxe.png"
 	size = 16
-	icon = pygame.image.load("spr/battle/icon-Luxe.png")
+	icon = pygame.image.load("spr/battle/icon-luxe.png")
 
 	Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
 
