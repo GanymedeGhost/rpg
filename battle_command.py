@@ -162,6 +162,7 @@ class Potion():
 
     def start(user):
         if (user.isHero):
+            user.BC.UI.showHP = True
             get_target(user, Potion, False, True)
         else:
             get_target_auto(user, Potion, True, False, True)
@@ -195,6 +196,7 @@ class Revive():
 
     def start(user):
         if (user.isHero):
+            user.BC.UI.showHP = True
             get_target(user, Revive, False, True, False, True)
         else:
             get_target_auto(user, Revive, True, False, True, False, True)
@@ -229,6 +231,7 @@ class Antidote():
 
     def start(user):
         if (user.isHero):
+            user.BC.UI.showHP = True
             get_target(user, Antidote, False, True)
         else:
             get_target_auto(user, Antidote, True, False, True)
