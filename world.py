@@ -300,6 +300,9 @@ class Player(Actor):
             elif keys[g.KEY_RIGHT]:
                 mDir = "right"
                 self.facing = DIR_RIGHT
+            if keys[g.KEY_MENU]:
+                if (g.INPUT_TIMER <= 0 and not self.resetConfirm):
+                    self.level.CONTROLLER.open_menu()
             if keys[g.KEY_CONFIRM]:
                 if (g.INPUT_TIMER <= 0 and not self.resetConfirm):
                     self.try_interact()

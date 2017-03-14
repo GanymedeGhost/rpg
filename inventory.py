@@ -20,9 +20,13 @@ def add_item(item, quantity=1):
     for i in range (0, g.INVENTORY_MAX_SLOTS):
         if g.INVENTORY[i][0].name == item:
             if g.INVENTORY[i][1] + quantity > db.InvItem.dic[item].limit:
-                g.INVENTORY[i][1] = db.InvItem.dic[item].limit
+                newItem = db.InvItem.dic[item]
+                newQuantity = db.InvItem.dic[item].limit
+                g.INVENTORY[i] = (newItem, newQuantity)
             else:
-                g.INVENTORY[i][1] += quantity
+                newItem = db.InvItem.dic[item]
+                newQuantity = g.INVENTORY[i][1] + quantity
+                g.INVENTORY[i] = (newItem, newQuantity)
             return True
     for i in range (0, g.INVENTORY_MAX_SLOTS):
         if g.INVENTORY[i][0].name == "":
@@ -40,7 +44,7 @@ def remove_item(item, quantity=1):
                 clear_slot(i)
             else:
                 newItem = db.InvItem.dic[item]
-                newQuantity = g.INVENTORY[i][1]-1
+                newQuantity = g.INVENTORY[i][1]-quantity
                 g.INVENTORY[i] = (newItem, newQuantity)
             return True
     return False

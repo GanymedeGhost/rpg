@@ -32,7 +32,7 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 GREEN_BLUE = (0, 180, 120)
 
-HERO_MAX_HP = 999
+HERO_MAX_HP = 9999
 HERO_MAX_SP = 999
 HERO_MAX_LVL = 99
 HERO_MAX_EXP = 999999999
@@ -49,6 +49,7 @@ MOON_COUNTER_MAX = 50
 FONT_SML = pygame.font.Font('font/percy.ttf', 8)
 FONT_MED = pygame.font.Font('font/pixel8.ttf', 8)
 FONT_MED_BOLD = pygame.font.Font('font/pixel8b.ttf', 8)
+FONT_MED_MONO = pygame.font.Font('font/pixelm8.ttf', 8)
 FONT_LRG = pygame.font.Font('font/pixel.ttf', 16)
 FONT_LRG_BOLD = pygame.font.Font('font/pixelb.ttf', 16)
 
@@ -119,6 +120,16 @@ class BattleState():
 
     SIZE = 10
 
+class MenuState():
+    MENU = 0
+    ITEM = 1
+    SKILL = 2
+    STATUS = 3
+    CONFIG = 4
+    EXIT = 5
+
+    SIZE = 6
+
 class Initiative():
     NONE = 0
     PARTY = 1
@@ -134,6 +145,11 @@ CURSOR_TIMER = 0
 CONFIRM_TIMER = 0
 INPUT_TIMER = 0
 AI_TIMER = 0
+
+PLAY_MS = 0
+PLAY_SEC = 0
+PLAY_MIN = 0
+PLAY_HR = 0
 
 KEY_CONFIRM = pygame.K_z
 KEY_CANCEL = pygame.K_x
@@ -156,10 +172,11 @@ MOON_COUNTER = MOON_COUNTER_MAX
 PARTY_LIST = []
 MONSTER_LIST = []
 INVENTORY = [] #stores tuples (item, quantity)
+GP = 100
 
 METER = {}
 METER[SkillType.BLOOD] = 0
-METER[SkillType.MUSIC] = [] #fills with damage types
+METER[SkillType.MUSIC] = [4] #fills with damage types
 METER[SkillType.MOON] = 0
 
 def music_meter_add(damageType):

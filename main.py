@@ -5,6 +5,7 @@ import my_globals as g
 import database as db
 import world
 import battle
+import menu
 import inventory
 import utility
 
@@ -32,9 +33,8 @@ class Control(object):
         g.PARTY_LIST.append(db.Hero.dic["Asa"])
         
         inventory.init()
-        inventory.add_item("Potion", 99)
-        inventory.add_item("Antidote", 99)
-        inventory.add_item("Revive", 99)
+        inventory.add_item("Potion", 2)
+        inventory.add_item("Revive")
 
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
@@ -49,7 +49,11 @@ class Control(object):
             g.MONSTER_LIST.append(db.Monster.dic[key])
         self.BATTLE = battle.BattleController(self, initiative)
         self.GAME_STATE = g.GameState.BATTLE
-    
+
+    def open_menu(self):
+        self.MENU = menu.MenuController(self)
+        self.GAME_STATE = g.GameState.MENU
+
     def event_loop(self):
         for event in pygame.event.get():
             self.KEYS = pygame.key.get_pressed()
@@ -72,20 +76,26 @@ class Control(object):
         pygame.display.set_caption(caption)
 
     def update(self):
+        g.PLAY_MS += self.CLOCK.get_rawtime()
+
         if self.GAME_STATE == g.GameState.MAP:
                 if not self.TEXT_MANAGER.isTyping:
                     self.LEVEL.update(self.CLOCK.get_time(), self.KEYS)
                     self.LEVEL.draw(self.VIEW_SURF)
                 else:
                     self.TEXT_MANAGER.type_text(self.KEYS)
-        elif (self.GAME_STATE == g.GameState.BATTLE):
-            if (self.BATTLE.BATTLE_STATE != g.BattleState.WIN and
-                self.BATTLE.BATTLE_STATE != g.BattleState.LOSE and
-                self.BATTLE.BATTLE_STATE != g.BattleState.EXIT):
+        elif self.GAME_STATE == g.GameState.BATTLE:
+            if self.BATTLE.BATTLE_STATE != g.BattleState.EXIT:
                 self.BATTLE.update()
             else:
                 self.GAME_STATE = g.GameState.MAP
                 del self.BATTLE
+        elif self.GAME_STATE == g.GameState.MENU:
+            if self.MENU.menuState != g.MenuState.EXIT:
+                self.MENU.update()
+            else:
+                self.GAME_STATE = g.GameState.MAP
+                del self.MENU
     
         if not self.skipRender:
                 self.window_render()

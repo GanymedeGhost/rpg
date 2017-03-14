@@ -1,4 +1,3 @@
-import math
 import random
 import my_globals as g
 import database as db
@@ -9,7 +8,6 @@ import utility
 def get_target(user, cmdClass, opposite = True, same = False, alive = True, dead = False):
 
     validTargets = []
-    selectedTargets = []
     index = 0
     for target in user.BC.battlers:
         if (opposite and user.isHero != target.isHero) or (same and user.isHero == target.isHero):
@@ -380,13 +378,13 @@ class Finale():
 
         if hash == "44":
             self.user.BC.UI.create_message("Thunderclap")
-            baseDmg = 15 + self.user.attr['matk']
+            baseDmg = 30 + self.user.attr['matk']
             for target in self.targets:
                 dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - target.attr['mdef']
                 target.take_damage(dmg, g.DamageType.ELEC)
         else:
             self.user.BC.UI.create_message("Dissonance")
-            baseDmg = 10 + self.user.attr['matk']
+            baseDmg = 20 + self.user.attr['matk']
             for target in self.targets:
                 dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - target.attr['mdef']
                 target.take_damage(dmg, g.DamageType.NONE)
@@ -496,7 +494,7 @@ class Stacatto():
         self.user.attr['sp'] -= db.Skill.dic[Stacatto.name()].spCost
         g.music_meter_add(g.DamageType.ELEC)
         utility.log(self.user.attr['name'] + " uses Stacatto on " + self.target.attr['name'])
-        baseDmg = 15 + self.user.attr['matk']
+        baseDmg = 30 + self.user.attr['matk']
         if self.user.BC.hit_calc(self.user, self.target, 5):
             if not self.user.BC.dodge_calc(self.user, self.target):
                 dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - self.target.attr['mdef']

@@ -12,6 +12,26 @@ def scale_tuple(o, f):
     p1 = o[1] * f[1]
     return p0, p1
 
+def play_time():
+    while g.PLAY_MS > 100:
+        g.PLAY_MS -= 100
+        g.PLAY_SEC += 1
+        if g.PLAY_SEC > 60:
+            g.PLAY_SEC -= 60
+            g.PLAY_MIN += 1
+        if g.PLAY_MIN > 60:
+            g.PLAY_MIN -= 60
+            g.PLAY_HR += 1
+    if g.PLAY_SEC < 10:
+        strSec = "0"
+    else:
+        strSec = ""
+    if g.PLAY_MIN < 10:
+        strMin = "0"
+    else:
+        strMin = ""
+    return str(g.PLAY_HR), strMin + str(g.PLAY_MIN), strSec + str(g.PLAY_SEC)
+
 def colorize(image, newColor):
     """
     Create a "colorized" copy of a surface (replaces RGB values with the given color, preserving the per-pixel alphas of

@@ -8,6 +8,7 @@ import pygame.locals
 import my_globals as g
 import database as db
 import battle_ai as bai
+import inventory as inv
 import event
 import utility
 
@@ -68,8 +69,10 @@ class BattleController (object):
             skills = hero.skills
             skillType = hero.skillType
             commands = hero.commands
+            drops = []
+            steals = []
             
-            battler = BattleActor(self, isHero, spr, size, icon, resD, resS, baseAttr, skillType, commands, skills, None)
+            battler = BattleActor(self, isHero, spr, size, icon, resD, resS, drops, steals, baseAttr, skillType, commands, skills, None)
             self.battlers.append(battler)
 
         #enemies
@@ -84,6 +87,10 @@ class BattleController (object):
             icon = monster.icon
             resD = monster.resD
             resS = monster.resS
+
+            drops = monster.drops
+            steals = monster.steals
+
             ai = bai.dic[monster.attr['name']]
             
             if monster.attr['name'] in self.monsterCounters:
@@ -92,7 +99,7 @@ class BattleController (object):
             else:
                 self.monsterCounters[monster.attr['name']] = 1
             
-            battler = BattleActor(self, isHero, SPR, size, icon, resD, resS, baseAttr, None, [], [], ai)
+            battler = BattleActor(self, isHero, SPR, size, icon, resD, resS, drops, steals, baseAttr, None, [], [], ai)
             self.battlers.append(battler)
         
         self.rounds = 0
@@ -151,8 +158,8 @@ class BattleController (object):
                 else:
                     if not self.UI.messageList and not self.UI.popupList:
                         if self.heroes_alive():
-                            self.battle_cleanup()
                             self.change_state(g.BattleState.WIN)
+                            self.battle_results()
                         else:
                             self.change_state(g.BattleState.LOSE)
                     else:
@@ -163,8 +170,38 @@ class BattleController (object):
                     self.change_state(g.BattleState.EXIT)
                 else:
                     self.UI.update()
+            elif self.BATTLE_STATE == g.BattleState.WIN:
+                if not self.UI.messageList:
+                    self.battle_cleanup()
+                    self.change_state(g.BattleState.EXIT)
+                else:
+                    self.UI.update()
+            elif self.BATTLE_STATE == g.BattleState.LOSE:
+                if not self.UI.messageList:
+                    self.battle_cleanup()
+                    self.change_state(g.BattleState.EXIT)
+                else:
+                    self.UI.update()
         else:
             self.UI.update()
+
+    def battle_results(self):
+        expPool = 0
+        goldPool = 0
+        for enemy in self.battlers:
+            if not enemy.isHero:
+                expPool += enemy.attr['exp']
+                goldPool += enemy.attr['gold']
+
+                itemRoll = random.randint(0, 100)
+                for drop in enemy.drops:
+                    if itemRoll < drop[1]:
+                        inv.add_item(drop[0])
+                        self.UI.create_message("Obtained " + drop[0])
+                        break
+            g.GP += goldPool
+        self.UI.create_message("Received " + str(goldPool) + " gold")
+        self.UI.create_message("Gained " + str(expPool) + " EXP")
 
     def battle_cleanup(self):
         for battler in self.battlers:
@@ -402,6 +439,7 @@ class BattleUI (object):
         self.indexImage = pygame.image.load("spr/battle/ui-index.png")
         self.helpImage = pygame.image.load("spr/battle/ui-help.png")
         self.spWindowImage = pygame.image.load("spr/battle/ui-sp.png")
+        self.hpWindowImage = pygame.image.load("spr/battle/ui-hp.png")
         self.windowAnchors = [(0,85)]
 
         self.battlerCursorOffset = (-4, -8)
@@ -592,7 +630,7 @@ class BattleUI (object):
             iconOffset = (0, 7)
             iconOffsetH = (9, 0)
             if (hero.isHero):
-                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(hero.attr['name'], self.heroStatusAnchors[index], g.WHITE)
+                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(hero.attr['name'][0:4], self.heroStatusAnchors[index], g.WHITE)
                 self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(hero.attr['hp']), utility.add_tuple(self.heroStatusAnchors[index], (56, 0)), g.WHITE)
                 if hero.mods[g.BattlerStatus.STUN] > 0:
                     self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
@@ -608,9 +646,9 @@ class BattleUI (object):
                 index += 1
 
     def render_battler_hp(self, battler):
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
+        self.BC.CONTROLLER.VIEW_SURF.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
         self.BC.CONTROLLER.TEXT_MANAGER.draw_text("HP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.attr['maxHP']), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.attr['maxHP']), utility.add_tuple(self.windowAnchors[0], (116, -6)), g.WHITE)
 
     def render_battler_sp(self, battler):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
@@ -719,9 +757,10 @@ class BattleUI (object):
         self.render_battlers()
         self.render_hero_status()
         #self.render_help()
-        
-        self.render_turns()
-        self.render_turn_cursor()
+
+        if (self.BC.BATTLE_STATE != g.BattleState.WIN):
+            self.render_turns()
+            self.render_turn_cursor()
 
         if (self.BC.BATTLE_STATE == g.BattleState.TARGET):
             self.render_target_window()
@@ -1026,7 +1065,7 @@ class Sprite (pygame.sprite.Sprite):
 
 class BattleActor (object):
     
-    def __init__(self, BC, isHero, spr, size, icon, resD, resS, baseAttr, skillType = None, commands = [], skills = [], ai = None):
+    def __init__(self, BC, isHero, spr, size, icon, resD, resS, drops, steals, baseAttr, skillType = None, commands = [], skills = [], ai = None):
         self.BC = BC
         self.isHero = isHero
         self.name = baseAttr['name']
@@ -1036,6 +1075,9 @@ class BattleActor (object):
 
         self.resD = resD
         self.resS = resS
+
+        self.drops = drops
+        self.steals = steals
 
         self.mods = {}
         self.mods[g.BattlerStatus.DEFEND] = 0
