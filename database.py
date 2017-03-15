@@ -205,13 +205,13 @@ def create_data():
 	name = "Potion"
 	desc = "Restores 50 HP"
 	limit = 99
-	useAction = None
+	useAction = cmd.Potion
 	battleAction = cmd.Potion
 	
 	InvItem(name, desc, limit, useAction, battleAction)
 
 	name = "Revive"
-	desc = "Restores life"
+	desc = "Restores life to a fallen ally"
 	limit = 99
 	useAction = None
 	battleAction = cmd.Revive

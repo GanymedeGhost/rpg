@@ -27,6 +27,9 @@ class Control(object):
 
         self.BATTLE = None
         self.MENU = None
+
+        self.playTimeEvent = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.playTimeEvent, 1000)
         
         g.PARTY_LIST.append(db.Hero.dic["Luxe"])
         g.PARTY_LIST.append(db.Hero.dic["Elle"])
@@ -59,7 +62,9 @@ class Control(object):
             self.KEYS = pygame.key.get_pressed()
             if event.type == pygame.QUIT or self.KEYS[pygame.K_ESCAPE]:
                 self.CURRENT_STATE = -1
-
+            if event.type == self.playTimeEvent:
+                utility.play_time()
+                pygame.time.set_timer(self.playTimeEvent, 1000)
             ###DEBUG KEYS
             if self.KEYS[pygame.K_1]:
                 g.LOG_FILTER[g.LogLevel.DEBUG] = not g.LOG_FILTER[g.LogLevel.DEBUG]
@@ -76,8 +81,6 @@ class Control(object):
         pygame.display.set_caption(caption)
 
     def update(self):
-        g.PLAY_MS += self.CLOCK.get_rawtime()
-
         if self.GAME_STATE == g.GameState.MAP:
                 if not self.TEXT_MANAGER.isTyping:
                     self.LEVEL.update(self.CLOCK.get_time(), self.KEYS)
@@ -107,7 +110,7 @@ class Control(object):
         pygame.display.flip()
 
     def main_loop(self):
-        while self.CURRENT_STATE != -1: 
+        while self.CURRENT_STATE != -1:
             self.event_loop()
             self.update()
             pygame.display.update()

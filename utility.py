@@ -13,24 +13,23 @@ def scale_tuple(o, f):
     return p0, p1
 
 def play_time():
-    while g.PLAY_MS > 100:
-        g.PLAY_MS -= 100
-        g.PLAY_SEC += 1
-        if g.PLAY_SEC > 60:
-            g.PLAY_SEC -= 60
-            g.PLAY_MIN += 1
-        if g.PLAY_MIN > 60:
-            g.PLAY_MIN -= 60
-            g.PLAY_HR += 1
+    g.PLAY_SEC += 1
+    if g.PLAY_SEC > 60:
+        g.PLAY_SEC -= 60
+        g.PLAY_MIN += 1
+    if g.PLAY_MIN > 60:
+        g.PLAY_MIN -= 60
+        g.PLAY_HR += 1
+
     if g.PLAY_SEC < 10:
-        strSec = "0"
+        g.PLAY_SEC_STR = "0" + str(g.PLAY_SEC)
     else:
-        strSec = ""
+        g.PLAY_SEC_STR = str(g.PLAY_SEC)
     if g.PLAY_MIN < 10:
-        strMin = "0"
+        g.PLAY_MIN_STR = "0" + str(g.PLAY_MIN)
     else:
-        strMin = ""
-    return str(g.PLAY_HR), strMin + str(g.PLAY_MIN), strSec + str(g.PLAY_SEC)
+        g.PLAY_MIN_STR = str(g.PLAY_MIN)
+    g.PLAY_HR_STR = str(g.PLAY_HR)
 
 def colorize(image, newColor):
     """
@@ -113,9 +112,8 @@ class TextManager:
         
         self.curFont = g.FONT_MED
         self.SURF = UI_SURF
-        
 
-    def parse_string(self, string):
+    def parse_string(self, string, maxX = 150):
         words = string.split(" ")
         wordIndex = 0
         curLine = ""
@@ -127,7 +125,7 @@ class TextManager:
                 lines.append(curLine)
                 curLine = ""
                 curWidth = 0
-            if curWidth + self.curFont.size(words[wordIndex])[0] < self.maxX:
+            if curWidth + self.curFont.size(words[wordIndex])[0] < maxX:
                 curWidth += self.curFont.size(words[wordIndex] + " ")[0]
                 curLine += words[wordIndex] + " "
                 wordIndex += 1
@@ -152,7 +150,7 @@ class TextManager:
         self.nextX = self.startX
         self.nextY = self.startY
 
-    def type_text(self, keys, font = g.FONT_MED):
+    def type_text(self, keys, font = g.FONT_MED, maxY = 140):
         if not self.boxDrawn:
             self.SURF.blit(self.boxImage, (0, 111))
             self.boxDrawn = True
@@ -160,7 +158,7 @@ class TextManager:
             self.frameCounter += self.frameSkip
         if (self.frameCounter > self.frameDelay):
             self.frameCounter = 0
-            if (self.lineIndex >= 0 and (self.nextY + self.curFont.size("X")[1]) < self.maxY and self.lineIndex < len(self.lines)):
+            if (self.lineIndex >= 0 and (self.nextY + self.curFont.size("X")[1]) < maxY and self.lineIndex < len(self.lines)):
                 if (self.charIndex < len(self.lines[self.lineIndex])):
                     textObj = self.curFont.render(self.lines[self.lineIndex][self.charIndex], False, g.BLACK)
                     textRect = textObj.get_rect()
@@ -193,8 +191,7 @@ class TextManager:
         self.isTyping = False
         self.confirmRelease = False
         self.boxDrawn = False
-        
-    
+
     def draw_text (self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
         textObj = font.render(string, False, color)
         textRect = textObj.get_rect()

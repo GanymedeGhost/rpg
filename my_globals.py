@@ -127,8 +127,10 @@ class MenuState():
     STATUS = 3
     CONFIG = 4
     EXIT = 5
+    TARGET_ITEM = 6
+    TARGET_SKILL = 6
 
-    SIZE = 6
+    SIZE = 7
 
 class Initiative():
     NONE = 0
@@ -146,10 +148,12 @@ CONFIRM_TIMER = 0
 INPUT_TIMER = 0
 AI_TIMER = 0
 
-PLAY_MS = 0
 PLAY_SEC = 0
 PLAY_MIN = 0
 PLAY_HR = 0
+PLAY_SEC_STR = "00"
+PLAY_MIN_STR = "00"
+PLAY_HR_STR = "0"
 
 KEY_CONFIRM = pygame.K_z
 KEY_CANCEL = pygame.K_x
