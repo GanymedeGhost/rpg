@@ -391,12 +391,12 @@ class MenuUI(object):
                     self.skillCursorOffset -= 1
                     self.cursorIndex += 1
 
-        if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE and self.cursorIndex > 8:
+        if (self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE) and self.cursorIndex > 8:
             if self.itemCursorOffset < g.INVENTORY_MAX_SLOTS - 9:
                 self.itemCursorOffset += 1
                 self.cursorIndex -= 1
 
-        if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE and self.cursorIndex < 0:
+        if (self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE) and self.cursorIndex < 0:
             if self.itemCursorOffset > 0:
                 self.itemCursorOffset -= 1
                 self.cursorIndex += 1
