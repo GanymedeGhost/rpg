@@ -7,6 +7,7 @@ import my_globals as g
 import battle as b
 import battle_ai as bai
 import battle_command as cmd
+import field_command as fcmd
 
 class Hero (object):
 	dic = {}
@@ -88,6 +89,17 @@ class Hero (object):
 	@property
 	def baseMDef(self):
 		return min(self.attr["spr"] + self.attr["lvl"], g.HERO_MAX_STAT)
+	@property
+	def isDead(self):
+		return self.attr['hp'] < 1
+
+	def heal_hp(self, value):
+		self.attr['hp'] +=  value
+		self.check_hp()
+
+	def check_hp(self):
+		if self.attr['hp'] > self.baseMaxHP:
+			self.attr['hp'] = self.baseMaxHP
 
 class Monster (object):
 	dic = {}
@@ -139,7 +151,7 @@ class Monster (object):
 class InvItem (object):
 	dic = {}
 
-	def __init__(self, index, desc, limit = 99, useAction = None, battleAction = None):
+	def __init__(self, index, desc, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
 		self.name = index
 		self.desc = desc
 		self.limit = limit
@@ -155,6 +167,13 @@ class InvItem (object):
 			self.usableBattle = True
 		else:
 			self.usableBattle = False
+
+		self.sortPriority = sortPriority
+		if not self.sortPriority:
+			self.sortPriority["field"] = 99
+			self.sortPriority["battle"] = 99
+			self.sortPriority["recovery"] = 99
+			self.sortPriority["damage"] = 99
 			
 		InvItem.dic[index] = self
 
@@ -199,32 +218,52 @@ def create_data():
 	limit = 1
 	useAction = None
 	battleAction = None
+	sortPriority = {}
+	sortPriority["field"] = 0
+	sortPriority["battle"] = 0
+	sortPriority["recovery"] = 0
+	sortPriority["damage"] = 0
 
-	InvItem(name, desc, limit, useAction, battleAction)
+	InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 	
 	name = "Potion"
 	desc = "Restores 50 HP"
 	limit = 99
-	useAction = cmd.Potion
+	useAction = fcmd.Potion
 	battleAction = cmd.Potion
+	sortPriority = {}
+	sortPriority["field"] = 0
+	sortPriority["battle"] = 0
+	sortPriority["recovery"] = 0
+	sortPriority["damage"] = 99
 	
-	InvItem(name, desc, limit, useAction, battleAction)
+	InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 
 	name = "Revive"
 	desc = "Restores life to a fallen ally"
 	limit = 99
 	useAction = None
 	battleAction = cmd.Revive
+	sortPriority = {}
+	sortPriority["field"] = 10
+	sortPriority["battle"] = 10
+	sortPriority["recovery"] = 10
+	sortPriority["damage"] = 99
 	
-	InvItem(name, desc, limit, useAction, battleAction)
+	InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 
 	name = "Antidote"
 	desc = "Cures poison"
 	limit = 99
 	useAction = None
 	battleAction = cmd.Antidote
+	sortPriority = {}
+	sortPriority["field"] = 11
+	sortPriority["battle"] = 11
+	sortPriority["recovery"] = 11
+	sortPriority["damage"] = 99
 	
-	InvItem(name, desc, limit, useAction, battleAction)
+	InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 
 	################
 	##BLOOD SKILLS##

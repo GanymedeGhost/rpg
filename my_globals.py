@@ -26,7 +26,7 @@ WIN_HEIGHT = VIEW_HEIGHT * VIEW_SCALE
 
 BLACK = (0,0,0)
 WHITE = (255, 255, 255)
-GRAY = (127, 127, 127)
+GRAY = (180, 180, 180)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
@@ -52,6 +52,12 @@ FONT_MED_BOLD = pygame.font.Font('font/pixel8b.ttf', 8)
 FONT_MED_MONO = pygame.font.Font('font/pixelm8.ttf', 8)
 FONT_LRG = pygame.font.Font('font/pixel.ttf', 16)
 FONT_LRG_BOLD = pygame.font.Font('font/pixelb.ttf', 16)
+
+INVENTORY_SORT_KEYS = []
+INVENTORY_SORT_KEYS.append("field")
+INVENTORY_SORT_KEYS.append("battle")
+INVENTORY_SORT_KEYS.append("recovery")
+INVENTORY_SORT_KEYS.append("damage")
 
 ### ENUMS
 
@@ -128,9 +134,11 @@ class MenuState():
     CONFIG = 4
     EXIT = 5
     TARGET_ITEM = 6
-    TARGET_SKILL = 6
+    TARGET_SKILL = 7
+    ITEM_OPTIONS = 8
+    ITEM_ORGANIZE = 9
 
-    SIZE = 7
+    SIZE = 10
 
 class Initiative():
     NONE = 0
@@ -176,6 +184,7 @@ MOON_COUNTER = MOON_COUNTER_MAX
 PARTY_LIST = []
 MONSTER_LIST = []
 INVENTORY = [] #stores tuples (item, quantity)
+INVENTORY_SORT_KEY = 0
 GP = 100
 
 METER = {}

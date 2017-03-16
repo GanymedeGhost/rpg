@@ -75,6 +75,8 @@ class Control(object):
             if self.KEYS[pygame.K_3]:
                 g.LOG_FILTER[g.LogLevel.FEEDBACK] = not g.LOG_FILTER[g.LogLevel.FEEDBACK]
                 utility.log("Feedback Log: " + str(g.LOG_FILTER[g.LogLevel.FEEDBACK]), g.LogLevel.SYSTEM)
+            if self.KEYS[pygame.K_4]:
+                inventory.sort_by(g.INVENTORY_SORT_KEY)
 
     def display_fps(self):
         caption = "{} - FPS: {:.2f}".format(g.CAPTION, self.CLOCK.get_fps())
