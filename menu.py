@@ -182,8 +182,9 @@ class MenuUI(object):
         self.itemCursor = self.cursorIndex
         selection = self.process_input(0, 8)
         if (selection > -1):
-            if g.INVENTORY[selection][0].usableField:
-                self.currentItem = g.INVENTORY[selection][0]
+            itemIndex = selection + self.itemCursorOffset
+            if g.INVENTORY[itemIndex][0].usableField:
+                self.currentItem = g.INVENTORY[itemIndex][0]
                 self.currentItem.useAction.start(self.MC)
 
 

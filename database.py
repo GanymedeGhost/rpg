@@ -65,6 +65,7 @@ class Hero (object):
 
 		Hero.dic[index] = self
 
+
 	@property
 	def baseMaxHP (self):
 		return min(50 + self.attr["end"] * math.ceil(self.attr["lvl"] // 2), g.HERO_MAX_HP)
@@ -93,13 +94,19 @@ class Hero (object):
 	def isDead(self):
 		return self.attr['hp'] < 1
 
+
 	def heal_hp(self, value):
 		self.attr['hp'] +=  value
 		self.check_hp()
 
+
 	def check_hp(self):
 		if self.attr['hp'] > self.baseMaxHP:
 			self.attr['hp'] = self.baseMaxHP
+
+
+	def revive(self, hpPercent):
+		self.attr['hp'] = max(1, math.floor(self.baseMaxHP * hpPercent / 100))
 
 class Monster (object):
 	dic = {}
@@ -242,7 +249,7 @@ def create_data():
 	name = "Revive"
 	desc = "Restores life to a fallen ally"
 	limit = 99
-	useAction = None
+	useAction = fcmd.Revive
 	battleAction = cmd.Revive
 	sortPriority = {}
 	sortPriority["field"] = 10

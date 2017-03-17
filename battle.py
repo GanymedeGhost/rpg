@@ -568,7 +568,8 @@ class BattleUI (object):
     def process_get_item(self):
         selection = self.process_input(0, 4)
         if (selection > -1):
-            item = g.INVENTORY[selection][0]
+            itemIndex = selection + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]
+            item = g.INVENTORY[itemIndex][0]
             if item.usableBattle:
                 self.helpLabel = item.name
                 self.selectedThing = db.InvItem.dic[item.name].battleAction
@@ -623,11 +624,11 @@ class BattleUI (object):
         maxIndex = minIndex + 5
         index = 0
         for i in range(minIndex, maxIndex):
-            if i < g.INVENTORY_MAX_SLOTS - 5:
+            if i < g.INVENTORY_MAX_SLOTS:
                 item = g.INVENTORY[i][0]
                 if (item.name != "" and item.usableBattle):
                     self.BC.CONTROLLER.TEXT_MANAGER.draw_text(item.name, self.itemAnchors[index], g.WHITE)
-                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(g.INVENTORY[index][1]), utility.add_tuple(self.itemAnchors[index], (86, 0)), g.WHITE)
+                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(g.INVENTORY[i][1]), utility.add_tuple(self.itemAnchors[index], (86, 0)), g.WHITE)
             index += 1
         self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
 
