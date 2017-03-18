@@ -2,9 +2,7 @@ import pygame
 
 import math
 
-import utility
 import my_globals as g
-import battle as b
 import battle_ai as bai
 import battle_command as cmd
 import field_command as fcmd
@@ -95,7 +93,10 @@ class Hero (object):
 		return self.attr['hp'] < 1
 
 
-	def heal_hp(self, value):
+	def heal_hp(self, value, damageType):
+
+		value -= math.floor(value * self.resD[damageType])
+
 		self.attr['hp'] +=  value
 		self.check_hp()
 
@@ -206,8 +207,8 @@ class Skill (object):
 
 		Skill.dic[index] = self
 
-	def check_cost(battler, skill):
-		if battler.attr['sp'] >= skill.spCost:
+	def check_cost(user, skill):
+		if user.attr['sp'] >= skill.spCost:
 			if skill.skillType != g.SkillType.MUSIC:
 				if g.METER[skill.skillType] >= skill.meterReq:
 					return True
@@ -217,303 +218,313 @@ class Skill (object):
 		return False
 
 def create_data():
-	#########
-	##ITEMS##
-	#########
-	name = ""
-	desc = ""
-	limit = 1
-	useAction = None
-	battleAction = None
-	sortPriority = {}
-	sortPriority["field"] = 0
-	sortPriority["battle"] = 0
-	sortPriority["recovery"] = 0
-	sortPriority["damage"] = 0
+    #########
+    ##ITEMS##
+    #########
+    name = ""
+    desc = ""
+    limit = 1
+    useAction = None
+    battleAction = None
+    sortPriority = {}
+    sortPriority["field"] = 0
+    sortPriority["battle"] = 0
+    sortPriority["recovery"] = 0
+    sortPriority["damage"] = 0
 
-	InvItem(name, desc, limit, useAction, battleAction, sortPriority)
-	
-	name = "Potion"
-	desc = "Restores 50 HP"
-	limit = 99
-	useAction = fcmd.Potion
-	battleAction = cmd.Potion
-	sortPriority = {}
-	sortPriority["field"] = 0
-	sortPriority["battle"] = 0
-	sortPriority["recovery"] = 0
-	sortPriority["damage"] = 99
-	
-	InvItem(name, desc, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 
-	name = "Revive"
-	desc = "Restores life to a fallen ally"
-	limit = 99
-	useAction = fcmd.Revive
-	battleAction = cmd.Revive
-	sortPriority = {}
-	sortPriority["field"] = 10
-	sortPriority["battle"] = 10
-	sortPriority["recovery"] = 10
-	sortPriority["damage"] = 99
-	
-	InvItem(name, desc, limit, useAction, battleAction, sortPriority)
+    name = "Potion"
+    desc = "Restores 50 HP"
+    limit = 99
+    useAction = fcmd.Potion
+    battleAction = cmd.Potion
+    sortPriority = {}
+    sortPriority["field"] = 0
+    sortPriority["battle"] = 0
+    sortPriority["recovery"] = 0
+    sortPriority["damage"] = 99
 
-	name = "Antidote"
-	desc = "Cures poison"
-	limit = 99
-	useAction = None
-	battleAction = cmd.Antidote
-	sortPriority = {}
-	sortPriority["field"] = 11
-	sortPriority["battle"] = 11
-	sortPriority["recovery"] = 11
-	sortPriority["damage"] = 99
-	
-	InvItem(name, desc, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 
-	################
-	##BLOOD SKILLS##
-	################
-	name = "Sacrifice"
-	desc = "Lowers Max HP to restore the party's SP"
-	skillType = g.SkillType.BLOOD
-	spCost = 0
-	meterReq = 0
-	useAction = None
-	battleAction = cmd.Sacrifice
+    name = "Revive"
+    desc = "Restores life to a fallen ally"
+    limit = 99
+    useAction = fcmd.Revive
+    battleAction = cmd.Revive
+    sortPriority = {}
+    sortPriority["field"] = 10
+    sortPriority["battle"] = 10
+    sortPriority["recovery"] = 10
+    sortPriority["damage"] = 99
 
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 
-	name = "Blood Slash"
-	desc = "Deals neutral damage to an enemy"
-	skillType = g.SkillType.BLOOD
-	spCost = 15
-	meterReq = 0
-	useAction = None
-	battleAction = cmd.BloodSlash
+    name = "Antidote"
+    desc = "Cures poison"
+    limit = 99
+    useAction = None
+    battleAction = cmd.Antidote
+    sortPriority = {}
+    sortPriority["field"] = 11
+    sortPriority["battle"] = 11
+    sortPriority["recovery"] = 11
+    sortPriority["damage"] = 99
 
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 
-	################
-	##MUSIC SKILLS##
-	################
+    ################
+    ##BLOOD SKILLS##
+    ################
+    name = "Sacrifice"
+    desc = "Lower MHP to restore the party's SP"
+    skillType = g.SkillType.BLOOD
+    spCost = 0
+    meterReq = 0
+    useAction = None
+    battleAction = cmd.Sacrifice
 
-	name = "Finale"
-	desc = "Resolve the melody"
-	skillType = g.SkillType.MUSIC
-	spCost = 0
-	meterReq = 1
-	useAction = None
-	battleAction = cmd.Finale
+    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    name = "Blood Slash"
+    desc = "Deals NULL damage to an enemy"
+    skillType = g.SkillType.BLOOD
+    spCost = 15
+    meterReq = 0
+    useAction = None
+    battleAction = cmd.BloodSlash
 
-	name = "Stacatto"
-	desc = "Deals ELEC damage to an enemy"
-	skillType = g.SkillType.MUSIC
-	spCost = 10
-	meterReq = 0
-	useAction = None
-	battleAction = cmd.Stacatto
+    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    ################
+    ##MUSIC SKILLS##
+    ################
 
-	################
-	##MOON SKILLS##
-	################
+    name = "Finale"
+    desc = "Resolve the melody"
+    skillType = g.SkillType.MUSIC
+    spCost = 0
+    meterReq = 1
+    useAction = None
+    battleAction = cmd.Finale
 
-	name = "Transform"
-	desc = "Change physical form"
-	skillType = g.SkillType.MOON
-	spCost = 0
-	meterReq = 1
-	useAction = None
-	battleAction = cmd.Transform
+    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    name = "Staccato"
+    desc = "Deals ELEC damage to an enemy"
+    skillType = g.SkillType.MUSIC
+    spCost = 10
+    meterReq = 0
+    useAction = None
+    battleAction = cmd.Staccato
 
-	name = "Double Cut"
-	desc = "Attack twice"
-	skillType = g.SkillType.MOON
-	spCost = 12
-	meterReq = 1
-	useAction = None
-	battleAction = cmd.DoubleCut
+    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    name = "Adagio"
+    desc = "Restores some HP to an ally"
+    skillType = g.SkillType.MUSIC
+    spCost = 15
+    meterReq = 0
+    useAction = fcmd.Adagio
+    battleAction = cmd.Adagio
 
-	################
-	##ENEMY SKILLS##
-	################
-	name = "Toxic"
-	desc = "Small chance to inflict Poison"
-	skillType = g.SkillType.ENEMY
-	spCost = 10
-	meterReq = 0
-	useAction = None
-	battleAction = cmd.Toxic
+    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
-	
-	##########
-	##HEROES##
-	##########
-	equip = {}
-	equip["wpn"] = None
-	equip["arm"] = None
-	equip["acc"] = None
+    ################
+    ##MOON SKILLS##
+    ################
 
-	attr = {}
-	attr["name"] = "Luxe"
-	attr["lvl"] = 5
-	attr["exp"] = 0
-	attr["str"] = 12
-	attr["end"] = 13
-	attr["wis"] = 9
-	attr["spr"] = 7
-	attr["agi"] = 13
-	attr["lck"] = 9
+    name = "Transform"
+    desc = "The moon changes one's physical form"
+    skillType = g.SkillType.MOON
+    spCost = 0
+    meterReq = 1
+    useAction = None
+    battleAction = cmd.Transform
 
-	resD = {}
-	resS = {}
-	skillType = g.SkillType.BLOOD
-	commands = []
-	commands.append(cmd.Attack)
-	commands.append(cmd.UseSkill)
-	commands.append(cmd.UseItem)
-	commands.append(cmd.Defend)
-	commands.append(cmd.Escape)
-	skills = [Skill.dic["Sacrifice"]]
-	skills.append(Skill.dic["Blood Slash"])
+    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	spr = "spr/battle/hero-luxe.png"
-	size = 16
-	icon = pygame.image.load("spr/battle/icon-luxe.png")
+    name = "Double Cut"
+    desc = "Attack twice"
+    skillType = g.SkillType.MOON
+    spCost = 12
+    meterReq = 1
+    useAction = None
+    battleAction = cmd.DoubleCut
 
-	Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
+    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	attr = {}
-	attr["name"] = "Elle"
-	attr["lvl"] = 5
-	attr["exp"] = 0
-	attr["str"] = 7
-	attr["end"] = 9
-	attr["wis"] = 16
-	attr["spr"] = 14
-	attr["agi"] = 10
-	attr["lck"] = 10
+    ################
+    ##ENEMY SKILLS##
+    ################
+    name = "Toxic"
+    desc = "Small chance to inflict Poison"
+    skillType = g.SkillType.ENEMY
+    spCost = 10
+    meterReq = 0
+    useAction = None
+    battleAction = cmd.Toxic
 
-	resD = {}
-	resS = {}
-	skillType = g.SkillType.MUSIC
-	commands = []
-	commands.append(cmd.Attack)
-	commands.append(cmd.UseSkill)
-	commands.append(cmd.UseItem)
-	commands.append(cmd.Defend)
-	commands.append(cmd.Escape)
-	skills = [Skill.dic["Finale"]]
-	skills.append(Skill.dic["Stacatto"])
-	
+    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
 
-	spr = "spr/battle/hero-elle.png"
-	size = 16
-	icon = pygame.image.load("spr/battle/icon-elle.png")
+    ##########
+    ##HEROES##
+    ##########
+    equip = {}
+    equip["wpn"] = None
+    equip["arm"] = None
+    equip["acc"] = None
 
-	Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
+    attr = {}
+    attr["name"] = "Luxe"
+    attr["lvl"] = 5
+    attr["exp"] = 0
+    attr["str"] = 12
+    attr["end"] = 13
+    attr["wis"] = 9
+    attr["spr"] = 7
+    attr["agi"] = 13
+    attr["lck"] = 9
 
-	attr = {}
-	attr["name"] = "Asa"
-	attr["lvl"] = 5
-	attr["exp"] = 0
-	attr["str"] = 15
-	attr["end"] = 14
-	attr["wis"] = 7
-	attr["spr"] = 6
-	attr["agi"] = 9
-	attr["lck"] = 7
+    resD = {}
+    resS = {}
+    skillType = g.SkillType.BLOOD
+    commands = []
+    commands.append(cmd.Attack)
+    commands.append(cmd.UseSkill)
+    commands.append(cmd.UseItem)
+    commands.append(cmd.Defend)
+    commands.append(cmd.Escape)
+    skills = [Skill.dic["Sacrifice"]]
+    skills.append(Skill.dic["Blood Slash"])
 
-	resD = {}
-	resS = {}
-	skillType = g.SkillType.MOON
-	commands = []
-	commands.append(cmd.Attack)
-	commands.append(cmd.UseSkill)
-	commands.append(cmd.UseItem)
-	commands.append(cmd.Defend)
-	commands.append(cmd.Escape)
-	skills = [Skill.dic["Transform"]]
-	skills.append(Skill.dic["Double Cut"])
+    spr = "spr/battle/hero-luxe.png"
+    size = 16
+    icon = pygame.image.load("spr/battle/icon-luxe.png")
 
-	spr = "spr/battle/hero-asa.png"
-	size = 16
-	icon = pygame.image.load("spr/battle/icon-asa.png")
+    Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
 
-	Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
+    attr = {}
+    attr["name"] = "Elle"
+    attr["lvl"] = 5
+    attr["exp"] = 0
+    attr["str"] = 7
+    attr["end"] = 9
+    attr["wis"] = 16
+    attr["spr"] = 14
+    attr["agi"] = 10
+    attr["lck"] = 10
 
-	############
-	##MONSTERS##
-	############
-	attr = {}
-	attr["name"] = "Slime"
-	attr["lvl"] = 3
-	attr["hp"] = 20
-	attr["sp"] = 10
-	attr["atk"] = 15
-	attr["def"] = 12
-	attr["matk"] = 15
-	attr["mdef"] = 15
-	attr["hit"] = 95
-	attr["eva"] = 5
-	attr["agi"] = 10
-	attr["lck"] = 5
-	attr['exp'] = 5
-	attr['gold'] = 5
+    resD = {}
+    resS = {}
+    skillType = g.SkillType.MUSIC
+    commands = []
+    commands.append(cmd.Attack)
+    commands.append(cmd.UseSkill)
+    commands.append(cmd.UseItem)
+    commands.append(cmd.Defend)
+    commands.append(cmd.Escape)
+    skills = [Skill.dic["Finale"]]
+    skills.append(Skill.dic["Staccato"])
+    skills.append(Skill.dic["Adagio"])
 
-	drops = []
-	drops.append(("Potion", 50))
+    spr = "spr/battle/hero-elle.png"
+    size = 16
+    icon = pygame.image.load("spr/battle/icon-elle.png")
 
-	steals = []
+    Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
 
-	resD = {}
-	resS = {}
+    attr = {}
+    attr["name"] = "Asa"
+    attr["lvl"] = 5
+    attr["exp"] = 0
+    attr["str"] = 15
+    attr["end"] = 14
+    attr["wis"] = 7
+    attr["spr"] = 6
+    attr["agi"] = 9
+    attr["lck"] = 7
 
-	spr = "spr/battle/mon-slime.png"
-	size = 16
-	icon = pygame.image.load("spr/battle/mon-slime.png")
+    resD = {}
+    resS = {}
+    skillType = g.SkillType.MOON
+    commands = []
+    commands.append(cmd.Attack)
+    commands.append(cmd.UseSkill)
+    commands.append(cmd.UseItem)
+    commands.append(cmd.Defend)
+    commands.append(cmd.Escape)
+    skills = [Skill.dic["Transform"]]
+    skills.append(Skill.dic["Double Cut"])
 
-	Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
+    spr = "spr/battle/hero-asa.png"
+    size = 16
+    icon = pygame.image.load("spr/battle/icon-asa.png")
 
-	attr = {}
-	attr["name"] = "Mold"
-	attr["lvl"] = 5
-	attr["hp"] = 35
-	attr["sp"] = 20
-	attr["atk"] = 20
-	attr["def"] = 15
-	attr["matk"] = 5
-	attr["mdef"] = 5
-	attr["hit"] = 95
-	attr["eva"] = 5
-	attr["agi"] = 13
-	attr["lck"] = 5
-	attr['exp'] = 7
-	attr['gold'] = 6
+    Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
 
-	drops = []
-	drops.append(("Antidote", 50))
-	drops.append(("Revive", 10))
+    ############
+    ##MONSTERS##
+    ############
+    attr = {}
+    attr["name"] = "Slime"
+    attr["lvl"] = 3
+    attr["hp"] = 20
+    attr["sp"] = 10
+    attr["atk"] = 15
+    attr["def"] = 12
+    attr["matk"] = 15
+    attr["mdef"] = 15
+    attr["hit"] = 95
+    attr["eva"] = 5
+    attr["agi"] = 10
+    attr["lck"] = 5
+    attr['exp'] = 5
+    attr['gold'] = 5
 
-	steals = []
+    drops = []
+    drops.append(("Potion", 50))
 
-	resD = {}
-	resS = {}
+    steals = []
 
-	spr = "spr/battle/mon-mold.png"
-	size = 16
-	icon = pygame.image.load("spr/battle/mon-mold.png")
+    resD = {}
+    resS = {}
 
-	Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
+    spr = "spr/battle/mon-slime.png"
+    size = 16
+    icon = pygame.image.load("spr/battle/mon-slime.png")
+
+    Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
+
+    attr = {}
+    attr["name"] = "Mold"
+    attr["lvl"] = 5
+    attr["hp"] = 35
+    attr["sp"] = 20
+    attr["atk"] = 20
+    attr["def"] = 15
+    attr["matk"] = 5
+    attr["mdef"] = 5
+    attr["hit"] = 95
+    attr["eva"] = 5
+    attr["agi"] = 13
+    attr["lck"] = 5
+    attr['exp'] = 7
+    attr['gold'] = 6
+
+    drops = []
+    drops.append(("Antidote", 50))
+    drops.append(("Revive", 10))
+
+    steals = []
+
+    resD = {}
+    resS = {}
+
+    spr = "spr/battle/mon-mold.png"
+    size = 16
+    icon = pygame.image.load("spr/battle/mon-mold.png")
+
+    Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
 	
 create_data()

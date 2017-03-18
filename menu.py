@@ -1,14 +1,14 @@
 import pygame
 import pygame.locals
 import my_globals as g
-import database as db
 import inventory as inv
+import database as db
 import event
 import utility
-import field_command as cmd
 
 
 class MenuController (object):
+
     def __init__(self, controller):
         self.controller = controller
         self.menuState = g.MenuState.MENU
@@ -22,7 +22,6 @@ class MenuController (object):
         self.uiCallback = None
         self.eventQueue = event.EventQueue()
 
-
     def change_state(self, state):
         if self.menuState != self.prevMenuState:
             self.prevMenuState.append(self.menuState)
@@ -30,12 +29,10 @@ class MenuController (object):
 
         utility.log("MENU STATE CHANGED: " + str(self.prevMenuState) + " >> " + str(self.menuState))
 
-
     def prev_state(self):
         index = len(self.prevMenuState) - 1
         self.menuState = self.prevMenuState[index]
         del self.prevMenuState[index]
-
 
     def update(self):
         eventCallback = self.eventQueue.run()
@@ -46,10 +43,11 @@ class MenuController (object):
                 if self.uiCallback != None:
                     if self.menuState == g.MenuState.TARGET_ITEM:
                         self.queuedAction (self, self.uiCallback)
+                    elif self.menuState == g.MenuState.TARGET_SKILL:
+                        self.queuedAction (self, self.uiCallback)
 
 
 class MenuUI(object):
-
 
     def __init__(self, MC):
         self.MC = MC
@@ -58,10 +56,12 @@ class MenuUI(object):
         self.commandPanel = pygame.image.load("spr/menu/command-panel.png")
         self.infoPanel = pygame.image.load("spr/menu/info-panel.png")
         self.itemPanel = pygame.image.load("spr/menu/item-panel.png")
+        self.skillPanel = pygame.image.load("spr/menu/skill-panel.png")
         self.itemOptionsPanel = pygame.image.load("spr/menu/item-options.png")
         self.cursorImage = pygame.image.load("spr/cursor-h.png")
         self.cursorSelImage = pygame.image.load("spr/menu/cursor-selected.png")
         self.targetCursorImage = pygame.image.load("spr/menu/cursor-target.png")
+        self.cursorHeroImage =  pygame.image.load("spr/menu/cursor-hero.png")
 
         self.iconBlood = pygame.image.load("spr/battle/icon-blood.png")
         self.iconMoon = pygame.image.load("spr/battle/icon-moon.png")
@@ -82,6 +82,10 @@ class MenuUI(object):
         self.itemAnchor = [(48, 20), (48, 29), (48, 38), (48, 45), (48, 54), (48, 63), (48, 70), (48, 81), (48, 92)]
         self.itemDescAnchor = (44, 104)
         self.itemOptionsAnchor = [(90, 85), (90, 94), (90, 103), (90, 112), (90, 121)]
+        self.skillAnchor = [(48, 20), (48, 29), (48, 38), (48, 45), (48, 54), (48, 63), (48, 70), (48, 81), (48, 92)]
+        self.skillDescAnchor = (44, 104)
+        self.skillIndexAnchor = (152, 7)
+        self.skillHeroAnchor = (38, 7)
         self.meterIconOffset = (-26, -1)
 
         self.commandCursorPosOffset = (-7, 0)
@@ -89,6 +93,9 @@ class MenuUI(object):
 
         self.selectCursor = 0
         self.selectCursorOffset = 0
+
+        self.skillHeroCursorPosOffset = (4, -10)
+        self.skillHeroCursor = 0
 
         self.skillCursorPosOffset = (-7, 0)
         self.skillCursor = 0
@@ -114,9 +121,7 @@ class MenuUI(object):
         self.currentQuantity = 0
         self.queuedAction = None
 
-
-    def get_target(self, validTargets, user = None):
-        self.currentUser = user
+    def get_target(self, validTargets):
         self.validTargets = validTargets
         self.selectedThing = None
 
@@ -125,11 +130,10 @@ class MenuUI(object):
         else:
             self.cursorIndex = 0
 
-        if (user):
+        if (self.MC.menuState == g.MenuState.SKILL):
             self.MC.change_state(g.MenuState.TARGET_SKILL)
         else:
             self.MC.change_state(g.MenuState.TARGET_ITEM)
-
 
     def process_get_command(self):
         self.commandCursor = self.cursorIndex
@@ -137,7 +141,17 @@ class MenuUI(object):
         if (selection > -1):
             if selection == 0:
                 self.MC.change_state(g.MenuState.ITEM_OPTIONS)
+            elif selection == 1:
+                self.MC.change_state(g.MenuState.SKILL_HERO)
+                self.restore_cursor()
 
+    def process_get_skill_hero(self):
+        self.skillHeroCursor = self.cursorIndex
+        selection = self.process_input(0, len(g.PARTY_LIST)-1)
+        if (selection > -1):
+            self.currentHero = g.PARTY_LIST[selection]
+            self.MC.change_state(g.MenuState.SKILL)
+            self.cursorIndex = 0
 
     def process_get_item_options(self):
         self.itemOptionsCursor = self.cursorIndex
@@ -160,7 +174,6 @@ class MenuUI(object):
                 self.MC.prev_state()
                 self.restore_cursor()
 
-
     def process_get_item_organize(self):
         self.itemCursor = self.cursorIndex
         selection = self.process_input(0, 8)
@@ -177,7 +190,6 @@ class MenuUI(object):
                 g.INVENTORY[self.currentIndex] = swapItem
                 self.currentIndex = -1
 
-
     def process_get_item(self):
         self.itemCursor = self.cursorIndex
         selection = self.process_input(0, 8)
@@ -187,6 +199,18 @@ class MenuUI(object):
                 self.currentItem = g.INVENTORY[itemIndex][0]
                 self.currentItem.useAction.start(self.MC)
 
+    def process_get_skill(self):
+        self.skillCursor = self.cursorIndex
+        selection = self.process_input(0, 8)
+        if (selection > -1):
+            skillIndex = selection + self.skillCursorOffset
+            if self.currentHero.skills[skillIndex].usableField:
+                if db.Skill.check_cost(self.currentHero,  self.currentHero.skills[skillIndex]):
+                    self.currentSkill = self.currentHero.skills[skillIndex]
+                    self.currentSkill.useAction.start(self.MC, self.currentHero)
+            #if g.INVENTORY[itemIndex][0].usableField:
+            #    self.currentItem = g.INVENTORY[itemIndex][0]
+            #    self.currentItem.useAction.start(self.MC)
 
     def process_get_target(self):
         if self.validTargets:
@@ -199,10 +223,11 @@ class MenuUI(object):
             self.MC.prev_state()
             self.restore_cursor()
 
-
     def render_target_cursor(self):
         self.MC.controller.VIEW_SURF.blit(self.targetCursorImage, utility.add_tuple(self.portraitAnchor[self.cursorIndex], self.targetCursorPosOffset))
 
+    def render_skill_hero_cursor(self):
+        self.MC.controller.VIEW_SURF.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.skillHeroCursor], self.skillHeroCursorPosOffset))
 
     def render_status_window(self):
         self.MC.controller.VIEW_SURF.blit(self.statusPanel, (0, 0))
@@ -223,7 +248,6 @@ class MenuUI(object):
             self.render_meter(hero.skillType, offset)
             index += 1
 
-
     def render_item_options(self):
 
         self.MC.controller.VIEW_SURF.blit(self.itemOptionsPanel, (0,0))
@@ -236,6 +260,46 @@ class MenuUI(object):
 
         self.MC.controller.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemOptionsAnchor[self.itemOptionsCursor], self.itemOptionsCursorPosOffset))
 
+    def render_skill_window(self):
+        if self.MC.menuState == g.MenuState.TARGET_SKILL:
+            globalOffset = (54, 0)
+            helpWidth = 60
+        else:
+            globalOffset = (0, 0)
+            helpWidth = 108
+
+        self.MC.controller.VIEW_SURF.blit(self.skillPanel, globalOffset)
+        self.MC.controller.TEXT_MANAGER.draw_text("SP: ", utility.add_tuple(self.skillHeroAnchor, globalOffset), g.WHITE)
+        self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.attr['sp']) + "/" + str(self.currentHero.baseMaxSP), utility.add_tuple(self.skillHeroAnchor, utility.add_tuple(globalOffset, (71, 0))), g.WHITE)
+        self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(1 + self.skillCursor + self.skillCursorOffset) + "/" + str(len(self.currentHero.skills)), utility.add_tuple(self.skillIndexAnchor, globalOffset), g.WHITE)
+
+        # draw skill list
+        index = 0
+        for skill in range(self.skillCursorOffset, self.skillCursorOffset + 9):
+            if skill < len(self.currentHero.skills):
+                if self.currentHero.skills[skill].usableField:
+                    color = g.WHITE
+                else:
+                    color = g.GRAY
+                self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.skills[skill].name, utility.add_tuple(self.itemAnchor[index], globalOffset), color)
+                self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.skills[skill].spCost), utility.add_tuple(self.itemAnchor[index], utility.add_tuple(globalOffset, (104,0))), color)
+            index += 1
+
+        self.MC.controller.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.skillAnchor[self.skillCursor],utility.add_tuple(globalOffset, self.skillCursorPosOffset)))
+        # draw current item description
+        if self.skillCursor + self.skillCursorOffset < len(self.currentHero.skills):
+            curSkill = self.currentHero.skills[self.skillCursor + self.skillCursorOffset]
+            if curSkill.desc != "":
+                parsedStr = self.MC.controller.TEXT_MANAGER.parse_string(curSkill.desc, helpWidth)
+
+                curOffset = utility.add_tuple(globalOffset, (0, 0))
+                lineOffset = (0, 8)
+
+                index = 0
+                for line in range(0, len(parsedStr)):
+                    self.MC.controller.TEXT_MANAGER.draw_text(parsedStr[index],utility.add_tuple(self.skillDescAnchor, curOffset),g.WHITE)
+                    curOffset = utility.add_tuple(curOffset, lineOffset)
+                    index += 1
 
     def render_item_window(self):
         if self.MC.menuState == g.MenuState.TARGET_ITEM:
@@ -243,7 +307,7 @@ class MenuUI(object):
             helpWidth = 60
         else:
             globalOffset = (0, 0)
-            helpWidth = 120
+            helpWidth = 108
 
         self.MC.controller.VIEW_SURF.blit(self.itemPanel, globalOffset)
         self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(1 + self.itemCursor + self.itemCursorOffset) + "/" + str( g.INVENTORY_MAX_SLOTS), utility.add_tuple(self.itemIndexAnchor, globalOffset), g.WHITE)
@@ -280,7 +344,6 @@ class MenuUI(object):
                 curOffset = utility.add_tuple(curOffset, lineOffset)
                 index += 1
 
-
     def render_meter(self, skillType, pos):
         pos = utility.add_tuple(pos, self.meterIconOffset)
         offset = (5, 0)
@@ -297,7 +360,6 @@ class MenuUI(object):
                 self.MC.controller.VIEW_SURF.blit(self.iconNotes[i], utility.add_tuple(pos, (0,1)))
                 pos = utility.add_tuple(pos, offset)
 
-
     def render_command_window(self):
         self.MC.controller.VIEW_SURF.blit(self.commandPanel, (0, 0))
         self.MC.controller.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.commandAnchor[self.commandCursor], self.commandCursorPosOffset))
@@ -308,7 +370,6 @@ class MenuUI(object):
         self.MC.controller.TEXT_MANAGER.draw_text("Status", self.commandAnchor[4], g.WHITE)
         self.MC.controller.TEXT_MANAGER.draw_text("Config", self.commandAnchor[5], g.WHITE)
         self.MC.controller.TEXT_MANAGER.draw_text("Quit", self.commandAnchor[6], g.WHITE)
-
 
     def render_info_window(self):
         self.MC.controller.VIEW_SURF.blit(self.infoPanel, (0, 0))
@@ -321,7 +382,6 @@ class MenuUI(object):
         self.MC.controller.TEXT_MANAGER.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (20, 27)), g.WHITE)
         self.MC.controller.TEXT_MANAGER.draw_text_ralign(g.PLAY_HR_STR, utility.add_tuple(self.infoAnchor, (18, 27)), g.WHITE)
 
-
     def restore_cursor(self):
         if self.MC.menuState == g.MenuState.MENU:
             self.cursorIndex = self.commandCursor
@@ -329,8 +389,11 @@ class MenuUI(object):
             self.cursorIndex = self.itemCursor
         if self.MC.menuState == g.MenuState.ITEM_OPTIONS:
             self.cursorIndex = self.itemOptionsCursor
+        if self.MC.menuState == g.MenuState.SKILL_HERO:
+            self.cursorIndex = self.skillHeroCursor
+        if self.MC.menuState == g.MenuState.SKILL:
+            self.cursorIndex = self.skillCursor
         self.currentIndex = -1
-
 
     def process_input(self, cMin, cMax):
         dt = self.MC.controller.CLOCK.get_time()
@@ -352,11 +415,27 @@ class MenuUI(object):
                 g.CURSOR_TIMER = g.CURSOR_DELAY
                 if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
                     self.itemCursorOffset -= cMax
+                if self.MC.menuState == g.MenuState.SKILL:
+                    if self.skillHeroCursor > 0:
+                        self.skillHeroCursor -= 1
+                    else:
+                        self.skillHeroCursor = len(g.PARTY_LIST)-1
+                    self.currentHero = g.PARTY_LIST[self.skillHeroCursor]
+                    self.cursorIndex = 0
+                    self.skillCursorOffset = 0
         elif self.MC.controller.KEYS[g.KEY_RIGHT]:
             if g.CURSOR_TIMER < 0:
                 g.CURSOR_TIMER = g.CURSOR_DELAY
                 if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
                     self.itemCursorOffset += cMax
+                if self.MC.menuState == g.MenuState.SKILL:
+                    if self.skillHeroCursor < len(g.PARTY_LIST)-1:
+                        self.skillHeroCursor += 1
+                    else:
+                        self.skillHeroCursor = 0
+                    self.currentHero = g.PARTY_LIST[self.skillHeroCursor]
+                    self.cursorIndex = 0
+                    self.skillCursorOffset = 0
         elif self.MC.controller.KEYS[g.KEY_CONFIRM]:
             if g.CONFIRM_TIMER < 0:
                 g.CONFIRM_TIMER = g.CONFIRM_DELAY
@@ -373,18 +452,18 @@ class MenuUI(object):
 
         #limit/wrap the cursor
         if self.MC.menuState == g.MenuState.SKILL:
-            if self.cursorIndex >= len(self.MC.currentHero.skills):
+            if self.cursorIndex >= len(self.currentHero.skills):
                 self.cursorIndex = 0
             elif self.cursorIndex < 0:
-                self.cursorIndex = len(self.MC.currentHero.skills) - 1
+                self.cursorIndex = len(self.currentHero.skills) - 1
 
-            if self.skillCursorOffset > len(self.MC.currentHero.skills) - 5:
+            if self.skillCursorOffset > len(self.currentHero.skills) - 5:
                 self.skillCursorOffset = 0
             elif self.skillCursorOffset < 0:
-                self.skillCursorOffset = len(self.MC.currentHero.skills) - 5
+                self.skillCursorOffset = len(self.currentHero.skills) - 5
 
             if self.cursorIndex > 4:
-                if self.skillCursorOffset < len(self.MC.currentHero.skills) - 5:
+                if self.skillCursorOffset < len(self.currentHero.skills) - 5:
                     self.skillCursorOffset += 1
                     self.cursorIndex -= 1
             elif self.cursorIndex < 0:
@@ -423,7 +502,6 @@ class MenuUI(object):
 
         return -1
 
-
     def update(self):
         self.MC.controller.VIEW_SURF.fill(g.BLACK)
         self.render_status_window()
@@ -446,6 +524,18 @@ class MenuUI(object):
             self.render_target_cursor()
             self.render_item_window()
             self.process_get_target()
+        elif self.MC.menuState == g.MenuState.TARGET_SKILL:
+            self.render_skill_hero_cursor()
+            self.render_target_cursor()
+            self.render_skill_window()
+            self.process_get_target()
+        elif self.MC.menuState == g.MenuState.SKILL_HERO:
+            self.render_skill_hero_cursor()
+            self.process_get_skill_hero()
+        elif self.MC.menuState == g.MenuState.SKILL:
+            self.render_skill_hero_cursor()
+            self.render_skill_window()
+            self.process_get_skill()
 
         if self.selectedThing != None:
             returnVal = self.selectedThing

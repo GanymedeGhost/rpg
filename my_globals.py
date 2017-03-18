@@ -59,8 +59,8 @@ INVENTORY_SORT_KEYS.append("battle")
 INVENTORY_SORT_KEYS.append("recovery")
 INVENTORY_SORT_KEYS.append("damage")
 
-### ENUMS
 
+### ENUMS
 class LogLevel():
     SYSTEM = 0
     DEBUG = 1
@@ -69,6 +69,7 @@ class LogLevel():
 
     SIZE = 4
 
+
 class GameState():
     INIT = 0
     MAP = 1
@@ -76,6 +77,7 @@ class GameState():
     BATTLE = 3
 
     SIZE = 4
+
 
 class BattlerStatus():
     DEFEND = 0
@@ -89,6 +91,7 @@ class BattlerStatus():
 
     SIZE = 8
 
+
 class SkillType():
     NONE = 0
     BLOOD = 1
@@ -97,6 +100,7 @@ class SkillType():
     ENEMY = 4
 
     SIZE = 5
+
 
 class DamageType():
     NONE = 0
@@ -112,6 +116,7 @@ class DamageType():
     
     SIZE = 10
 
+
 class BattleState():
     FIGHT = 0
     WIN = 1
@@ -126,6 +131,7 @@ class BattleState():
 
     SIZE = 10
 
+
 class MenuState():
     MENU = 0
     ITEM = 1
@@ -137,8 +143,10 @@ class MenuState():
     TARGET_SKILL = 7
     ITEM_OPTIONS = 8
     ITEM_ORGANIZE = 9
+    SKILL_HERO = 10
 
-    SIZE = 10
+    SIZE = 11
+
 
 class Initiative():
     NONE = 0

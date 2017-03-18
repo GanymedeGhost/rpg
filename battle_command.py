@@ -49,6 +49,7 @@ class Escape():
     def __init__(self, user):
         self.user = user
 
+    @staticmethod
     def name():
         return "Escape"
 
@@ -81,13 +82,13 @@ class Escape():
         return -1
 
 
-
 class UseItem():
 
     def __init__(self, user, action):
         self.user = user
         self.action = action
 
+    @staticmethod
     def name():
         return "Items"
 
@@ -102,10 +103,12 @@ class UseItem():
         user.BC.eventQueue.queue(action)
 
 class UseSkill():
+
     def __init__(self, user, action):
         self.user = user
         self.action = action
 
+    @staticmethod
     def name():
         return "Skills"
 
@@ -124,7 +127,8 @@ class Attack():
     def __init__(self, user, target):
         self.user = user
         self.target = target
-    
+
+    @staticmethod
     def name():
         return "Attack"
 
@@ -166,6 +170,7 @@ class Defend():
     def __init__(self, user):
         self.user = user
 
+    @staticmethod
     def name():
         return "Defend"
 
@@ -192,7 +197,8 @@ class Potion():
     def __init__(self, user, target):
         self.user = user
         self.target = target
-    
+
+    @staticmethod
     def name():
         return "Potion"
 
@@ -226,7 +232,8 @@ class Revive():
     def __init__(self, user, target):
         self.user = user
         self.target = target
-    
+
+    @staticmethod
     def name():
         return "Revive"
 
@@ -261,7 +268,8 @@ class Antidote():
     def __init__(self, user, target):
         self.user = user
         self.target = target
-    
+
+    @staticmethod
     def name():
         return "Antidote"
 
@@ -304,6 +312,7 @@ class Sacrifice():
     def __init__(self, user):
         self.user = user
 
+    @staticmethod
     def name():
         return "Sacrifice"
 
@@ -337,6 +346,7 @@ class Finale():
         self.user = user
         self.targets = targets
 
+    @staticmethod
     def name():
         return "Finale"
 
@@ -398,6 +408,7 @@ class Transform():
     def __init__(self, user):
         self.user = user
 
+    @staticmethod
     def name():
         return "Transform"
 
@@ -425,6 +436,7 @@ class BloodSlash():
         self.user = user
         self.target = target
 
+    @staticmethod
     def name():
         return "Blood Slash"
 
@@ -464,36 +476,37 @@ class BloodSlash():
         self.user.after_turn()
         return -1
 
-class Stacatto():
+class Staccato():
 
     def __init__(self, user, target):
         self.user = user
         self.target = target
 
+    @staticmethod
     def name():
-        return "Stacatto"
+        return "Staccato"
 
     def start(user):
         if (user.isHero):
-            get_target(user, Stacatto)
+            get_target(user, Staccato)
         else:
-            get_target_auto(user, Stacatto)
+            get_target_auto(user, Staccato)
 
     def queue(user, target):
-        user.BC.UI.create_message(Stacatto.name())
+        user.BC.UI.create_message(Staccato.name())
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
         user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
-        user.BC.eventQueue.queue(Stacatto(user, target))
+        user.BC.eventQueue.queue(Staccato(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
 
     def run(self):
-        self.user.attr['sp'] -= db.Skill.dic[Stacatto.name()].spCost
+        self.user.attr['sp'] -= db.Skill.dic[Staccato.name()].spCost
         g.music_meter_add(g.DamageType.ELEC)
-        utility.log(self.user.attr['name'] + " uses Stacatto on " + self.target.attr['name'])
+        utility.log(self.user.attr['name'] + " uses Staccato on " + self.target.attr['name'])
         baseDmg = 30 + self.user.attr['matk']
         if self.user.BC.hit_calc(self.user, self.target, 5):
             if not self.user.BC.dodge_calc(self.user, self.target):
@@ -509,12 +522,51 @@ class Stacatto():
         self.user.after_turn()
         return -1
 
+class Adagio():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
+
+    @staticmethod
+    def name():
+        return "Adagio"
+
+    def start(user):
+        if (user.isHero):
+            get_target(user, Adagio, False, True)
+        else:
+            get_target_auto(user, Adagio)
+
+    def queue(user, target):
+        user.BC.UI.create_message(Adagio.name())
+        lastAnim = user.spr.curAnim
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(Adagio(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.BattlerReturn(user))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+
+    def run(self):
+        self.user.attr['sp'] -= db.Skill.dic[Adagio.name()].spCost
+        g.music_meter_add(g.DamageType.LIGHT)
+        utility.log(self.user.attr['name'] + " uses Adagio on " + self.target.attr['name'])
+        baseDmg = 30 + self.user.attr['matk']
+        dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk'])
+        self.target.heal_hp(dmg, g.DamageType.LIGHT)
+
+        self.user.after_turn()
+        return -1
+
 class DoubleCut():
 
     def __init__(self, user, target):
         self.user = user
         self.target = target
 
+    @staticmethod
     def name():
         return "Double Cut"
 
@@ -547,7 +599,8 @@ class Toxic():
     def __init__(self, user, target):
         self.user = user
         self.target = target
-    
+
+    @staticmethod
     def name():
         return "Toxic"
 
