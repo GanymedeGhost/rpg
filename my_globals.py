@@ -106,15 +106,16 @@ class DamageType():
     NONE = 0
     PHYS = 1
     FIRE = 2
-    ICE = 3
+    COLD = 3
     ELEC = 4
     WIND = 5
     LIGHT = 6
     DARK = 7
     CURSE = 8
     POISON = 9
+    EARTH = 10
     
-    SIZE = 10
+    SIZE = 11
 
 
 class BattleState():

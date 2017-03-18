@@ -40,6 +40,16 @@ def get_target_auto(user, cmdClass, mostAggro = True, opposite = True, same = Fa
 
     cmdClass.queue(user, bestTarget)
 
+def onAttack(self):
+    for item in self.user.equip:
+        if self.user.equip[item].onAttack:
+            self.user.equip[item].onAttack.run(self.user, self.target)
+
+def onHit(self):
+    for item in self.user.equip:
+        if self.user.equip[item].onHit:
+            self.user.equip[item].onHit.run(self.user, self.target)
+
 ##################
 ##BASIC COMMANDS##
 ##################
@@ -66,9 +76,9 @@ class Escape():
 
         for battler in self.user.BC.battlers:
             if battler.isHero == isHero:
-                sameAgi += battler.attr['agi']
+                sameAgi += battler.totalAgi
             else:
-                oppAgi += battler.attr['agi']
+                oppAgi += battler.totalAgi
 
         roll = random.randint(0, 100)
         if roll + sameAgi - oppAgi > 25:
@@ -123,10 +133,10 @@ class UseSkill():
         user.BC.eventQueue.queue(action)
 
 class Attack():
-
     def __init__(self, user, target):
         self.user = user
         self.target = target
+        self.onAttack = False
 
     @staticmethod
     def name():
@@ -161,6 +171,8 @@ class Attack():
                     dmg = 0
                 self.user.aggro_up()
                 self.target.take_damage(dmg, g.DamageType.PHYS)
+                onAttack(self)
+                onHit(self)
 
         self.user.after_turn()
         return -1
@@ -259,7 +271,7 @@ class Revive():
             inventory.remove_item("Revive")
 
         utility.log(self.user.attr['name'] + " Revives " + self.target.attr['name'])
-        self.target.revive(33)
+        self.target.revive(25)
         self.user.after_turn()
         return -1
 
@@ -301,7 +313,18 @@ class Antidote():
         self.user.after_turn()
         return -1
 
+##################
+##EQUIP COMMANDS##
+##################
 
+class TestEquipAttack():
+
+    def run(user, target):
+        user.heal_sp(10)
+
+class TestEquipHit():
+    def run(user, target):
+        user.heal_hp(10)
 
 ####################
 ##SPECIAL COMMANDS##
@@ -390,13 +413,13 @@ class Finale():
             self.user.BC.UI.create_message("Thunderclap")
             baseDmg = 30 + self.user.attr['matk']
             for target in self.targets:
-                dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - target.attr['mdef']
+                dmg = random.randint(baseDmg, baseDmg + self.user.totalMAtk) - target.totalMDef
                 target.take_damage(dmg, g.DamageType.ELEC)
         else:
             self.user.BC.UI.create_message("Dissonance")
             baseDmg = 20 + self.user.attr['matk']
             for target in self.targets:
-                dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - target.attr['mdef']
+                dmg = random.randint(baseDmg, baseDmg + self.user.totalMAtk) - target.totalMDef
                 target.take_damage(dmg, g.DamageType.NONE)
 
         self.user.reset_anim()
@@ -462,7 +485,7 @@ class BloodSlash():
         utility.log(self.user.attr['name'] + " uses Blood Slash on " + self.target.attr['name'])
         if self.user.BC.hit_calc(self.user, self.target):
             if not self.user.BC.dodge_calc(self.user, self.target):
-                dmg = (self.user.attr['atk'] // 2) + self.user.BC.phys_dmg_calc(self.user, self.target)
+                dmg = (self.user.totalAtk // 2) + self.user.BC.phys_dmg_calc(self.user, self.target)
                 if self.user.BC.crit_calc(self.user, self.target):
                     dmg*=2
                     self.target.stun()
@@ -510,7 +533,7 @@ class Staccato():
         baseDmg = 30 + self.user.attr['matk']
         if self.user.BC.hit_calc(self.user, self.target, 5):
             if not self.user.BC.dodge_calc(self.user, self.target):
-                dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk']) - self.target.attr['mdef']
+                dmg = random.randint(baseDmg, baseDmg + self.user.totalMAtk) - self.target.totalMDef
                 if self.user.BC.crit_calc(self.user, self.target):
                     dmg *= 2
                     self.target.stun()
@@ -553,8 +576,8 @@ class Adagio():
         self.user.attr['sp'] -= db.Skill.dic[Adagio.name()].spCost
         g.music_meter_add(g.DamageType.LIGHT)
         utility.log(self.user.attr['name'] + " uses Adagio on " + self.target.attr['name'])
-        baseDmg = 30 + self.user.attr['matk']
-        dmg = random.randint(baseDmg, baseDmg + self.user.attr['matk'])
+        baseDmg = 30 + self.user.totalMAtk
+        dmg = random.randint(baseDmg, baseDmg + self.user.totalMAtk)
         self.target.heal_hp(dmg, g.DamageType.LIGHT)
 
         self.user.after_turn()

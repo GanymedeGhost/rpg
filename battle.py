@@ -64,6 +64,7 @@ class BattleController (object):
             spr = hero.spr
             size = hero.size
             icon = hero.icon
+            equip = hero.equip
             resD = hero.resD
             resS = hero.resS
             skills = hero.skills
@@ -72,7 +73,7 @@ class BattleController (object):
             drops = []
             steals = []
             
-            battler = BattleActor(self, isHero, spr, size, icon, resD, resS, drops, steals, baseAttr, skillType, commands, skills, None)
+            battler = BattleActor(self, isHero, spr, size, icon, equip, resD, resS, drops, steals, baseAttr, skillType, commands, skills, None)
             self.battlers.append(battler)
 
         #enemies
@@ -85,6 +86,7 @@ class BattleController (object):
             SPR = monster.spr
             size = monster.size
             icon = monster.icon
+            equip = {}
             resD = monster.resD
             resS = monster.resS
 
@@ -99,7 +101,7 @@ class BattleController (object):
             else:
                 self.monsterCounters[monster.attr['name']] = 1
             
-            battler = BattleActor(self, isHero, SPR, size, icon, resD, resS, drops, steals, baseAttr, None, [], [], ai)
+            battler = BattleActor(self, isHero, SPR, size, icon, equip, resD, resS, drops, steals, baseAttr, None, [], [], ai)
             self.battlers.append(battler)
         
         self.rounds = 0
@@ -206,12 +208,12 @@ class BattleController (object):
     def battle_cleanup(self):
         for battler in self.battlers:
             if battler.isHero:
-                if battler.attr['hp'] > db.Hero.dic[battler.attr['name']].baseMaxHP:
-                    db.Hero.dic[battler.attr['name']].attr['hp'] = db.Hero.dic[battler.attr['name']].baseMaxHP
+                if battler.attr['hp'] > db.Hero.dic[battler.attr['name']].totalMaxHP:
+                    db.Hero.dic[battler.attr['name']].attr['hp'] = db.Hero.dic[battler.attr['name']].totalMaxHP
                 else:
                     db.Hero.dic[battler.attr['name']].attr['hp'] = battler.attr['hp']
-                if battler.attr['sp'] > db.Hero.dic[battler.attr['name']].baseMaxSP:
-                    db.Hero.dic[battler.attr['name']].attr['sp'] = db.Hero.dic[battler.attr['name']].baseMaxSP
+                if battler.attr['sp'] > db.Hero.dic[battler.attr['name']].totalMaxSP:
+                    db.Hero.dic[battler.attr['name']].attr['sp'] = db.Hero.dic[battler.attr['name']].totalMaxSP
                 else:
                     db.Hero.dic[battler.attr['name']].attr['sp'] = battler.attr['sp']
 
@@ -259,7 +261,7 @@ class BattleController (object):
         for battler in self.battlers:
             if not battler.isDead:
                 counter += 1
-                entry = [-battler.attr['agi'], counter, battler]
+                entry = [-battler.totalAgi, counter, battler]
                 if self.initiative == g.Initiative.PARTY:
                     if battler.isHero:
                         heapq.heappush(turnQueue, entry)
@@ -327,7 +329,7 @@ class BattleController (object):
 
     def hit_calc(self, user, target, bonus = 0):
         roll = random.randint(0, 100)
-        if roll < user.attr['hit'] + bonus:
+        if roll < user.totalHit + bonus:
             return True
         else:
             self.UI.create_popup("MISS", target.spr.pos)
@@ -336,7 +338,7 @@ class BattleController (object):
 
     def dodge_calc(self, user, target, bonus = 0):
         roll = random.randint(0, 100)
-        if roll < target.attr['eva'] + bonus:
+        if roll < target.totalEva + bonus:
             self.UI.create_popup("DODGE", target.spr.pos)
             utility.log("Dodged!", g.LogLevel.FEEDBACK)
             return True
@@ -346,7 +348,7 @@ class BattleController (object):
     def crit_calc(self, user, target):
         roll = random.randint(0, 255)
         utility.log("Crit roll : " + str(roll))
-        if roll < user.attr['lck']:
+        if roll < user.totalLck:
             utility.log("Crit!", g.LogLevel.FEEDBACK)
             self.UI.create_popup("CRIT", target.spr.pos)
             return True
@@ -374,14 +376,14 @@ class BattleController (object):
         modValue = 0
         if (target.mods[g.BattlerStatus.DEFEND] > 0):
             utility.log(target.attr['name'] + " has a defense bonus", g.LogLevel.FEEDBACK)
-            modValue = target.attr['def'] // 2
-        defTotal = target.attr['def'] + modValue
-        utility.log("DEF: " + str(target.attr['def']) + " (+" + str(modValue) + ")")
+            modValue = target.totalDef // 2
+        defTotal = target.totalDef + modValue
+        utility.log("DEF: " + str(target.totalDef) + " (+" + str(modValue) + ")")
         return defTotal
 
     def phys_dmg_calc(self, user, target):
-        dmgMax = user.attr['atk'] * 2
-        dmgMin = dmgMax - (user.attr['atk'] // 2)
+        dmgMax = user.totalAtk * 2
+        dmgMin = dmgMax - (user.totalAtk // 2)
         dmg = random.randint(dmgMin, dmgMax)
         utility.log("ATK: " + str(dmg) + " (" + str(dmgMin) + "," + str(dmgMax) + ")")
         if (dmg < 0):
@@ -389,7 +391,7 @@ class BattleController (object):
         return dmg
 
     def poison_dmg_calc(self, battler):
-        dmgMin = max(1, battler.attr['maxHP'] // 10)
+        dmgMin = max(1, battler.totalMaxHP // 10)
         dmgMax = dmgMin + (dmgMin // 2)
         dmg = random.randint(dmgMin, dmgMax)
         return dmg
@@ -649,12 +651,12 @@ class BattleUI (object):
     def render_battler_hp(self, battler):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
         self.BC.CONTROLLER.TEXT_MANAGER.draw_text("HP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.attr['maxHP']), utility.add_tuple(self.windowAnchors[0], (116, -6)), g.WHITE)
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.totalMaxHP), utility.add_tuple(self.windowAnchors[0], (116, -6)), g.WHITE)
 
     def render_battler_sp(self, battler):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
         self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.attr['maxSP']), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
+        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.totalMaxSP), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
 
     def render_meter(self, skillType, pos):
         pos = utility.add_tuple(pos, self.meterIconOffset)
@@ -1068,13 +1070,14 @@ class Sprite (pygame.sprite.Sprite):
 
 class BattleActor (object):
     
-    def __init__(self, BC, isHero, spr, size, icon, resD, resS, drops, steals, baseAttr, skillType = None, commands = [], skills = [], ai = None):
+    def __init__(self, BC, isHero, spr, size, icon, equip, resD, resS, drops, steals, baseAttr, skillType = None, commands = [], skills = [], ai = None):
         self.BC = BC
         self.isHero = isHero
         self.name = baseAttr['name']
 
         self.baseAttr = baseAttr
         self.attr = baseAttr.copy()
+        self.equip = equip
 
         self.resD = resD
         self.resS = resS
@@ -1118,8 +1121,88 @@ class BattleActor (object):
         self.isAI = (not self.isHero)
 
     @property
+    def totalMaxHP(self):
+        total = self.attr["maxHP"]
+        for item in self.equip:
+            if "maxHP" in self.equip[item].attr:
+                total += self.equip[item].attr["maxHP"]
+        return total
+
+    @property
+    def totalMaxSP(self):
+        total = self.attr["maxSP"]
+        for item in self.equip:
+            if "maxSP" in self.equip[item].attr:
+                total += self.equip[item].attr["maxSP"]
+        return total
+
+    @property
+    def totalAtk(self):
+        total = self.attr["atk"]
+        for item in self.equip:
+            if "atk" in self.equip[item].attr:
+                total += self.equip[item].attr["atk"]
+        return total
+
+    @property
+    def totalDef(self):
+        total = self.attr["def"]
+        for item in self.equip:
+            if "def" in self.equip[item].attr:
+                total += self.equip[item].attr["def"]
+        return total
+
+    @property
+    def totalMAtk(self):
+        total = self.attr["matk"]
+        for item in self.equip:
+            if "matk" in self.equip[item].attr:
+                total += self.equip[item].attr["matk"]
+        return total
+
+    @property
+    def totalMDef(self):
+        total = self.attr["mdef"]
+        for item in self.equip:
+            if "mdef" in self.equip[item].attr:
+                total += self.equip[item].attr["mdef"]
+        return total
+
+    @property
+    def totalAgi(self):
+        total = self.attr["agi"]
+        for item in self.equip:
+            if "agi" in self.equip[item].attr:
+                total += self.equip[item].attr["agi"]
+        return total
+
+    @property
+    def totalLck(self):
+        total = self.attr["lck"]
+        for item in self.equip:
+            if "lck" in self.equip[item].attr:
+                total += self.equip[item].attr["lck"]
+        return total
+
+    @property
+    def totalHit(self):
+        total = self.attr["hit"]
+        for item in self.equip:
+            if "hit" in self.equip[item].attr:
+                total += self.equip[item].attr["hit"]
+        return total
+
+    @property
+    def totalEva(self):
+        total = self.attr["eva"]
+        for item in self.equip:
+            if "eva" in self.equip[item].attr:
+                total += self.equip[item].attr["eva"]
+        return total
+
+    @property
     def hpPercent (self):
-        return (self.attr['hp'] / self.attr['maxHP'])*100
+        return (self.attr['hp'] / self.totalMaxHP)*100
 
     @property
     def isDead (self):
@@ -1252,8 +1335,8 @@ class BattleActor (object):
 
     def sacrifice(self):
         self.attr['maxHP'] -= math.ceil(self.baseAttr['maxHP'] * 0.1)
-        if self.attr['hp'] > self.attr['maxHP']:
-            self.attr['hp'] = self.attr['maxHP']
+        if self.attr['hp'] > self.totalMaxHP:
+            self.attr['hp'] = self.totalMaxHP
 
     def transform(self):
         if self.skillType == g.SkillType.MOON:
@@ -1327,7 +1410,7 @@ class BattleActor (object):
         else:
             col = g.GREEN
             
-        self.SP += damage
+        self.attr['sp'] += damage
         utility.log(self.attr['name'] + " restores " + str(damage) + " SP!")
         self.BC.UI.create_popup(str(abs(damage)), self.spr.pos, col)
         self.check_sp()
@@ -1345,14 +1428,14 @@ class BattleActor (object):
         if (self.attr['hp'] <= 0):
             self.kill()
             utility.log(self.attr['name'] + " died!")
-        elif (self.attr['hp'] > self.attr['maxHP']):
-            self.attr['hp'] = self.attr['maxHP']
+        elif (self.attr['hp'] > self.totalMaxHP):
+            self.attr['hp'] = self.totalMaxHP
 
     def check_sp(self):
         if (self.attr['sp'] < 0):
             self.attr['sp'] = 0
-        elif (self.attr['sp'] > self.attr['maxSP']):
-            self.attr['sp'] = self.attr['maxSP']
+        elif (self.attr['sp'] > self.totalMaxSP):
+            self.attr['sp'] = self.totalMaxSP
 
     def kill(self):
         self.reset_anim()
@@ -1363,6 +1446,6 @@ class BattleActor (object):
 
     def revive(self, hpPercent):
         self.BC.UI.create_popup("REVIVE", self.spr.pos, g.GREEN)
-        self.attr['hp'] = max(1, math.floor(self.attr['maxHP'] * hpPercent / 100))
+        self.attr['hp'] = max(1, math.floor(self.totalMaxHP * hpPercent / 100))
         self.reset_anim()
         self.mods[g.BattlerStatus.DEATH] = 0

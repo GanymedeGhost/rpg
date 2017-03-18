@@ -8,214 +8,327 @@ import battle_command as cmd
 import field_command as fcmd
 
 class Hero (object):
-	dic = {}
-	
-	def __init__(self, index, attr = {}, resD = {}, resS = {}, skillType = None, commands = [], skills = [], equip = {}, spr = None, size = 32, icon = None):
-		self.index = ""
+    dic = {}
 
-		self.attr = attr
-		if not self.attr:
-			self.attr = {}
-			self.attr["name"] = "???"
-			self.attr["lvl"] = 1
-			self.attr["exp"] = 0
-			self.attr["str"] = 5
-			self.attr["end"] = 5
-			self.attr["wis"] = 5
-			self.attr["spr"] = 5
-			self.attr["agi"] = 5
-			self.attr["lck"] = 5
-			
-		self.attr["hp"] = self.baseMaxHP
-		self.attr["sp"] = self.baseMaxSP
+    def __init__(self, index, attr = {}, resD = {}, resS = {}, skillType = None, commands = [], skills = [], equip = {}, spr = None, size = 32, icon = None):
+        self.index = ""
 
-		self.resD = resD
-		if not self.resD:
-			for dmgType in range(0, g.DamageType.SIZE):
-				self.resD[dmgType] = 0
-		self.resS = resS
-		if not self.resS:
-			for status in range(0, g.BattlerStatus.SIZE):
-				self.resS[status] = 0
+        self.attr = attr
+        if not self.attr:
+            self.attr = {}
+            self.attr["name"] = "???"
+            self.attr["lvl"] = 1
+            self.attr["exp"] = 0
+            self.attr["str"] = 5
+            self.attr["end"] = 5
+            self.attr["wis"] = 5
+            self.attr["spr"] = 5
+            self.attr["agi"] = 5
+            self.attr["lck"] = 5
 
-		self.skillType = skillType
-		self.commands = commands
-		self.skills = skills
-		
-		self.attrMods = {}
-		
-		if not equip:
-			self.equip = {}
-			self.equip["wpn"] = None
-			self.equip["arm"] = None
-			self.equip["acc"] = None
-		else:
-			self.equip = equip
+        self.attr["hp"] = self.baseMaxHP
+        self.attr["sp"] = self.baseMaxSP
 
-		self.size = size
-		self.spr = spr
-		if not self.spr:
-			self.spr = "spr/battle/hero-asa.png"
+        self.resD = resD
+        if not self.resD:
+            for dmgType in range(0, g.DamageType.SIZE):
+                self.resD[dmgType] = 0
+        self.resS = resS
+        if not self.resS:
+            for status in range(0, g.BattlerStatus.SIZE):
+                self.resS[status] = 0
 
-		self.icon = icon
-		if not self.icon:
-			self.icon = pygame.image.load("spr/battle/hero-asa.png")
+        self.skillType = skillType
+        self.commands = commands
+        self.skills = skills
 
-		Hero.dic[index] = self
+        self.attrMods = {}
+
+        if not equip:
+            self.equip = {}
+            self.equip["wpn"] = None
+            self.equip["acc1"] = None
+            self.equip["acc2"] = None
+        else:
+            self.equip = equip
+
+        self.size = size
+        self.spr = spr
+        if not self.spr:
+            self.spr = "spr/battle/hero-asa.png"
+
+        self.icon = icon
+        if not self.icon:
+            self.icon = pygame.image.load("spr/battle/hero-asa.png")
+
+        Hero.dic[index] = self
+
+    @property
+    def baseMaxHP (self):
+        return min(50 + self.attr["end"] * math.ceil(self.attr["lvl"] // 2), g.HERO_MAX_HP)
+
+    @property
+    def baseMaxSP (self):
+        return min(self.attr["wis"] + self.attr["spr"] + self.attr["lvl"], g.HERO_MAX_SP)
+
+    @property
+    def baseHit(self):
+        return min(90 + self.attr["agi"] - self.attr["str"], g.HERO_MAX_RATE)
+
+    @property
+    def baseEva(self):
+        return min(1 + self.attr["agi"] - self.attr["end"], g.HERO_MAX_RATE)
+
+    @property
+    def baseAtk(self):
+        return min(self.attr["str"] + self.attr["lvl"], g.HERO_MAX_STAT)
+
+    @property
+    def baseDef(self):
+        return min(self.attr["end"] + self.attr["lvl"], g.HERO_MAX_STAT)
+
+    @property
+    def baseMAtk(self):
+        return min(self.attr["wis"] + self.attr["lvl"], g.HERO_MAX_STAT)
+
+    @property
+    def baseMDef(self):
+        return min(self.attr["spr"] + self.attr["lvl"], g.HERO_MAX_STAT)
+
+    @property
+    def totalMaxHP (self):
+        total = self.baseMaxHP
+        for item in self.equip:
+            if "maxHP" in self.equip[item].attr:
+                total += self.equip[item].attr["maxHP"]
+        return total
+
+    @property
+    def totalMaxSP(self):
+        total = self.baseMaxSP
+        for item in self.equip:
+            if "maxHP" in self.equip[item].attr:
+                total += self.equip[item].attr["maxHP"]
+        return total
+
+    @property
+    def totalAtk(self):
+        total = self.baseAtk
+        for item in self.equip:
+            if "atk" in self.equip[item].attr:
+                total += self.equip[item].attr["atk"]
+        return total
+
+    @property
+    def totalDef(self):
+        total = self.baseDef
+        for item in self.equip:
+            if "def" in self.equip[item].attr:
+                total += self.equip[item].attr["def"]
+        return total
+
+    @property
+    def totalMAtk(self):
+        total = self.baseMAtk
+        for item in self.equip:
+            if "matk" in self.equip[item].attr:
+                total += self.equip[item].attr["matk"]
+        return total
+
+    @property
+    def totalMDef(self):
+        total = self.baseMDef
+        for item in self.equip:
+            if "mdef" in self.equip[item].attr:
+                total += self.equip[item].attr["mdef"]
+        return total
+
+    @property
+    def totalAgi(self):
+        total = self.attr['agi']
+        for item in self.equip:
+            if "agi" in self.equip[item].attr:
+                total += self.equip[item].attr["agi"]
+        return total
+
+    @property
+    def totalLck(self):
+        total = self.attr['lck']
+        for item in self.equip:
+            if "lck" in self.equip[item].attr:
+                total += self.equip[item].attr["lck"]
+        return total
+
+    @property
+    def totalHit(self):
+        total = self.baseHit
+        for item in self.equip:
+            if "hit" in self.equip[item].attr:
+                total += self.equip[item].attr["hit"]
+        return total
+
+    @property
+    def totalEva(self):
+        total = self.baseEva
+        for item in self.equip:
+            if "eva" in self.equip[item].attr:
+                total += self.equip[item].attr["eva"]
+        return total
+
+    @property
+    def isDead(self):
+        return self.attr['hp'] < 1
 
 
-	@property
-	def baseMaxHP (self):
-		return min(50 + self.attr["end"] * math.ceil(self.attr["lvl"] // 2), g.HERO_MAX_HP)
-	@property	
-	def baseMaxSP (self):
-		return min(self.attr["wis"] + self.attr["spr"] + self.attr["lvl"], g.HERO_MAX_SP)
-	@property
-	def baseHit(self):
-		return min(90 + self.attr["agi"] - self.attr["str"], g.HERO_MAX_RATE)
-	@property
-	def baseEva(self):
-		return min(1 + self.attr["agi"] - self.attr["end"], g.HERO_MAX_RATE)
-	@property
-	def baseAtk(self):
-		return min(self.attr["str"] + self.attr["lvl"], g.HERO_MAX_STAT)
-	@property
-	def baseDef(self):
-		return min(self.attr["end"] + self.attr["lvl"], g.HERO_MAX_STAT)
-	@property
-	def baseMAtk(self):
-		return min(self.attr["wis"] + self.attr["lvl"], g.HERO_MAX_STAT)
-	@property
-	def baseMDef(self):
-		return min(self.attr["spr"] + self.attr["lvl"], g.HERO_MAX_STAT)
-	@property
-	def isDead(self):
-		return self.attr['hp'] < 1
+    def heal_hp(self, value, damageType):
+
+        value -= math.floor(value * self.resD[damageType])
+
+        self.attr['hp'] +=  value
+        self.check_hp()
 
 
-	def heal_hp(self, value, damageType):
-
-		value -= math.floor(value * self.resD[damageType])
-
-		self.attr['hp'] +=  value
-		self.check_hp()
+    def check_hp(self):
+        if self.attr['hp'] > self.baseMaxHP:
+            self.attr['hp'] = self.baseMaxHP
 
 
-	def check_hp(self):
-		if self.attr['hp'] > self.baseMaxHP:
-			self.attr['hp'] = self.baseMaxHP
-
-
-	def revive(self, hpPercent):
-		self.attr['hp'] = max(1, math.floor(self.baseMaxHP * hpPercent / 100))
+    def revive(self, hpPercent):
+        self.attr['hp'] = max(1, math.floor(self.baseMaxHP * hpPercent / 100))
 
 class Monster (object):
-	dic = {}
+    dic = {}
 
-	def __init__(self, index, attr = {}, resD = {}, resS = {}, drops = [], steals = [], spr = None, size = 16, icon = None):
-		self.ai = bai.dic[index]
+    def __init__(self, index, attr = {}, resD = {}, resS = {}, drops = [], steals = [], spr = None, size = 16, icon = None):
+        self.ai = bai.dic[index]
 
-		self.attr = attr
-		if not self.attr:
-			self.attr = {}
-			self.attr["name"] = "???"
-			self.attr["lvl"] = 1
-			self.attr["hp"] = 10
-			self.attr["sp"] = 10
-			self.attr["atk"] = 6
-			self.attr["def"] = 6
-			self.attr["matk"] = 6
-			self.attr["mdef"] = 6
-			self.attr["hit"] = 95
-			self.attr["eva"] = 3
-			self.attr["agi"] = 5
-			self.attr["lck"] = 3
-			self.attr['exp'] = 1
-			self.attr['gold'] = 1
+        self.attr = attr
+        if not self.attr:
+            self.attr = {}
+            self.attr["name"] = "???"
+            self.attr["lvl"] = 1
+            self.attr["hp"] = 10
+            self.attr["sp"] = 10
+            self.attr["atk"] = 6
+            self.attr["def"] = 6
+            self.attr["matk"] = 6
+            self.attr["mdef"] = 6
+            self.attr["hit"] = 95
+            self.attr["eva"] = 3
+            self.attr["agi"] = 5
+            self.attr["lck"] = 3
+            self.attr['exp'] = 1
+            self.attr['gold'] = 1
 
-		self.resD = resD
-		if not self.resD:
-			for dmgType in range(0, g.DamageType.SIZE):
-				self.resD[dmgType] = 0
-		self.resS = resS
-		if not self.resS:
-			for status in range(0, g.BattlerStatus.SIZE):
-				self.resS[status] = 0
+        self.resD = resD
+        if not self.resD:
+            for dmgType in range(0, g.DamageType.SIZE):
+                self.resD[dmgType] = 0
+        self.resS = resS
+        if not self.resS:
+            for status in range(0, g.BattlerStatus.SIZE):
+                self.resS[status] = 0
 
-		self.drops = drops
-		self.steals = steals
+        self.drops = drops
+        self.steals = steals
 
-		self.size = size
-		self.spr = spr
-		if not self.spr:
-			self.spr = "spr/battle/mon-slime.png"
+        self.size = size
+        self.spr = spr
+        if not self.spr:
+            self.spr = "spr/battle/mon-slime.png"
 
-		self.icon = icon
-		if not self.icon:
-			self.icon = pygame.image.load("spr/battle/mon-slime.png")
+        self.icon = icon
+        if not self.icon:
+            self.icon = pygame.image.load("spr/battle/mon-slime.png")
 
-		Monster.dic[index] = self
+        Monster.dic[index] = self
 
 class InvItem (object):
-	dic = {}
+    dic = {}
 
-	def __init__(self, index, desc, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
-		self.name = index
-		self.desc = desc
-		self.limit = limit
-		
-		self.useAction = useAction
-		if useAction != None:
-			self.usableField = True
-		else:
-			self.usableField = False
-			
-		self.battleAction = battleAction
-		if battleAction != None:
-			self.usableBattle = True
-		else:
-			self.usableBattle = False
+    def __init__(self, index, desc, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
+        self.name = index
+        self.desc = desc
+        self.limit = limit
 
-		self.sortPriority = sortPriority
-		if not self.sortPriority:
-			self.sortPriority["field"] = 99
-			self.sortPriority["battle"] = 99
-			self.sortPriority["recovery"] = 99
-			self.sortPriority["damage"] = 99
-			
-		InvItem.dic[index] = self
+        self.useAction = useAction
+        if useAction != None:
+            self.usableField = True
+        else:
+            self.usableField = False
+
+        self.battleAction = battleAction
+        if battleAction != None:
+            self.usableBattle = True
+        else:
+            self.usableBattle = False
+
+        self.sortPriority = sortPriority
+        if not self.sortPriority:
+            self.sortPriority["field"] = 99
+            self.sortPriority["battle"] = 99
+            self.sortPriority["recovery"] = 99
+            self.sortPriority["damage"] = 99
+
+        InvItem.dic[index] = self
+
+class Equip (InvItem):
+
+    def __init__(self, index, desc, isWeapon = True, attr = {}, onAttack = None, onHit = None, damageType = g.DamageType.PHYS, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
+        InvItem.__init__(self, index, desc, limit, useAction, battleAction, sortPriority)
+
+        self.isWeapon = isWeapon
+        self.isAcc = not isWeapon
+
+        self.attr = {}
+        if not self.attr:
+            self.attr["atk"] = 0
+            self.attr["def"] = 0
+            self.attr["matk"] = 0
+            self.attr["mdef"] = 0
+            self.attr["agi"] = 0
+            self.attr["lck"] = 0
+            self.attr["hit"] = 0
+            self.attr["eva"] = 0
+            self.attr["maxHP"] = 0
+            self.attr["maxSP"] = 0
+
+        self.onAttack = onAttack
+        self.onHit = onHit
+        self.damageType = damageType
+
 
 class Skill (object):
-	dic = {}
+    dic = {}
 
-	def __init__(self, index, desc, skillType, spCost, meterReq, useAction, battleAction):
-		self.name = index
-		self.desc = desc
-		self.skillType = skillType
-		self.spCost = spCost
-		self.meterReq = meterReq
-		self.useAction = useAction
-		if (useAction != None):
-			self.usableField = True
-		else:
-			self.usableField = False
-		self.battleAction = battleAction
-		if (battleAction != None):
-			self.usableBattle = True
-		else:
-			self.usableBattle = False
+    def __init__(self, index, desc, skillType, spCost, meterReq, useAction, battleAction):
+        self.name = index
+        self.desc = desc
+        self.skillType = skillType
+        self.spCost = spCost
+        self.meterReq = meterReq
+        self.useAction = useAction
+        if (useAction != None):
+            self.usableField = True
+        else:
+            self.usableField = False
+        self.battleAction = battleAction
+        if (battleAction != None):
+            self.usableBattle = True
+        else:
+            self.usableBattle = False
 
-		Skill.dic[index] = self
+        Skill.dic[index] = self
 
-	def check_cost(user, skill):
-		if user.attr['sp'] >= skill.spCost:
-			if skill.skillType != g.SkillType.MUSIC:
-				if g.METER[skill.skillType] >= skill.meterReq:
-					return True
-			else:
-				if len(g.METER[skill.skillType]) >= skill.meterReq:
-					return True
-		return False
+    def check_cost(user, skill):
+        if user.attr['sp'] >= skill.spCost:
+            if skill.skillType != g.SkillType.MUSIC:
+                if g.METER[skill.skillType] >= skill.meterReq:
+                    return True
+            else:
+                if len(g.METER[skill.skillType]) >= skill.meterReq:
+                    return True
+        return False
 
 def create_data():
     #########
@@ -272,6 +385,22 @@ def create_data():
     sortPriority["damage"] = 99
 
     InvItem(name, desc, limit, useAction, battleAction, sortPriority)
+
+    name = "Equip"
+    desc = "none"
+    limit = 99
+    useAction = None
+    battleAction = None
+    sortPriority = {}
+    sortPriority["field"] = 11
+    sortPriority["battle"] = 11
+    sortPriority["recovery"] = 11
+    sortPriority["damage"] = 99
+    attr = {}
+    onAttack = None
+    onHit = None
+
+    Equip(name, desc, True, attr, onAttack, onHit)
 
     ################
     ##BLOOD SKILLS##
@@ -371,9 +500,9 @@ def create_data():
     ##HEROES##
     ##########
     equip = {}
-    equip["wpn"] = None
-    equip["arm"] = None
-    equip["acc"] = None
+    equip["wpn"] = InvItem.dic["Equip"]
+    equip["acc1"] = InvItem.dic["Equip"]
+    equip["acc2"] = InvItem.dic["Equip"]
 
     attr = {}
     attr["name"] = "Luxe"
@@ -526,5 +655,5 @@ def create_data():
     icon = pygame.image.load("spr/battle/mon-mold.png")
 
     Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
-	
+
 create_data()
