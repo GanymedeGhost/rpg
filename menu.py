@@ -1,5 +1,6 @@
 import pygame
 import pygame.locals
+import math
 import my_globals as g
 import inventory as inv
 import database as db
@@ -390,50 +391,177 @@ class MenuUI(object):
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("Lck", utility.add_tuple(self.statsAnchor[8], self.statsOffset), g.WHITE)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.attr['lck']), self.statsAnchor[8], g.GRAY)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("Atk", utility.add_tuple(self.statsAnchor[9], self.statsOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalAtk), self.statsAnchor[9], g.GRAY)
+            if self.currentHero.totalAtk > self.currentHero.baseAtk:
+                color = g.GREEN
+            elif self.currentHero.totalAtk < self.currentHero.baseAtk:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalAtk), self.statsAnchor[9], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("Def", utility.add_tuple(self.statsAnchor[10], self.statsOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalDef), self.statsAnchor[10], g.GRAY)
+            if self.currentHero.totalDef > self.currentHero.baseDef:
+                color = g.GREEN
+            elif self.currentHero.totalDef < self.currentHero.baseDef:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalDef), self.statsAnchor[10], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("MAtk", utility.add_tuple(self.statsAnchor[11], self.statsOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalMAtk), self.statsAnchor[11], g.GRAY)
+            if self.currentHero.totalMAtk > self.currentHero.baseMAtk:
+                color = g.GREEN
+            elif self.currentHero.totalMAtk < self.currentHero.baseMAtk:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalMAtk), self.statsAnchor[11], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("MDef", utility.add_tuple(self.statsAnchor[12], self.statsOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalMDef), self.statsAnchor[12], g.GRAY)
+            if self.currentHero.totalMDef > self.currentHero.baseMDef:
+                color = g.GREEN
+            elif self.currentHero.totalMDef < self.currentHero.baseMDef:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalMDef), self.statsAnchor[12], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("Hit", utility.add_tuple(self.statsAnchor[13], self.statsOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalHit), self.statsAnchor[13], g.GRAY)
+            if self.currentHero.totalHit > self.currentHero.baseHit:
+                color = g.GREEN
+            elif self.currentHero.totalHit < self.currentHero.baseHit:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalHit), self.statsAnchor[13], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("Eva", utility.add_tuple(self.statsAnchor[14], self.statsOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalEva), self.statsAnchor[14], g.GRAY)
+            if self.currentHero.totalEva > self.currentHero.baseEva:
+                color = g.GREEN
+            elif self.currentHero.totalEva < self.currentHero.baseEva:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalEva), self.statsAnchor[14], color)
+
         elif (self.statusPage == 1):
             self.MC.controller.VIEW_SURF.blit(self.resPanel, (0, 0))
 
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("PHYS", utility.add_tuple(self.resAnchor[0], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.PHYS]), self.resAnchor[0], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.PHYS) > self.currentHero.resD[g.DamageType.PHYS]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.PHYS) < self.currentHero.resD[g.DamageType.PHYS]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.PHYS)*100)), self.resAnchor[0], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("FIRE", utility.add_tuple(self.resAnchor[1], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.FIRE]), self.resAnchor[1], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.FIRE) > self.currentHero.resD[g.DamageType.FIRE]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.FIRE) < self.currentHero.resD[g.DamageType.FIRE]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.FIRE)*100)), self.resAnchor[1], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("COLD", utility.add_tuple(self.resAnchor[2], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.COLD]), self.resAnchor[2], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.COLD) > self.currentHero.resD[g.DamageType.COLD]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.COLD) < self.currentHero.resD[g.DamageType.COLD]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.COLD) * 100)), self.resAnchor[2], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("ELEC", utility.add_tuple(self.resAnchor[3], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.ELEC]), self.resAnchor[3], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.ELEC) > self.currentHero.resD[g.DamageType.ELEC]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.ELEC) < self.currentHero.resD[g.DamageType.ELEC]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.ELEC) * 100)), self.resAnchor[3], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("WIND", utility.add_tuple(self.resAnchor[4], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.WIND]), self.resAnchor[4], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.WIND) > self.currentHero.resD[g.DamageType.WIND]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.WIND) < self.currentHero.resD[g.DamageType.WIND]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.WIND) * 100)), self.resAnchor[4], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("EARTH", utility.add_tuple(self.resAnchor[5], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.EARTH]), self.resAnchor[5], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.EARTH) > self.currentHero.resD[g.DamageType.EARTH]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.EARTH) < self.currentHero.resD[g.DamageType.EARTH]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.EARTH) * 100)), self.resAnchor[5], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("LIGHT", utility.add_tuple(self.resAnchor[6], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.LIGHT]), self.resAnchor[6], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.LIGHT) > self.currentHero.resD[g.DamageType.LIGHT]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.LIGHT) < self.currentHero.resD[g.DamageType.LIGHT]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.LIGHT)*100)), self.resAnchor[6], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("DARK", utility.add_tuple(self.resAnchor[7], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.DARK]), self.resAnchor[7], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.DARK) > self.currentHero.resD[g.DamageType.DARK]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.DARK) < self.currentHero.resD[g.DamageType.DARK]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.DARK)*100)), self.resAnchor[7], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("CURSE", utility.add_tuple(self.resAnchor[8], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resD[g.DamageType.CURSE]), self.resAnchor[8], g.GRAY)
+            if self.currentHero.total_resD(g.DamageType.CURSE) > self.currentHero.resD[g.DamageType.CURSE]:
+                color = g.GREEN
+            elif self.currentHero.total_resD(g.DamageType.CURSE) < self.currentHero.resD[g.DamageType.CURSE]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resD(g.DamageType.CURSE)*100)), self.resAnchor[8], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("PSN", utility.add_tuple(self.resAnchor[9], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resS[g.BattlerStatus.POISON]), self.resAnchor[9], g.GRAY)
+            if self.currentHero.total_resS(g.BattlerStatus.POISON) > self.currentHero.resS[g.BattlerStatus.POISON]:
+                color = g.GREEN
+            elif self.currentHero.total_resS(g.BattlerStatus.POISON) < self.currentHero.resS[g.BattlerStatus.POISON]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resS(g.BattlerStatus.POISON)*100)), self.resAnchor[9], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("SLP", utility.add_tuple(self.resAnchor[10], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resS[g.BattlerStatus.SLEEP]), self.resAnchor[10], g.GRAY)
+            if self.currentHero.total_resS(g.BattlerStatus.SLEEP) > self.currentHero.resS[g.BattlerStatus.SLEEP]:
+                color = g.GREEN
+            elif self.currentHero.total_resS(g.BattlerStatus.SLEEP) < self.currentHero.resS[g.BattlerStatus.SLEEP]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resS(g.BattlerStatus.SLEEP)*100)), self.resAnchor[10], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("PLZ", utility.add_tuple(self.resAnchor[11], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resS[g.BattlerStatus.PARALYZE]), self.resAnchor[11], g.GRAY)
+            if self.currentHero.total_resS(g.BattlerStatus.PARALYZE) > self.currentHero.resS[g.BattlerStatus.PARALYZE]:
+                color = g.GREEN
+            elif self.currentHero.total_resS(g.BattlerStatus.PARALYZE) < self.currentHero.resS[g.BattlerStatus.PARALYZE]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resS(g.BattlerStatus.PARALYZE)*100)), self.resAnchor[11], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("SIL", utility.add_tuple(self.resAnchor[12], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resS[g.BattlerStatus.SILENCE]), self.resAnchor[12], g.GRAY)
+            if self.currentHero.total_resS(g.BattlerStatus.SILENCE) > self.currentHero.resS[g.BattlerStatus.SILENCE]:
+                color = g.GREEN
+            elif self.currentHero.total_resS(g.BattlerStatus.SILENCE) < self.currentHero.resS[g.BattlerStatus.SILENCE]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resS(g.BattlerStatus.SILENCE)*100)), self.resAnchor[12], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("STN", utility.add_tuple(self.resAnchor[13], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resS[g.BattlerStatus.STUN]), self.resAnchor[13], g.GRAY)
+            if self.currentHero.total_resS(g.BattlerStatus.STUN) > self.currentHero.resS[g.BattlerStatus.STUN]:
+                color = g.GREEN
+            elif self.currentHero.total_resS(g.BattlerStatus.STUN) < self.currentHero.resS[g.BattlerStatus.STUN]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resS(g.BattlerStatus.STUN)*100)), self.resAnchor[13], color)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("DTH", utility.add_tuple(self.resAnchor[14], self.resOffset), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.resS[g.BattlerStatus.DEATH]), self.resAnchor[14], g.GRAY)
+            if self.currentHero.total_resS(g.BattlerStatus.DEATH) > self.currentHero.resS[g.BattlerStatus.DEATH]:
+                color = g.GREEN
+            elif self.currentHero.total_resS(g.BattlerStatus.DEATH) < self.currentHero.resS[g.BattlerStatus.DEATH]:
+                color = g.RED
+            else:
+                color = g.GRAY
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(math.floor(self.currentHero.total_resS(g.BattlerStatus.DEATH)*100)), self.resAnchor[14], color)
 
         self.MC.controller.TEXT_MANAGER.draw_text_centered(str(self.statusPage + 1) + "/" + str(self.statusPages), self.statusPageAnchor, g.WHITE)
 

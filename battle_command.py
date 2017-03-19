@@ -40,16 +40,6 @@ def get_target_auto(user, cmdClass, mostAggro = True, opposite = True, same = Fa
 
     cmdClass.queue(user, bestTarget)
 
-def onAttack(self):
-    for item in self.user.equip:
-        if self.user.equip[item].onAttack:
-            self.user.equip[item].onAttack.run(self.user, self.target)
-
-def onHit(self):
-    for item in self.user.equip:
-        if self.user.equip[item].onHit:
-            self.user.equip[item].onHit.run(self.user, self.target)
-
 ##################
 ##BASIC COMMANDS##
 ##################
@@ -88,7 +78,6 @@ class Escape():
         else:
             self.user.BC.UI.create_message("Couldn't escape!")
 
-        self.user.after_turn()
         return -1
 
 
@@ -136,7 +125,6 @@ class Attack():
     def __init__(self, user, target):
         self.user = user
         self.target = target
-        self.onAttack = False
 
     @staticmethod
     def name():
@@ -159,6 +147,13 @@ class Attack():
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
     
     def run(self):
+        if "wpn" in self.user.equip:
+            dmgType = self.user.equip["wpn"].dmgType
+        else:
+            dmgType = g.DamageType.PHYS
+        utility.log("Damage type: " + str(dmgType))
+
+
         utility.log(self.user.attr['name'] + " attacks " + self.target.attr['name'])
         if self.user.BC.hit_calc(self.user, self.target):
             if not self.user.BC.dodge_calc(self.user, self.target):
@@ -170,11 +165,9 @@ class Attack():
                 if (dmg < 0):
                     dmg = 0
                 self.user.aggro_up()
-                self.target.take_damage(dmg, g.DamageType.PHYS)
-                onAttack(self)
-                onHit(self)
-
-        self.user.after_turn()
+                self.target.take_damage(dmg, dmgType)
+                self.user.onAttack(self.target)
+                self.target.onHit(self.user)
         return -1
 
 class Defend():
@@ -197,7 +190,6 @@ class Defend():
         utility.log(self.user.attr['name'] + " is defending.", g.LogLevel.FEEDBACK)
         self.user.mods[g.BattlerStatus.DEFEND] += 1
         self.user.reset_anim()
-        self.user.after_turn()
         return -1
 
 #################
@@ -236,7 +228,6 @@ class Potion():
             inventory.remove_item("Potion")
         utility.log(self.user.attr['name'] + " Potions " + self.target.attr['name'])
         self.target.heal_hp(50)
-        self.user.after_turn()
         return -1
 
 class Revive():
@@ -272,7 +263,6 @@ class Revive():
 
         utility.log(self.user.attr['name'] + " Revives " + self.target.attr['name'])
         self.target.revive(25)
-        self.user.after_turn()
         return -1
 
 class Antidote():
@@ -310,7 +300,6 @@ class Antidote():
         if self.target.spr.animated:
             if self.target.spr.curAnim == "poison":
                 self.target.spr.set_anim("idle")
-        self.user.after_turn()
         return -1
 
 ##################
@@ -322,9 +311,13 @@ class TestEquipAttack():
     def run(user, target):
         user.heal_sp(10)
 
-class TestEquipHit():
+class CounterAttack():
+
     def run(user, target):
-        user.heal_hp(10)
+        if not user.BC.counterAttack:
+            user.BC.counterAttack = True
+            user.BC.UI.create_message("Counter Attack")
+            Attack.queue(user, target)
 
 ####################
 ##SPECIAL COMMANDS##
@@ -360,7 +353,6 @@ class Sacrifice():
         else:
             self.user.BC.UI.create_popup("NO EFFECT", self.user.spr.pos, g.RED)
         self.user.reset_anim()
-        self.user.after_turn()
         return -1
 
 class Finale():
@@ -423,7 +415,6 @@ class Finale():
                 target.take_damage(dmg, g.DamageType.NONE)
 
         self.user.reset_anim()
-        self.user.after_turn()
         return -1
 
 class Transform():
@@ -446,7 +437,6 @@ class Transform():
         utility.log(self.user.attr['name'] + " uses Transform.", g.LogLevel.FEEDBACK)
         self.user.transform()
         self.user.reset_anim()
-        self.user.after_turn()
         return -1
 
 ##################
@@ -496,7 +486,6 @@ class BloodSlash():
                 self.user.aggro_up()
                 self.target.take_damage(dmg, g.DamageType.NONE)
 
-        self.user.after_turn()
         return -1
 
 class Staccato():
@@ -541,8 +530,6 @@ class Staccato():
                     dmg = 0
                 self.user.aggro_up()
                 self.target.take_damage(dmg, g.DamageType.ELEC)
-
-        self.user.after_turn()
         return -1
 
 class Adagio():
@@ -579,8 +566,6 @@ class Adagio():
         baseDmg = 30 + self.user.totalMAtk
         dmg = random.randint(baseDmg, baseDmg + self.user.totalMAtk)
         self.target.heal_hp(dmg, g.DamageType.LIGHT)
-
-        self.user.after_turn()
         return -1
 
 class DoubleCut():
@@ -646,6 +631,5 @@ class Toxic():
     def run(self):
         utility.log(self.user.attr['name'] + " uses Poison on " + self.target.attr['name'])
         self.target.poison(33)
-        self.user.after_turn()
         return -1
 

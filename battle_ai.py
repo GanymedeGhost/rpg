@@ -13,8 +13,6 @@ class Slime ():
                 cmd.Attack.start(battler)
             else:
                 cmd.Defend.start(battler)
-        else:
-            battler.after_turn()
 
 class Mold ():
 
@@ -26,8 +24,6 @@ class Mold ():
                 db.Skill.dic['Toxic'].battleAction.start(battler)
             else:
                 cmd.Attack.start(battler)
-        else:
-            battler.after_turn()
 
 dic = {}
 dic["Slime"] = Slime

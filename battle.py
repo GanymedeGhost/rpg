@@ -31,6 +31,8 @@ class BattleController (object):
         self.battlers = []
         self.battlerCount = 0
 
+        self.counterAttack = False
+
         if (initiative != -1):
             self.initiative = initiative
         else:
@@ -133,7 +135,10 @@ class BattleController (object):
                 if g.AI_TIMER > 0 and self.currentBattler.isDead == False:
                     g.AI_TIMER -= self.CONTROLLER.CLOCK.get_time()
                 else:
-                    self.currentBattler.take_turn()
+                    if not self.currentBattler.turnStarted:
+                        self.currentBattler.take_turn()
+                    else:
+                        self.change_state(g.BattleState.FIGHT)
             elif (self.BATTLE_STATE == g.BattleState.COMMAND or
                   self.BATTLE_STATE == g.BattleState.ITEM or
                   self.BATTLE_STATE == g.BattleState.SKILL):
@@ -147,6 +152,8 @@ class BattleController (object):
             elif self.BATTLE_STATE == g.BattleState.FIGHT:
                 if self.enemies_alive() and self.heroes_alive():
                     if self.turnOrder:
+                        if self.currentBattler:
+                            self.currentBattler.after_turn()
                         battler = self.next_turn()
                         if battler != None:
                             if (battler.isHero):
@@ -357,7 +364,7 @@ class BattleController (object):
 
     def status_calc(self, battler, status, rate):
         rate = 100-rate
-        resOffset = -math.floor(100*battler.resS[status])
+        resOffset = -math.floor(100*battler.total_resS(status))
         minRoll = 0+resOffset
         maxRoll = 99+resOffset
 
@@ -459,7 +466,7 @@ class BattleUI (object):
         self.iconNotes[g.DamageType.LIGHT] = pygame.image.load("spr/battle/icon-note-wht.png")
         self.iconNotes[g.DamageType.DARK] = pygame.image.load("spr/battle/icon-note-blk.png")
         self.iconNotes[g.DamageType.FIRE] = pygame.image.load("spr/battle/icon-note-red.png")
-        self.iconNotes[g.DamageType.ICE] = pygame.image.load("spr/battle/icon-note-blu.png")
+        self.iconNotes[g.DamageType.COLD] = pygame.image.load("spr/battle/icon-note-blu.png")
         self.iconNotes[g.DamageType.ELEC] = pygame.image.load("spr/battle/icon-note-ylw.png")
         self.iconNotes[g.DamageType.WIND] = pygame.image.load("spr/battle/icon-note-grn.png")
 
@@ -1080,6 +1087,7 @@ class BattleActor (object):
         self.equip = equip
 
         self.resD = resD
+        utility.log(str (self.resD))
         self.resS = resS
 
         self.drops = drops
@@ -1099,6 +1107,7 @@ class BattleActor (object):
         self.battlerIndex = self.BC.battlerCount
         self.turnOrder = -1
         self.BC.battlerCount += 1
+        self.turnStarted = False
 
         self.size = size
         self.spr = Sprite(spr, size, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
@@ -1208,12 +1217,37 @@ class BattleActor (object):
     def isDead (self):
         return (self.attr['hp'] < 1)
 
+    def total_resD(self, damageType):
+        total = self.resD[damageType]
+        for item in self.equip:
+            if damageType in self.equip[item].resD:
+                total += self.equip[item].resD[damageType]
+        return total
+
+    def total_resS(self, status):
+        total = self.resS[status]
+        for item in self.equip:
+            if status in self.equip[item].resS:
+                total += self.equip[item].resS[status]
+        return total
+
     def aggro_up(self, value=-1):
         if value < 0:
             value = random.randint(1, 1+self.hpPercent//2)
         self.aggro += value
         if (self.aggro > 100):
             self.aggro = 100
+
+    def onAttack(self, target):
+        for item in self.equip:
+            if self.equip[item].onAttack:
+                self.equip[item].onAttack.run(self, target)
+
+    def onHit(self, user):
+        utility.log("hit")
+        for item in self.equip:
+            if self.equip[item].onHit:
+                self.equip[item].onHit.run(self, user)
 
     def aggro_down(self, value=-1):
         if value < 0:
@@ -1264,6 +1298,8 @@ class BattleActor (object):
                 self.spr.set_anim("dead")
 
     def before_turn(self):
+        self.BC.counterAttack = False
+        self.turnStarted = True
         self.mods[g.BattlerStatus.DEFEND] -= 1
         self.mods[g.BattlerStatus.SLEEP] -= 1
         self.mods[g.BattlerStatus.PARALYZE] -= 1
@@ -1275,6 +1311,7 @@ class BattleActor (object):
         self.reset_anim()
 
     def after_turn(self):
+        self.turnStarted = False
         self.mods[g.BattlerStatus.STUN] -= 1
         self.min_mods()
         self.reset_anim()
@@ -1287,7 +1324,7 @@ class BattleActor (object):
 
     def take_turn(self):
         self.BC.currentBattler = self
-        if self.isAI:
+        if self.isAI and not self.turnStarted:
             utility.log(self.attr['name'] + " is AI")
             self.ai.run(self)
         else:
@@ -1362,7 +1399,7 @@ class BattleActor (object):
     def take_damage(self, damage, damageType = g.DamageType.NONE):
         self.aggro_down()
 
-        damage -= math.floor(damage * self.resD[damageType])
+        damage -= math.floor(damage * self.total_resD(damageType))
         if damage >= 0:
             col = g.WHITE
         else:
@@ -1378,7 +1415,7 @@ class BattleActor (object):
         self.check_hp()
 
     def heal_hp(self, damage, damageType = g.DamageType.NONE):
-        damage -= math.floor(damage * self.resD[damageType])
+        damage -= math.floor(damage * self.total_resD(damageType))
         if damage >= 0:
             col = g.GREEN
         else:
@@ -1392,7 +1429,7 @@ class BattleActor (object):
     def take_sp_damage(self, damage, damageType = g.DamageType.NONE):
         self.aggro_down()
 
-        damage -= math.floor(damage * self.resD[damageType])
+        damage -= math.floor(damage * self.total_resD(damageType))
         if damage >= 0:
             col = g.RED
         else:
@@ -1404,7 +1441,7 @@ class BattleActor (object):
         self.check_sp()
 
     def heal_sp(self, damage, damageType = g.DamageType.NONE):
-        damage -= math.floor(damage * self.resD[damageType])
+        damage -= math.floor(damage * self.total_resD(damageType))
         if damage >= 0:
             col = g.BLUE
         else:

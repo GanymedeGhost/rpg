@@ -30,12 +30,13 @@ class Hero (object):
         self.attr["sp"] = self.baseMaxSP
 
         self.resD = resD
-        if not self.resD:
-            for dmgType in range(0, g.DamageType.SIZE):
+        for dmgType in range(0, g.DamageType.SIZE):
+            if not dmgType in resD:
                 self.resD[dmgType] = 0
+
         self.resS = resS
-        if not self.resS:
-            for status in range(0, g.BattlerStatus.SIZE):
+        for status in range(0, g.BattlerStatus.SIZE):
+            if not status in resS:
                 self.resS[status] = 0
 
         self.skillType = skillType
@@ -107,8 +108,8 @@ class Hero (object):
     def totalMaxSP(self):
         total = self.baseMaxSP
         for item in self.equip:
-            if "maxHP" in self.equip[item].attr:
-                total += self.equip[item].attr["maxHP"]
+            if "maxSP" in self.equip[item].attr:
+                total += self.equip[item].attr["maxSP"]
         return total
 
     @property
@@ -179,6 +180,19 @@ class Hero (object):
     def isDead(self):
         return self.attr['hp'] < 1
 
+    def total_resD(self, damageType):
+        total = self.resD[damageType]
+        for item in self.equip:
+            if damageType in self.equip[item].resD:
+                total += self.equip[item].resD[damageType]
+        return total
+
+    def total_resS(self, status):
+        total = self.resS[status]
+        for item in self.equip:
+            if status in self.equip[item].resS:
+                total += self.equip[item].resS[status]
+        return total
 
     def heal_hp(self, value, damageType):
 
@@ -221,12 +235,12 @@ class Monster (object):
             self.attr['gold'] = 1
 
         self.resD = resD
-        if not self.resD:
-            for dmgType in range(0, g.DamageType.SIZE):
+        for dmgType in range(0, g.DamageType.SIZE):
+            if not dmgType in resD:
                 self.resD[dmgType] = 0
         self.resS = resS
-        if not self.resS:
-            for status in range(0, g.BattlerStatus.SIZE):
+        for status in range(0, g.BattlerStatus.SIZE):
+            if not status in resS:
                 self.resS[status] = 0
 
         self.drops = drops
@@ -274,28 +288,24 @@ class InvItem (object):
 
 class Equip (InvItem):
 
-    def __init__(self, index, desc, isWeapon = True, attr = {}, onAttack = None, onHit = None, damageType = g.DamageType.PHYS, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
+   def __init__(self, index, desc, isWeapon = True, dmgType = g.DamageType.NONE, attr = {}, resD = {}, resS = {}, onAttack = None, onHit = None, damageType = g.DamageType.PHYS, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
         InvItem.__init__(self, index, desc, limit, useAction, battleAction, sortPriority)
 
         self.isWeapon = isWeapon
         self.isAcc = not isWeapon
 
-        self.attr = {}
-        if not self.attr:
-            self.attr["atk"] = 0
-            self.attr["def"] = 0
-            self.attr["matk"] = 0
-            self.attr["mdef"] = 0
-            self.attr["agi"] = 0
-            self.attr["lck"] = 0
-            self.attr["hit"] = 0
-            self.attr["eva"] = 0
-            self.attr["maxHP"] = 0
-            self.attr["maxSP"] = 0
+        if isWeapon and dmgType == None:
+            self.dmgType = g.DamageType.PHYS
+        else:
+            self.dmgType =g.DamageType.NONE
+
+        self.attr = attr
+        self.resD = resD
+        self.resS = resS
 
         self.onAttack = onAttack
         self.onHit = onHit
-        self.damageType = damageType
+        self.dmgType = dmgType
 
 
 class Skill (object):
@@ -386,7 +396,7 @@ def create_data():
 
     InvItem(name, desc, limit, useAction, battleAction, sortPriority)
 
-    name = "Equip"
+    name = "Weapon"
     desc = "none"
     limit = 99
     useAction = None
@@ -397,10 +407,35 @@ def create_data():
     sortPriority["recovery"] = 11
     sortPriority["damage"] = 99
     attr = {}
+    attr["atk"] = 2
+    dmgType = g.DamageType.PHYS
+    resD = {}
+    resS = {}
     onAttack = None
     onHit = None
 
-    Equip(name, desc, True, attr, onAttack, onHit)
+    Equip(name, desc, True, dmgType, attr, resD, resS, onAttack, onHit)
+
+    name = "Acc"
+    desc = "none"
+    limit = 99
+    useAction = None
+    battleAction = None
+    sortPriority = {}
+    sortPriority["field"] = 11
+    sortPriority["battle"] = 11
+    sortPriority["recovery"] = 11
+    sortPriority["damage"] = 99
+    attr = {}
+    attr["def"] = 1
+    dmgType = None
+    resD = {}
+    resD[g.DamageType.COLD] = .05
+    resS = {}
+    onAttack = None
+    onHit = None
+
+    Equip(name, desc, True, dmgType, attr, resD, resS, onAttack, onHit)
 
     ################
     ##BLOOD SKILLS##
@@ -500,9 +535,9 @@ def create_data():
     ##HEROES##
     ##########
     equip = {}
-    equip["wpn"] = InvItem.dic["Equip"]
-    equip["acc1"] = InvItem.dic["Equip"]
-    equip["acc2"] = InvItem.dic["Equip"]
+    equip["wpn"] = InvItem.dic["Weapon"]
+    equip["acc1"] = InvItem.dic["Acc"]
+    equip["acc2"] = InvItem.dic["Acc"]
 
     attr = {}
     attr["name"] = "Luxe"
@@ -648,6 +683,7 @@ def create_data():
     steals = []
 
     resD = {}
+    resD[g.DamageType.FIRE] = -1
     resS = {}
 
     spr = "spr/battle/mon-mold.png"
