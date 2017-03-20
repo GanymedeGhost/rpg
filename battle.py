@@ -1133,80 +1133,90 @@ class BattleActor (object):
     def totalMaxHP(self):
         total = self.attr["maxHP"]
         for item in self.equip:
-            if "maxHP" in self.equip[item].attr:
-                total += self.equip[item].attr["maxHP"]
+            if self.equip[item].name != "":
+                if "maxHP" in self.equip[item].attr:
+                    total += self.equip[item].attr["maxHP"]
         return total
 
     @property
     def totalMaxSP(self):
         total = self.attr["maxSP"]
         for item in self.equip:
-            if "maxSP" in self.equip[item].attr:
-                total += self.equip[item].attr["maxSP"]
+            if self.equip[item].name != "":
+                if "maxSP" in self.equip[item].attr:
+                    total += self.equip[item].attr["maxSP"]
         return total
 
     @property
     def totalAtk(self):
         total = self.attr["atk"]
         for item in self.equip:
-            if "atk" in self.equip[item].attr:
-                total += self.equip[item].attr["atk"]
+            if self.equip[item].name != "":
+                if "atk" in self.equip[item].attr:
+                    total += self.equip[item].attr["atk"]
         return total
 
     @property
     def totalDef(self):
         total = self.attr["def"]
         for item in self.equip:
-            if "def" in self.equip[item].attr:
-                total += self.equip[item].attr["def"]
+            if self.equip[item].name != "":
+                if "def" in self.equip[item].attr:
+                    total += self.equip[item].attr["def"]
         return total
 
     @property
     def totalMAtk(self):
         total = self.attr["matk"]
         for item in self.equip:
-            if "matk" in self.equip[item].attr:
-                total += self.equip[item].attr["matk"]
+            if self.equip[item].name != "":
+                if "matk" in self.equip[item].attr:
+                    total += self.equip[item].attr["matk"]
         return total
 
     @property
     def totalMDef(self):
         total = self.attr["mdef"]
         for item in self.equip:
-            if "mdef" in self.equip[item].attr:
-                total += self.equip[item].attr["mdef"]
+            if self.equip[item].name != "":
+                if "mdef" in self.equip[item].attr:
+                    total += self.equip[item].attr["mdef"]
         return total
 
     @property
     def totalAgi(self):
         total = self.attr["agi"]
         for item in self.equip:
-            if "agi" in self.equip[item].attr:
-                total += self.equip[item].attr["agi"]
+            if self.equip[item].name != "":
+                if "agi" in self.equip[item].attr:
+                    total += self.equip[item].attr["agi"]
         return total
 
     @property
     def totalLck(self):
         total = self.attr["lck"]
         for item in self.equip:
-            if "lck" in self.equip[item].attr:
-                total += self.equip[item].attr["lck"]
+            if self.equip[item].name != "":
+                if "lck" in self.equip[item].attr:
+                    total += self.equip[item].attr["lck"]
         return total
 
     @property
     def totalHit(self):
         total = self.attr["hit"]
         for item in self.equip:
-            if "hit" in self.equip[item].attr:
-                total += self.equip[item].attr["hit"]
+            if self.equip[item].name != "":
+                if "hit" in self.equip[item].attr:
+                    total += self.equip[item].attr["hit"]
         return total
 
     @property
     def totalEva(self):
         total = self.attr["eva"]
         for item in self.equip:
-            if "eva" in self.equip[item].attr:
-                total += self.equip[item].attr["eva"]
+            if self.equip[item].name != "":
+                if "eva" in self.equip[item].attr:
+                    total += self.equip[item].attr["eva"]
         return total
 
     @property
@@ -1220,15 +1230,17 @@ class BattleActor (object):
     def total_resD(self, damageType):
         total = self.resD[damageType]
         for item in self.equip:
-            if damageType in self.equip[item].resD:
-                total += self.equip[item].resD[damageType]
+            if self.equip[item].name != "":
+                if damageType in self.equip[item].resD:
+                    total += self.equip[item].resD[damageType]
         return total
 
     def total_resS(self, status):
         total = self.resS[status]
         for item in self.equip:
-            if status in self.equip[item].resS:
-                total += self.equip[item].resS[status]
+            if self.equip[item].name != "":
+                if status in self.equip[item].resS:
+                    total += self.equip[item].resS[status]
         return total
 
     def aggro_up(self, value=-1):

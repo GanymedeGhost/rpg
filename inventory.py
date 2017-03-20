@@ -91,3 +91,12 @@ def sort_by(sortKey):
     while heapQ:
         entry = heapq.heappop(heapQ)
         add_item(entry[1].name, entry[2])
+
+def equip(hero, item, slot):
+    #TODO check for full inventory
+
+    invItem = db.InvItem.dic[item]
+    if hero.equip[slot].name != "":
+        add_item(hero.equip[slot].name)
+    remove_item(item)
+    hero.equip[slot] = invItem

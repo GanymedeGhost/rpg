@@ -10,7 +10,7 @@ import field_command as fcmd
 class Hero (object):
     dic = {}
 
-    def __init__(self, index, attr = {}, resD = {}, resS = {}, skillType = None, commands = [], skills = [], equip = {}, spr = None, size = 32, icon = None):
+    def __init__(self, index, attr = {}, resD = {}, resS = {}, skillType = None, weaponType = None, commands = [], skills = [], equip = {}, spr = None, size = 32, icon = None):
         self.index = ""
 
         self.attr = attr
@@ -39,6 +39,7 @@ class Hero (object):
             if not status in resS:
                 self.resS[status] = 0
 
+        self.weaponType = weaponType
         self.skillType = skillType
         self.commands = commands
         self.skills = skills
@@ -100,80 +101,90 @@ class Hero (object):
     def totalMaxHP (self):
         total = self.baseMaxHP
         for item in self.equip:
-            if "maxHP" in self.equip[item].attr:
-                total += self.equip[item].attr["maxHP"]
+            if self.equip[item].name != "":
+                if "maxHP" in self.equip[item].attr:
+                    total += self.equip[item].attr["maxHP"]
         return total
 
     @property
     def totalMaxSP(self):
         total = self.baseMaxSP
         for item in self.equip:
-            if "maxSP" in self.equip[item].attr:
-                total += self.equip[item].attr["maxSP"]
+            if self.equip[item].name != "":
+                if "maxSP" in self.equip[item].attr:
+                    total += self.equip[item].attr["maxSP"]
         return total
 
     @property
     def totalAtk(self):
         total = self.baseAtk
         for item in self.equip:
-            if "atk" in self.equip[item].attr:
-                total += self.equip[item].attr["atk"]
+            if self.equip[item].name != "":
+                if "atk" in self.equip[item].attr:
+                    total += self.equip[item].attr["atk"]
         return total
 
     @property
     def totalDef(self):
         total = self.baseDef
         for item in self.equip:
-            if "def" in self.equip[item].attr:
-                total += self.equip[item].attr["def"]
+            if self.equip[item].name != "":
+                if "def" in self.equip[item].attr:
+                    total += self.equip[item].attr["def"]
         return total
 
     @property
     def totalMAtk(self):
         total = self.baseMAtk
         for item in self.equip:
-            if "matk" in self.equip[item].attr:
-                total += self.equip[item].attr["matk"]
+            if self.equip[item].name != "":
+                if "matk" in self.equip[item].attr:
+                    total += self.equip[item].attr["matk"]
         return total
 
     @property
     def totalMDef(self):
         total = self.baseMDef
         for item in self.equip:
-            if "mdef" in self.equip[item].attr:
-                total += self.equip[item].attr["mdef"]
+            if self.equip[item].name != "":
+                if "mdef" in self.equip[item].attr:
+                    total += self.equip[item].attr["mdef"]
         return total
 
     @property
     def totalAgi(self):
         total = self.attr['agi']
         for item in self.equip:
-            if "agi" in self.equip[item].attr:
-                total += self.equip[item].attr["agi"]
+            if self.equip[item].name != "":
+                if "agi" in self.equip[item].attr:
+                    total += self.equip[item].attr["agi"]
         return total
 
     @property
     def totalLck(self):
         total = self.attr['lck']
         for item in self.equip:
-            if "lck" in self.equip[item].attr:
-                total += self.equip[item].attr["lck"]
+            if self.equip[item].name != "":
+                if "lck" in self.equip[item].attr:
+                    total += self.equip[item].attr["lck"]
         return total
 
     @property
     def totalHit(self):
         total = self.baseHit
         for item in self.equip:
-            if "hit" in self.equip[item].attr:
-                total += self.equip[item].attr["hit"]
+            if self.equip[item].name != "":
+                if "hit" in self.equip[item].attr:
+                    total += self.equip[item].attr["hit"]
         return total
 
     @property
     def totalEva(self):
         total = self.baseEva
         for item in self.equip:
-            if "eva" in self.equip[item].attr:
-                total += self.equip[item].attr["eva"]
+            if self.equip[item].name != "":
+                if "eva" in self.equip[item].attr:
+                    total += self.equip[item].attr["eva"]
         return total
 
     @property
@@ -183,15 +194,17 @@ class Hero (object):
     def total_resD(self, damageType):
         total = self.resD[damageType]
         for item in self.equip:
-            if damageType in self.equip[item].resD:
-                total += self.equip[item].resD[damageType]
+            if self.equip[item].name != "":
+                if damageType in self.equip[item].resD:
+                    total += self.equip[item].resD[damageType]
         return total
 
     def total_resS(self, status):
         total = self.resS[status]
         for item in self.equip:
-            if status in self.equip[item].resS:
-                total += self.equip[item].resS[status]
+            if self.equip[item].name != "":
+                if status in self.equip[item].resS:
+                    total += self.equip[item].resS[status]
         return total
 
     def heal_hp(self, value, damageType):
@@ -260,9 +273,11 @@ class Monster (object):
 class InvItem (object):
     dic = {}
 
-    def __init__(self, index, desc, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
+    def __init__(self, index, desc, itemType = g.ItemType.NONE, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
+        self.index = -len(InvItem.dic)
         self.name = index
         self.desc = desc
+        self.itemType = itemType
         self.limit = limit
 
         self.useAction = useAction
@@ -286,15 +301,18 @@ class InvItem (object):
 
         InvItem.dic[index] = self
 
+    def __lt__(self, other):
+        return self.index > other.index
+
+
 class Equip (InvItem):
 
-   def __init__(self, index, desc, isWeapon = True, dmgType = g.DamageType.NONE, attr = {}, resD = {}, resS = {}, onAttack = None, onHit = None, damageType = g.DamageType.PHYS, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
-        InvItem.__init__(self, index, desc, limit, useAction, battleAction, sortPriority)
+   def __init__(self, index, desc, itemType = g.ItemType.ACC, dmgType = g.DamageType.NONE, attr = {}, resD = {}, resS = {}, onAttack = None, onHit = None, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
+        InvItem.__init__(self, index, desc, itemType, limit, useAction, battleAction, sortPriority)
 
-        self.isWeapon = isWeapon
-        self.isAcc = not isWeapon
+        self.itemType = itemType
 
-        if isWeapon and dmgType == None:
+        if itemType != g.ItemType.ACC and dmgType == None:
             self.dmgType = g.DamageType.PHYS
         else:
             self.dmgType =g.DamageType.NONE
@@ -346,6 +364,7 @@ def create_data():
     #########
     name = ""
     desc = ""
+    itemType = g.ItemType.NONE
     limit = 1
     useAction = None
     battleAction = None
@@ -355,10 +374,11 @@ def create_data():
     sortPriority["recovery"] = 0
     sortPriority["damage"] = 0
 
-    InvItem(name, desc, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
 
     name = "Potion"
     desc = "Restores 50 HP"
+    itemType = g.ItemType.CONSUMABLE
     limit = 99
     useAction = fcmd.Potion
     battleAction = cmd.Potion
@@ -368,10 +388,11 @@ def create_data():
     sortPriority["recovery"] = 0
     sortPriority["damage"] = 99
 
-    InvItem(name, desc, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
 
     name = "Revive"
     desc = "Restores life to a fallen ally"
+    itemType = g.ItemType.CONSUMABLE
     limit = 99
     useAction = fcmd.Revive
     battleAction = cmd.Revive
@@ -381,10 +402,11 @@ def create_data():
     sortPriority["recovery"] = 10
     sortPriority["damage"] = 99
 
-    InvItem(name, desc, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
 
     name = "Antidote"
     desc = "Cures poison"
+    itemType = g.ItemType.CONSUMABLE
     limit = 99
     useAction = None
     battleAction = cmd.Antidote
@@ -394,18 +416,11 @@ def create_data():
     sortPriority["recovery"] = 11
     sortPriority["damage"] = 99
 
-    InvItem(name, desc, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
 
-    name = "Weapon"
+    name = "Sword"
     desc = "none"
-    limit = 99
-    useAction = None
-    battleAction = None
-    sortPriority = {}
-    sortPriority["field"] = 11
-    sortPriority["battle"] = 11
-    sortPriority["recovery"] = 11
-    sortPriority["damage"] = 99
+    equipType = g.ItemType.SWORD
     attr = {}
     attr["atk"] = 2
     dmgType = g.DamageType.PHYS
@@ -413,19 +428,25 @@ def create_data():
     resS = {}
     onAttack = None
     onHit = None
-
-    Equip(name, desc, True, dmgType, attr, resD, resS, onAttack, onHit)
-
-    name = "Acc"
-    desc = "none"
     limit = 99
     useAction = None
     battleAction = None
     sortPriority = {}
-    sortPriority["field"] = 11
-    sortPriority["battle"] = 11
-    sortPriority["recovery"] = 11
-    sortPriority["damage"] = 99
+
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
+    name = "Sword2"
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
+    name = "Sword3"
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
+    name = "Sword4"
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
+    name = "Flurry Ring"
+    desc = "none"
+    equipType = g.ItemType.ACC
     attr = {}
     attr["def"] = 1
     dmgType = None
@@ -434,8 +455,12 @@ def create_data():
     resS = {}
     onAttack = None
     onHit = None
+    limit = 99
+    useAction = None
+    battleAction = None
+    sortPriority = {}
 
-    Equip(name, desc, True, dmgType, attr, resD, resS, onAttack, onHit)
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     ################
     ##BLOOD SKILLS##
@@ -535,12 +560,13 @@ def create_data():
     ##HEROES##
     ##########
     equip = {}
-    equip["wpn"] = InvItem.dic["Weapon"]
-    equip["acc1"] = InvItem.dic["Acc"]
-    equip["acc2"] = InvItem.dic["Acc"]
+    equip["wpn"] = InvItem.dic[""]
+    equip["acc1"] = InvItem.dic[""]
+    equip["acc2"] = InvItem.dic[""]
 
     attr = {}
     attr["name"] = "Luxe"
+    attr["title"] = "King"
     attr["lvl"] = 5
     attr["exp"] = 0
     attr["str"] = 12
@@ -552,6 +578,7 @@ def create_data():
 
     resD = {}
     resS = {}
+    weaponType = g.ItemType.SWORD
     skillType = g.SkillType.BLOOD
     commands = []
     commands.append(cmd.Attack)
@@ -566,10 +593,15 @@ def create_data():
     size = 16
     icon = pygame.image.load("spr/battle/icon-luxe.png")
 
-    Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
+    Hero(attr["name"], attr, resD, resS, skillType, weaponType, commands, skills, equip, spr, size, icon)
 
+    equip = {}
+    equip["wpn"] = InvItem.dic[""]
+    equip["acc1"] = InvItem.dic[""]
+    equip["acc2"] = InvItem.dic[""]
     attr = {}
     attr["name"] = "Elle"
+    attr["title"] = "Vibramancer"
     attr["lvl"] = 5
     attr["exp"] = 0
     attr["str"] = 7
@@ -581,6 +613,7 @@ def create_data():
 
     resD = {}
     resS = {}
+    weaponType = g.ItemType.BELL
     skillType = g.SkillType.MUSIC
     commands = []
     commands.append(cmd.Attack)
@@ -596,10 +629,15 @@ def create_data():
     size = 16
     icon = pygame.image.load("spr/battle/icon-elle.png")
 
-    Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
+    Hero(attr["name"], attr, resD, resS, skillType, weaponType, commands, skills, equip, spr, size, icon)
 
+    equip = {}
+    equip["wpn"] = InvItem.dic[""]
+    equip["acc1"] = InvItem.dic[""]
+    equip["acc2"] = InvItem.dic[""]
     attr = {}
     attr["name"] = "Asa"
+    attr["title"] = "Great Wolf"
     attr["lvl"] = 5
     attr["exp"] = 0
     attr["str"] = 15
@@ -611,6 +649,7 @@ def create_data():
 
     resD = {}
     resS = {}
+    weaponType = g.ItemType.GLOVE
     skillType = g.SkillType.MOON
     commands = []
     commands.append(cmd.Attack)
@@ -625,7 +664,7 @@ def create_data():
     size = 16
     icon = pygame.image.load("spr/battle/icon-asa.png")
 
-    Hero(attr["name"], attr, resD, resS, skillType, commands, skills, equip, spr, size, icon)
+    Hero(attr["name"], attr, resD, resS, skillType, weaponType, commands, skills, equip, spr, size, icon)
 
     ############
     ##MONSTERS##

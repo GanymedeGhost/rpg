@@ -92,6 +92,17 @@ class BattlerStatus():
     SIZE = 8
 
 
+class ItemType():
+    NONE = 0
+    CONSUMABLE = 1
+    ACC = 2
+    SWORD = 3
+    BELL = 4
+    GLOVE = 5
+
+    SIZE = 6
+
+
 class SkillType():
     NONE = 0
     BLOOD = 1
@@ -101,6 +112,13 @@ class SkillType():
 
     SIZE = 5
 
+def skill_type_name(skillType):
+    if skillType == SkillType.BLOOD:
+        return "Blood"
+    elif skillType == SkillType.MUSIC:
+        return "Melody"
+    elif skillType == SkillType.MOON:
+        return "Moon"
 
 class DamageType():
     NONE = 0
@@ -145,8 +163,12 @@ class MenuState():
     ITEM_OPTIONS = 8
     ITEM_ORGANIZE = 9
     SKILL_HERO = 10
+    EQUIP_HERO = 11
+    EQUIP = 12
+    EQUIP_WEAPON = 13
+    EQUIP_ACC = 14
 
-    SIZE = 11
+    SIZE = 15
 
 
 class Initiative():
@@ -194,11 +216,13 @@ PARTY_LIST = []
 MONSTER_LIST = []
 INVENTORY = [] #stores tuples (item, quantity)
 INVENTORY_SORT_KEY = 0
+ANIMA = []
+ANIMA_SORT_KEY = 0
 GP = 100
 
 METER = {}
 METER[SkillType.BLOOD] = 0
-METER[SkillType.MUSIC] = [4] #fills with damage types
+METER[SkillType.MUSIC] = [] #fills with damage types
 METER[SkillType.MOON] = 0
 
 def music_meter_add(damageType):

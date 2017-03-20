@@ -38,6 +38,11 @@ class Control(object):
         inventory.init()
         inventory.add_item("Potion", 2)
         inventory.add_item("Revive")
+        inventory.add_item("Sword")
+        inventory.add_item("Sword2")
+        inventory.add_item("Sword3")
+        inventory.add_item("Sword4")
+        inventory.add_item("Flurry Ring")
 
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
