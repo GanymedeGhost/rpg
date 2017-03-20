@@ -1252,14 +1252,16 @@ class BattleActor (object):
 
     def onAttack(self, target):
         for item in self.equip:
-            if self.equip[item].onAttack:
-                self.equip[item].onAttack.run(self, target)
+            if self.equip[item].name != "":
+                if self.equip[item].onAttack:
+                    self.equip[item].onAttack.run(self, target)
 
     def onHit(self, user):
         utility.log("hit")
         for item in self.equip:
-            if self.equip[item].onHit:
-                self.equip[item].onHit.run(self, user)
+            if self.equip[item].name != "":
+                if self.equip[item].onHit:
+                    self.equip[item].onHit.run(self, user)
 
     def aggro_down(self, value=-1):
         if value < 0:

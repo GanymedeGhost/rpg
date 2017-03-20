@@ -148,7 +148,10 @@ class Attack():
     
     def run(self):
         if "wpn" in self.user.equip:
-            dmgType = self.user.equip["wpn"].dmgType
+            if self.user.equip['wpn'].name != "":
+                dmgType = self.user.equip["wpn"].dmgType
+            else:
+                dmgType = g.DamageType.PHYS
         else:
             dmgType = g.DamageType.PHYS
         utility.log("Damage type: " + str(dmgType))

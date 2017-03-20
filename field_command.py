@@ -37,7 +37,7 @@ class Potion():
         if self.target.attr['hp'] < self.target.baseMaxHP:
             inventory.remove_item("Potion")
             utility.log("Used Potion on " + str(self.target.attr['name']))
-            self.target.heal_hp(50)
+            self.target.heal_hp(50, g.DamageType.NONE)
             if inventory.find_item("Potion"):
                 self.MC.prev_state()
                 self.MC.UI.restore_cursor()
