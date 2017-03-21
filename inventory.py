@@ -4,20 +4,16 @@ import my_globals as g
 import database as db
 import utility
 
-
 def init():
     for i in range (0, g.INVENTORY_MAX_SLOTS):
         g.INVENTORY.append((db.InvItem.dic[""], 1))
-
 
 def clear_all():
     for i in range (0, g.INVENTORY_MAX_SLOTS):
         clear_slot(i)
 
-
 def clear_slot(slot):
     g.INVENTORY[slot] = (db.InvItem.dic[""], 1)
-
 
 def find_item(key):
     for i in range(0, g.INVENTORY_MAX_SLOTS):
@@ -25,7 +21,6 @@ def find_item(key):
             return i
         else:
             return -1
-
 
 def add_item(item, quantity=1):
     """Looks for the nearest stack of the item and attempts to add the quantity and returns True. If none of the item are found, try to add the item and quantity to the nearest empty slot and return True. If the inventory is full, return False"""
@@ -48,7 +43,6 @@ def add_item(item, quantity=1):
             return True
     return False
 
-
 def remove_item(item, quantity=1):
     """Looks for the nearest stack of the item and attempts to remove the quantity and returns True. If none of the item are found, return False"""
     if quantity < 1:
@@ -64,7 +58,6 @@ def remove_item(item, quantity=1):
             return True
     return False
 
-
 def consolidate():
     """Eliminate blank spaces while retaining the current order"""
     newList = []
@@ -74,7 +67,6 @@ def consolidate():
     clear_all()
     for i in range(0, len(newList)):
         g.INVENTORY[i] = newList[i]
-
 
 def sort_by(sortKey):
     """Sort inventory based on the given key. Does not leave blank spaces"""

@@ -29,6 +29,8 @@ class Hero (object):
         self.attr["hp"] = self.baseMaxHP
         self.attr["sp"] = self.baseMaxSP
 
+        self.exp = 0
+
         self.resD = resD
         for dmgType in range(0, g.DamageType.SIZE):
             if not dmgType in resD:
@@ -358,6 +360,26 @@ class Skill (object):
                     return True
         return False
 
+class Animagus (object):
+    dic = {}
+
+    def __init__(self, name, baseExp, growth, skills):
+        self.name = name
+        self.level = 1
+        self.baseExp =  baseExp
+        self.levelUpAt = self.expToNext
+        self.exp = 0
+        self.growth = growth
+        self.skills = skills
+
+        if not self in Animagus.dic:
+            Animagus.dic[name] = self
+
+    @property
+    def expToNext(self):
+        return math.ceil(pow(self.baseExp, 1 + (self.level / 100)))
+
+
 def create_data():
     #########
     ##ITEMS##
@@ -633,9 +655,11 @@ def create_data():
     attr["wis"] = 9
     attr["spr"] = 7
     attr["agi"] = 12
-    attr["lck"] = 9
+    attr["lck"] = 11
 
     resD = {}
+    resD[g.DamageType.FIRE] = .5
+    resD[g.DamageType.COLD] = -.5
     resS = {}
     weaponType = g.ItemType.SWORD
     skillType = g.SkillType.BLOOD
@@ -646,7 +670,6 @@ def create_data():
     commands.append(cmd.Defend)
     commands.append(cmd.Escape)
     skills = [Skill.dic["Sacrifice"]]
-    skills.append(Skill.dic["Blood Slash"])
 
     spr = "spr/battle/hero-luxe.png"
     size = 16
@@ -668,9 +691,11 @@ def create_data():
     attr["wis"] = 12
     attr["spr"] = 11
     attr["agi"] = 10
-    attr["lck"] = 10
+    attr["lck"] = 7
 
     resD = {}
+    resD[g.DamageType.ELEC] = .5
+    resD[g.DamageType.EARTH] = -.5
     resS = {}
     weaponType = g.ItemType.BELL
     skillType = g.SkillType.MUSIC
@@ -681,8 +706,6 @@ def create_data():
     commands.append(cmd.Defend)
     commands.append(cmd.Escape)
     skills = [Skill.dic["Finale"]]
-    skills.append(Skill.dic["Staccato"])
-    skills.append(Skill.dic["Adagio"])
 
     spr = "spr/battle/hero-elle.png"
     size = 16
@@ -707,6 +730,8 @@ def create_data():
     attr["lck"] = 5
 
     resD = {}
+    resD[g.DamageType.DARK] = .5
+    resD[g.DamageType.LIGHT] = -.5
     resS = {}
     weaponType = g.ItemType.GLOVE
     skillType = g.SkillType.MOON
@@ -717,7 +742,6 @@ def create_data():
     commands.append(cmd.Defend)
     commands.append(cmd.Escape)
     skills = [Skill.dic["Transform"]]
-    skills.append(Skill.dic["Double Cut"])
 
     spr = "spr/battle/hero-asa.png"
     size = 16
@@ -789,5 +813,39 @@ def create_data():
     icon = pygame.image.load("spr/battle/mon-mold.png")
 
     Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
+
+    ###########
+    ##ANIMAGI##
+    ###########
+
+    name = "Polaris"
+    baseExp = 100
+    growth = {}
+    growth["agi"] = 1
+    growth["lck"] = 1
+    skills = []
+    skills.append(Skill.dic["Blood Slash"])
+
+    Animagus(name, baseExp, growth, skills)
+
+    name = "Megro"
+    baseExp = 100
+    growth = {}
+    growth["wis"] = 1
+    growth["spr"] = 1
+    skills = []
+    skills.append(Skill.dic["Staccato"])
+
+    Animagus(name, baseExp, growth, skills)
+
+    name = "Luna"
+    baseExp = 100
+    growth = {}
+    growth["str"] = 1
+    growth["end"] = 1
+    skills = []
+    skills.append(Skill.dic["Double Cut"])
+
+    Animagus(name, baseExp, growth, skills)
 
 create_data()

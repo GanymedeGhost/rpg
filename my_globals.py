@@ -46,6 +46,9 @@ METER_MAX = 5
 
 MOON_COUNTER_MAX = 50
 
+ANIMARIUM_MAX_SLOTS = 50
+ANIMAGUS_MAX_LEVEL = 5
+
 FONT_SML = pygame.font.Font('font/percy.ttf', 8)
 FONT_MED = pygame.font.Font('font/pixel8.ttf', 8)
 FONT_MED_BOLD = pygame.font.Font('font/pixel8b.ttf', 8)
@@ -216,8 +219,8 @@ PARTY_LIST = []
 MONSTER_LIST = []
 INVENTORY = [] #stores tuples (item, quantity)
 INVENTORY_SORT_KEY = 0
-ANIMA = []
-ANIMA_SORT_KEY = 0
+ANIMAGI = []
+ANIMAGI_SORT_KEY = 0
 GP = 100
 
 METER = {}

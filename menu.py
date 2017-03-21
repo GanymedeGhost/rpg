@@ -96,7 +96,7 @@ class MenuUI(object):
         self.meterIconOffset = (-26, -1)
         self.statusPageAnchor = (136, 11)
         self.resAnchor = [(104, 21), (104, 31), (104, 41), (104, 51), (104, 61), (104, 71), (104, 81), (104, 91), (104, 101), (154, 21), (154, 31), (154, 41), (154, 51), (154, 61), (154, 71), (154, 81)]
-        self.statsAnchor = [(45, 21), (152, 31), (152, 41), (94, 69), (94, 79), (94, 89), (94, 99), (94, 109), (94, 119), (152, 69), (152, 79), (152, 89), (152, 99), (152, 109), (152, 119)]
+        self.statsAnchor = [(45, 21), (152, 31), (152, 41), (94, 73), (94, 83), (94, 93), (94, 103), (94, 113), (94, 123), (152, 73), (152, 83), (152, 93), (152, 103), (152, 113), (152, 123)]
         self.statsOffset = (-24, 0)
         self.resOffset = (-25, 0)
 
@@ -477,6 +477,9 @@ class MenuUI(object):
             self.MC.controller.TEXT_MANAGER.draw_text_ralign(g.skill_type_name(self.currentHero.skillType), utility.add_tuple(self.statsAnchor[2], (-68, 10)), g.WHITE)
             self.render_meter(self.currentHero.skillType, utility.add_tuple(self.statsAnchor[2], (-34, 10)))
 
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign("Anima", utility.add_tuple(self.statsAnchor[2], (-68, 20)), g.WHITE)
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.statsAnchor[2], (0, 20)), g.GRAY)
+
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("Str", utility.add_tuple(self.statsAnchor[3], self.statsOffset), g.WHITE)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.attr['str']), self.statsAnchor[3], g.GRAY)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("End", utility.add_tuple(self.statsAnchor[4], self.statsOffset), g.WHITE)
@@ -591,7 +594,7 @@ class MenuUI(object):
         self.MC.controller.TEXT_MANAGER.draw_text("Items", self.commandAnchor[0], g.WHITE)
         self.MC.controller.TEXT_MANAGER.draw_text("Skills", self.commandAnchor[1], g.WHITE)
         self.MC.controller.TEXT_MANAGER.draw_text("Equip", self.commandAnchor[2], g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text("Anima", self.commandAnchor[3], g.WHITE)
+        self.MC.controller.TEXT_MANAGER.draw_text("Animagi", self.commandAnchor[3], g.WHITE)
         self.MC.controller.TEXT_MANAGER.draw_text("Status", self.commandAnchor[4], g.WHITE)
         self.MC.controller.TEXT_MANAGER.draw_text("Config", self.commandAnchor[5], g.WHITE)
         self.MC.controller.TEXT_MANAGER.draw_text("Quit", self.commandAnchor[6], g.WHITE)

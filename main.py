@@ -7,6 +7,7 @@ import world
 import battle
 import menu
 import inventory
+import animarium
 import utility
 
 class Control(object):
@@ -41,6 +42,9 @@ class Control(object):
         inventory.add_item("Stone Ring")
         inventory.add_item("Crystal Shard")
         inventory.add_item("Pepper Charm")
+        animarium.add_animagus("Polaris")
+        animarium.add_animagus("Megro")
+        animarium.add_animagus("Luna")
 
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")
