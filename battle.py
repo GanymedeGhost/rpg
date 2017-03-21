@@ -208,7 +208,7 @@ class BattleController (object):
                         inv.add_item(drop[0])
                         self.UI.create_message("Obtained " + drop[0])
                         break
-            g.GP += goldPool
+        g.GP += goldPool
         for hero in self.battlers:
             if hero.isHero and not hero.isDead:
                 db.Hero.dic[hero.attr['name']].exp += expPool

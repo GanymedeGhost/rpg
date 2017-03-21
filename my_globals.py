@@ -208,8 +208,11 @@ class MenuState():
     EQUIP = 12
     EQUIP_WEAPON = 13
     EQUIP_ACC = 14
+    ANIMAGI = 16
+    ANIMAGI_CONFIRM = 17
+    ANIMAGI_HERO = 18
 
-    SIZE = 15
+    SIZE = 19
 
 
 class Initiative():

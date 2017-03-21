@@ -29,7 +29,7 @@ class Hero (object):
         self.attr["hp"] = self.baseMaxHP
         self.attr["sp"] = self.baseMaxSP
 
-        self.exp = 0
+        self.exp = 500
 
         self.resD = resD
         for dmgType in range(0, g.DamageType.SIZE):
@@ -371,6 +371,7 @@ class Animagus (object):
         self.exp = 0
         self.growth = growth
         self.skills = skills
+        self.skillsTaught = []
 
         if not self in Animagus.dic:
             Animagus.dic[name] = self
@@ -493,7 +494,7 @@ def create_data():
     Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Stone Ring"
-    desc = "Slightly increases DEF"
+    desc = "A heavy ring carved from marbled stone"
     equipType = g.ItemType.ACC
     attr = {}
     attr["def"] = 1
@@ -510,7 +511,7 @@ def create_data():
     Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Crystal Shard"
-    desc = "Slightly increases Max SP"
+    desc = "A fragment of broken crystal that glows dimly"
     equipType = g.ItemType.ACC
     attr = {}
     attr["maxSP"] = 5
@@ -527,12 +528,14 @@ def create_data():
     Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Pepper Charm"
-    desc = "Slightly increases AGI"
+    desc = "A charm hot to the touch"
     equipType = g.ItemType.ACC
     attr = {}
     attr["agi"] = 2
     dmgType = None
     resD = {}
+    resD[g.DamageType.FIRE] = 0.05
+    resD[g.DamageType.COLD] = -0.05
     resS = {}
     onAttack = None
     onHit = None
