@@ -91,7 +91,9 @@ class MenuUI(object):
         self.skillIndexAnchor = (152, 7)
         self.skillHeroAnchor = (38, 7)
         self.equipSlotAnchor = [(74, 19), (74, 29), (74, 39)]
-        self.equipListAnchor = [(48, 52), (48, 61), (48, 70)]
+        self.equipListAnchor = [(48, 19), (48, 29), (48, 39)]
+        self.equipSelAnchor = (45, 52)
+        self.equipCurAnchor = (45, 94)
         self.equipIndexAnchor = (152, 7)
         self.meterIconOffset = (-26, -1)
         self.statusPageAnchor = (136, 11)
@@ -132,6 +134,9 @@ class MenuUI(object):
 
         self.cursorIndex = 0
         self.selectedThing = None
+
+        self.equipInfoPage = 0
+        self.equipInfoPages = 3
 
         self.statusPage = 0
         self.statusPages = 2
@@ -204,6 +209,7 @@ class MenuUI(object):
             elif selection == 2:
                 self.MC.change_state(g.MenuState.EQUIP_ACC)
                 self.currentEquipSlot = "acc2"
+            self.equipInfoPage = 0
             self.create_equip_list()
             self.equipListCursor = 0
             self.equipListCursorOffset = 0
@@ -332,30 +338,115 @@ class MenuUI(object):
 
     def render_equip_window(self):
         self.MC.controller.VIEW_SURF.blit(self.equipPanel, (0,0))
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign("Wpn:", self.equipSlotAnchor[0], g.WHITE)
-        if (self.currentHero.equip["wpn"].name != ""):
-            self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.equip["wpn"].name, utility.add_tuple(self.equipSlotAnchor[0], (2, 0)), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign("Acc:", self.equipSlotAnchor[1], g.WHITE)
-        if (self.currentHero.equip["acc1"].name != ""):
-            self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.equip["acc1"].name, utility.add_tuple(self.equipSlotAnchor[1], (2, 0)), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign("Acc:", self.equipSlotAnchor[2], g.WHITE)
-        if (self.currentHero.equip["acc2"].name != ""):
-            self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.equip["acc2"].name, utility.add_tuple(self.equipSlotAnchor[2], (2, 0)), g.WHITE)
-
-        self.MC.controller.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.equipSlotAnchor[self.equipCursor], self.equipCursorPosOffset))
 
         if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign( str(1 + self.equipListCursor + self.equipListCursorOffset) + "/" + str(len(self.currentEquipList)), self.equipIndexAnchor, g.WHITE)
+            selIndex = self.equipListCursor + self.equipListCursorOffset
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign( str(1 + selIndex) + "/" + str(len(self.currentEquipList)), self.equipIndexAnchor, g.WHITE)
 
             index = 0
-            if self.currentEquipList:
+            if selIndex < len(self.currentEquipList):
                 for item in range(self.equipListCursorOffset, self.equipListCursorOffset + 3):
                     if item < len(self.currentEquipList):
                         self.MC.controller.TEXT_MANAGER.draw_text(self.currentEquipList[item].name, self.equipListAnchor[index], g.WHITE)
                         index += 1
                 self.MC.controller.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.equipListAnchor[self.equipListCursor], self.equipListCursorPosOffset))
-        elif self.equipCursor != 0:
-            self.MC.controller.TEXT_MANAGER.draw_text("[MENU] to remove",  utility.add_tuple(self.equipListAnchor[0], (-5, 0)), g.WHITE)
+
+                #Always show names of current and selected equip
+                if self.currentHero.equip[self.currentEquipSlot].name != "":
+                    self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.equip[self.currentEquipSlot].name, self.equipCurAnchor, g.GRAY)
+
+                self.MC.controller.TEXT_MANAGER.draw_text(self.currentEquipList[selIndex].name, self.equipSelAnchor, g.GRAY)
+
+                #Show stats of current and selected equip
+                if self.equipInfoPage == 0:
+                    #current
+                    if self.currentHero.equip[self.currentEquipSlot].name != "":
+                        offset = (0, 10)
+                        anchor = utility.add_tuple(offset, self.equipCurAnchor)
+                        stats = False
+                        for key in self.currentHero.equip[self.currentEquipSlot].attr:
+                            self.MC.controller.TEXT_MANAGER.draw_text(g.ATTR_NAME[key] + ": " + str(self.currentHero.equip[self.currentEquipSlot].attr[key]), anchor, g.WHITE)
+                            anchor = utility.add_tuple(offset, anchor)
+                            stats = True
+                        if not stats:
+                            self.MC.controller.TEXT_MANAGER.draw_text("No stats", anchor, g.WHITE)
+                    #selected
+                    offset = (0, 10)
+                    anchor = utility.add_tuple(offset, self.equipSelAnchor)
+                    stats = False
+                    for key in self.currentEquipList[selIndex].attr:
+                        self.MC.controller.TEXT_MANAGER.draw_text(g.ATTR_NAME[key] + ": " + str(self.currentEquipList[selIndex].attr[key]), anchor, g.WHITE)
+                        anchor = utility.add_tuple(offset, anchor)
+                        stats = True
+                    if not stats:
+                        self.MC.controller.TEXT_MANAGER.draw_text("No stats", anchor, g.WHITE)
+                #Show resistances
+                elif self.equipInfoPage == 1:
+                    #current
+                    if self.currentHero.equip[self.currentEquipSlot].name != "":
+                        offset = (0, 10)
+                        anchor = utility.add_tuple(offset, self.equipCurAnchor)
+                        res = False
+                        for key in self.currentHero.equip[self.currentEquipSlot].resD:
+                            self.MC.controller.TEXT_MANAGER.draw_text(g.DamageType.NAME[key] + ": " + str(self.currentHero.equip[self.currentEquipSlot].resD[key]), anchor, g.WHITE)
+                            anchor = utility.add_tuple(offset, anchor)
+                            res = True
+                        for key in self.currentHero.equip[self.currentEquipSlot].resS:
+                            self.MC.controller.TEXT_MANAGER.draw_text(g.BattlerStatus.NAME[key] + ": " + str(self.currentHero.equip[self.currentEquipSlot].resS[key]), anchor, g.WHITE)
+                            anchor = utility.add_tuple(offset, anchor)
+                            res = True
+                        if not res:
+                            self.MC.controller.TEXT_MANAGER.draw_text("No resistances", anchor, g.WHITE)
+                    #selected
+                    offset = (0, 10)
+                    anchor = utility.add_tuple(offset, self.equipSelAnchor)
+                    res = False
+                    for key in self.currentEquipList[selIndex].resD:
+                        self.MC.controller.TEXT_MANAGER.draw_text(g.DamageType.NAME[key] + ": " + str(self.currentEquipList[selIndex].resD[key]), anchor, g.WHITE)
+                        anchor = utility.add_tuple(offset, anchor)
+                        res = True
+                    for key in self.currentEquipList[selIndex].resS:
+                        self.MC.controller.TEXT_MANAGER.draw_text(g.BattlerStatus.NAME[key] + ": " + str(self.currentEquipList[selIndex].resS[key]), anchor, g.WHITE)
+                        anchor = utility.add_tuple(offset, anchor)
+                        res = True
+                    if not res:
+                        self.MC.controller.TEXT_MANAGER.draw_text("No resistances", anchor, g.WHITE)
+                #Show descriptions
+                elif self.equipInfoPage == 2:
+                    # current
+                    if self.currentHero.equip[self.currentEquipSlot].desc != "":
+                        parsedStr = self.MC.controller.TEXT_MANAGER.parse_string(self.currentHero.equip[self.currentEquipSlot].desc, 108)
+                        offset = (0, 10)
+                        anchor = utility.add_tuple(offset, self.equipCurAnchor)
+                        for line in parsedStr:
+                            self.MC.controller.TEXT_MANAGER.draw_text(line, anchor, g.WHITE)
+                            anchor = utility.add_tuple(offset, anchor)
+                    # selected
+                    parsedStr = self.MC.controller.TEXT_MANAGER.parse_string(self.currentEquipList[selIndex].desc, 108)
+                    offset = (0, 10)
+                    anchor = utility.add_tuple(offset, self.equipSelAnchor)
+                    for line in parsedStr:
+                        self.MC.controller.TEXT_MANAGER.draw_text(line, anchor, g.WHITE)
+                        anchor = utility.add_tuple(offset, anchor)
+
+
+        else:
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign("Wpn:", self.equipSlotAnchor[0], g.WHITE)
+            if (self.currentHero.equip["wpn"].name != ""):
+                self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.equip["wpn"].name, utility.add_tuple(self.equipSlotAnchor[0], (2, 0)),
+                                                          g.WHITE)
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign("Acc:", self.equipSlotAnchor[1], g.WHITE)
+            if (self.currentHero.equip["acc1"].name != ""):
+                self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.equip["acc1"].name, utility.add_tuple(self.equipSlotAnchor[1], (2, 0)),
+                                                          g.WHITE)
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign("Acc:", self.equipSlotAnchor[2], g.WHITE)
+            if (self.currentHero.equip["acc2"].name != ""):
+                self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.equip["acc2"].name, utility.add_tuple(self.equipSlotAnchor[2], (2, 0)),
+                                                          g.WHITE)
+
+            self.MC.controller.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.equipSlotAnchor[self.equipCursor], self.equipCursorPosOffset))
+
+            #self.MC.controller.TEXT_MANAGER.draw_text("[MENU] to remove",  utility.add_tuple(self.equipListAnchor[0], (-5, 0)), g.WHITE)
 
     def render_item_options(self):
 
@@ -474,7 +565,7 @@ class MenuUI(object):
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("/", utility.add_tuple(self.statsAnchor[2], (-30, 0)), g.WHITE)
             self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.attr['sp']), utility.add_tuple(self.statsAnchor[2], (-34, 0)), g.GRAY)
 
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(g.skill_type_name(self.currentHero.skillType), utility.add_tuple(self.statsAnchor[2], (-68, 10)), g.WHITE)
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(g.SkillType.NAME[self.currentHero.skillType], utility.add_tuple(self.statsAnchor[2], (-68, 10)), g.WHITE)
             self.render_meter(self.currentHero.skillType, utility.add_tuple(self.statsAnchor[2], (-34, 10)))
 
             self.MC.controller.TEXT_MANAGER.draw_text_ralign("Anima", utility.add_tuple(self.statsAnchor[2], (-68, 20)), g.WHITE)
@@ -648,8 +739,6 @@ class MenuUI(object):
                 g.CURSOR_TIMER = g.CURSOR_DELAY
                 if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
                     self.itemCursorOffset -= cMax
-                if self.MC.menuState == g.MenuState.EQUIP_ACC or self.MC.menuState == g.MenuState.EQUIP_WEAPON:
-                    self.equipListCursorOffset -= cMax
                 if self.MC.menuState == g.MenuState.SKILL:
                     if self.skillHeroCursor > 0:
                         self.skillHeroCursor -= 1
@@ -664,6 +753,11 @@ class MenuUI(object):
                     else:
                         self.equipHeroCursor = len(g.PARTY_LIST)-1
                     self.currentHero = g.PARTY_LIST[self.equipHeroCursor]
+                if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
+                    if self.equipInfoPage <= 0:
+                        self.equipInfoPage = self.equipInfoPages-1
+                    else:
+                        self.equipInfoPage -= 1
                 if self.MC.menuState == g.MenuState.STATUS:
                     if self.statusPage <= 0:
                         self.statusPage = self.statusPages-1
@@ -674,8 +768,6 @@ class MenuUI(object):
                 g.CURSOR_TIMER = g.CURSOR_DELAY
                 if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
                     self.itemCursorOffset += cMax
-                if self.MC.menuState == g.MenuState.EQUIP_ACC or self.MC.menuState == g.MenuState.EQUIP_WEAPON:
-                    self.equipListCursorOffset += cMax
                 if self.MC.menuState == g.MenuState.SKILL:
                     if self.skillHeroCursor < len(g.PARTY_LIST)-1:
                         self.skillHeroCursor += 1
@@ -690,6 +782,11 @@ class MenuUI(object):
                     else:
                         self.equipHeroCursor = 0
                     self.currentHero = g.PARTY_LIST[self.equipHeroCursor]
+                if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
+                    if self.equipInfoPage >= self.equipInfoPages-1:
+                        self.equipInfoPage = 0
+                    else:
+                        self.equipInfoPage += 1
                 if self.MC.menuState == g.MenuState.STATUS:
                     if self.statusPage >= self.statusPages-1:
                         self.statusPage = 0
@@ -764,7 +861,7 @@ class MenuUI(object):
                 self.equipListCursorOffset = 0
             elif self.cursorIndex + self.equipListCursorOffset < 0:
                 self.cursorIndex = min(len(self.currentEquipList) - 1, 2)
-                self.equipListCursorOffset = len(self.currentEquipList) - 3
+                self.equipListCursorOffset = len(self.currentEquipList) - 2
 
         if (self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE) and self.cursorIndex > 8:
             if self.itemCursorOffset < g.INVENTORY_MAX_SLOTS - 9:

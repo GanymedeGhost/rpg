@@ -64,6 +64,23 @@ INVENTORY_SORT_KEYS.append("damage")
 
 
 ### ENUMS
+ATTR_NAME = {}
+ATTR_NAME["maxHP"] = "M.HP"
+ATTR_NAME["maxSP"] = "M.SP"
+ATTR_NAME["str"] = "Str"
+ATTR_NAME["end"] = "End"
+ATTR_NAME["wis"] = "Wis"
+ATTR_NAME["spr"] = "Spr"
+ATTR_NAME["agi"] = "Agi"
+ATTR_NAME["lck"] = "Lck"
+ATTR_NAME["atk"] = "Atk"
+ATTR_NAME["def"] = "Def"
+ATTR_NAME["matk"] = "MAtk"
+ATTR_NAME["mdef"] = "MDef"
+ATTR_NAME["hit"] = "Hit%"
+ATTR_NAME["eva"] = "Eva%"
+
+
 class LogLevel():
     SYSTEM = 0
     DEBUG = 1
@@ -94,6 +111,16 @@ class BattlerStatus():
 
     SIZE = 8
 
+    NAME = {}
+    NAME[DEFEND] = "DEF"
+    NAME[POISON] = "PSN"
+    NAME[SLEEP] = "SLP"
+    NAME[SILENCE] = "SIL"
+    NAME[STUN] = "STN"
+    NAME[PARALYZE] = "PLZ"
+    NAME[DEATH] = "DTH"
+    NAME[WOLF] = "WLF"
+
 
 class ItemType():
     NONE = 0
@@ -115,13 +142,12 @@ class SkillType():
 
     SIZE = 5
 
-def skill_type_name(skillType):
-    if skillType == SkillType.BLOOD:
-        return "Blood"
-    elif skillType == SkillType.MUSIC:
-        return "Melody"
-    elif skillType == SkillType.MOON:
-        return "Moon"
+    NAME = {}
+    NAME[NONE] = "Null"
+    NAME[BLOOD] = "Blood"
+    NAME[MUSIC] = "Music"
+    NAME[MOON] = "Moon"
+    NAME[ENEMY] = "Enemy"
 
 class DamageType():
     NONE = 0
@@ -135,9 +161,21 @@ class DamageType():
     CURSE = 8
     POISON = 9
     EARTH = 10
-    
+
     SIZE = 11
 
+    NAME = {}
+    NAME[NONE] = "NULL"
+    NAME[PHYS] = "PHYS"
+    NAME[FIRE] = "FIRE"
+    NAME[COLD] = "COLD"
+    NAME[ELEC] = "ELEC"
+    NAME[WIND] = "WIND"
+    NAME[EARTH] = "EARTH"
+    NAME[LIGHT] = "LIGHT"
+    NAME[DARK] = "DARK"
+    NAME[POISON] = "POISON"
+    NAME[CURSE] = "CURSE"
 
 class BattleState():
     FIGHT = 0
