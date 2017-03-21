@@ -418,12 +418,64 @@ def create_data():
 
     InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
 
-    name = "Sword"
-    desc = "none"
+    name = "Royal Blade"
+    desc = "A blade forged from royal blood"
     equipType = g.ItemType.SWORD
+    attr = {}
+    attr["atk"] = 5
+    dmgType = g.DamageType.PHYS
+    resD = {}
+    resS = {}
+    onAttack = None
+    onHit = None
+    limit = 20
+    useAction = None
+    battleAction = None
+    sortPriority = {}
+
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
+    name = "Resobell"
+    desc = "A very sensitive bell"
+    equipType = g.ItemType.BELL
+    attr = {}
+    attr["atk"] = 1
+    attr["matk"] = 3
+    dmgType = g.DamageType.PHYS
+    resD = {}
+    resS = {}
+    onAttack = None
+    onHit = None
+    limit = 20
+    useAction = None
+    battleAction = None
+    sortPriority = {}
+
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
+    name = "Fur Gloves"
+    desc = "Furry gloves, better than nothing"
+    equipType = g.ItemType.BELL
     attr = {}
     attr["atk"] = 2
     dmgType = g.DamageType.PHYS
+    resD = {}
+    resS = {}
+    onAttack = None
+    onHit = None
+    limit = 20
+    useAction = None
+    battleAction = None
+    sortPriority = {}
+
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
+    name = "Stone Ring"
+    desc = "Slightly increases DEF"
+    equipType = g.ItemType.ACC
+    attr = {}
+    attr["def"] = 1
+    dmgType = None
     resD = {}
     resS = {}
     onAttack = None
@@ -435,23 +487,30 @@ def create_data():
 
     Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
-    name = "Sword2"
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
-
-    name = "Sword3"
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
-
-    name = "Sword4"
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
-
-    name = "Flurry Ring"
-    desc = "none"
+    name = "Crystal Shard"
+    desc = "Slightly increases Max SP"
     equipType = g.ItemType.ACC
     attr = {}
-    attr["def"] = 1
+    attr["maxSP"] = 5
     dmgType = None
     resD = {}
-    resD[g.DamageType.COLD] = .05
+    resS = {}
+    onAttack = None
+    onHit = None
+    limit = 99
+    useAction = None
+    battleAction = None
+    sortPriority = {}
+
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
+    name = "Pepper Charm"
+    desc = "Slightly increases AGI"
+    equipType = g.ItemType.ACC
+    attr = {}
+    attr["agi"] = 2
+    dmgType = None
+    resD = {}
     resS = {}
     onAttack = None
     onHit = None
@@ -560,7 +619,7 @@ def create_data():
     ##HEROES##
     ##########
     equip = {}
-    equip["wpn"] = InvItem.dic[""]
+    equip["wpn"] = InvItem.dic["Royal Blade"]
     equip["acc1"] = InvItem.dic[""]
     equip["acc2"] = InvItem.dic[""]
 
@@ -569,11 +628,11 @@ def create_data():
     attr["title"] = "King"
     attr["lvl"] = 5
     attr["exp"] = 0
-    attr["str"] = 12
-    attr["end"] = 13
+    attr["str"] = 10
+    attr["end"] = 10
     attr["wis"] = 9
     attr["spr"] = 7
-    attr["agi"] = 13
+    attr["agi"] = 12
     attr["lck"] = 9
 
     resD = {}
@@ -596,7 +655,7 @@ def create_data():
     Hero(attr["name"], attr, resD, resS, skillType, weaponType, commands, skills, equip, spr, size, icon)
 
     equip = {}
-    equip["wpn"] = InvItem.dic[""]
+    equip["wpn"] = InvItem.dic["Resobell"]
     equip["acc1"] = InvItem.dic[""]
     equip["acc2"] = InvItem.dic[""]
     attr = {}
@@ -605,9 +664,9 @@ def create_data():
     attr["lvl"] = 5
     attr["exp"] = 0
     attr["str"] = 7
-    attr["end"] = 9
-    attr["wis"] = 16
-    attr["spr"] = 14
+    attr["end"] = 8
+    attr["wis"] = 12
+    attr["spr"] = 11
     attr["agi"] = 10
     attr["lck"] = 10
 
@@ -632,7 +691,7 @@ def create_data():
     Hero(attr["name"], attr, resD, resS, skillType, weaponType, commands, skills, equip, spr, size, icon)
 
     equip = {}
-    equip["wpn"] = InvItem.dic[""]
+    equip["wpn"] = InvItem.dic["Fur Gloves"]
     equip["acc1"] = InvItem.dic[""]
     equip["acc2"] = InvItem.dic[""]
     attr = {}
@@ -640,12 +699,12 @@ def create_data():
     attr["title"] = "Great Wolf"
     attr["lvl"] = 5
     attr["exp"] = 0
-    attr["str"] = 15
-    attr["end"] = 14
+    attr["str"] = 12
+    attr["end"] = 12
     attr["wis"] = 7
     attr["spr"] = 6
-    attr["agi"] = 9
-    attr["lck"] = 7
+    attr["agi"] = 7
+    attr["lck"] = 5
 
     resD = {}
     resS = {}
