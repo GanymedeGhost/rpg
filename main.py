@@ -53,7 +53,6 @@ class Control(object):
         self.skipRender = False
 
     def start_battle(self, monsters, initiative = -1):
-        """monsters = a list of monster keys"""
         g.MONSTER_LIST = []
         for key in monsters:
             g.MONSTER_LIST.append(db.Monster.dic[key])
@@ -100,14 +99,17 @@ class Control(object):
             if self.BATTLE.BATTLE_STATE != g.BattleState.EXIT:
                 self.BATTLE.update()
             else:
+                g.INPUT_TIMER = g.INPUT_DELAY
                 self.GAME_STATE = g.GameState.MAP
                 del self.BATTLE
+                self.BATTLE = None
         elif self.GAME_STATE == g.GameState.MENU:
             if self.MENU.menuState != g.MenuState.EXIT:
                 self.MENU.update()
             else:
                 self.GAME_STATE = g.GameState.MAP
                 del self.MENU
+                self.MENU = None
     
         if not self.skipRender:
                 self.window_render()

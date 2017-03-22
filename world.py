@@ -1,9 +1,8 @@
 import configparser
+import random
 import pygame
 import pygame.locals
 import my_globals as g
-import database as db
-import battle
 import utility
 
 DIR_DOWN = (0, 1)
@@ -21,14 +20,38 @@ class Level(object):
         self.CONTROLLER = control
         self.TEXT_MANAGER = self.CONTROLLER.TEXT_MANAGER
         self.entities = {}
-    
+        self.tileset = {}
+
+        self.battleStepCounter = 100
+        self.battleRate = (0,0)
+
     def load_file(self, filename="lvl/level.map"):
         self.map = []
         self.key = {}
         parser = configparser.ConfigParser()
         parser.read(filename)
+
         self.tileset = parser.get("level", "tileset")
         self.map = parser.get("level", "map").split("\n")
+        rate = parser.get("battle", "rate").split(",")
+        self.battleRate = (int(rate[0]), int(rate[1]))
+        if self.battleRate != (0,0):
+            self.load_battle_data(parser)
+
+        self.load_map_tiles(parser)
+
+        #render the static BG once
+        self.render()
+
+    def load_battle_data(self, parser):
+        self.battleList = []
+        enemyMap = parser.get("battle", "enemies").split("\n")
+        if enemyMap:
+            for line in enemyMap:
+                self.battleList.append(line.split(","))
+        self.reset_battle_step_counter()
+
+    def load_map_tiles(self, parser):
         for section in parser.sections():
             if (len(section)) == 1:
                 desc = dict(parser.items(section))
@@ -42,9 +65,7 @@ class Level(object):
                 if not self.is_wall(x, y) and 'sprite' in self.key[c]:
                     self.sprites[(x, y)] = self.key[c]
                 if 'entity' in self.key[c]:
-                    self.add_entity(ENTITY_DIC[self.key[c]['entity']](self.key[c]['name'], self, (x,y), self.MAP_CACHE['spr/red.png'], False))
-        #render the static BG once
-        self.render()
+                    self.add_entity(ENTITY_DIC[self.key[c]['entity']](self.key[c]['name'], self, (x, y), self.MAP_CACHE['spr/red.png'], False))
 
     def get_tile(self, x, y):
         try:
@@ -77,6 +98,16 @@ class Level(object):
         for ent in self.entities:
             self.entities[ent].update(dt, keys)
         self.update_viewport()
+
+    def check_random_battle(self):
+        self.battleStepCounter -= 1
+        if self.battleStepCounter <= 0:
+            self.reset_battle_step_counter()
+            index = random.randint(0, len(self.battleList)-1)
+            self.CONTROLLER.start_battle(self.battleList[index])
+
+    def reset_battle_step_counter(self):
+        self.battleStepCounter = random.randint(self.battleRate[0], self.battleRate[1])
 
     def add_entity(self, entity):
         try:
@@ -270,8 +301,12 @@ class Actor(Entity):
             self.rect.move_ip(0, self.moveSpeed)
         elif (y > ty):
             self.rect.move_ip(0, -self.moveSpeed)
-        else:
+        elif self.moving:
+            self.on_step()
             self.moving = False
+
+    def on_step(self):
+        utility.log("Actor move complete")
 
     def update(self, dt, keys):
         Entity.update(self, dt, keys)
@@ -287,7 +322,7 @@ class Player(Actor):
         if (g.INPUT_TIMER > 0):
             g.INPUT_TIMER -= self.level.CONTROLLER.CLOCK.get_time()
         mDir = ""
-        if not self.moving:
+        if not self.moving and not self.level.CONTROLLER.BATTLE:
             if keys[g.KEY_DOWN]:
                 mDir = "down"
                 self.facing = DIR_DOWN
@@ -313,14 +348,16 @@ class Player(Actor):
             if (mDir != ""):
                 self.set_anim(mDir, False)
                 self.try_move(mDir)
-                g.STEP_COUNTER += 1
-                g.MOON_COUNTER -= 1
-                if g.MOON_COUNTER < 0:
-                    g.MOON_COUNTER = g.MOON_COUNTER_MAX
-                    g.METER[g.SkillType.MOON] += 1
-                    if g.METER[g.SkillType.MOON] > g.METER_MAX:
-                        g.METER[g.SkillType.MOON] = 0
 
+    def on_step(self):
+        g.STEP_COUNTER += 1
+        g.MOON_COUNTER -= 1
+        if g.MOON_COUNTER < 0:
+            g.MOON_COUNTER = g.MOON_COUNTER_MAX
+            g.METER[g.SkillType.MOON] += 1
+            if g.METER[g.SkillType.MOON] > g.METER_MAX:
+                g.METER[g.SkillType.MOON] = 0
+        self.level.check_random_battle()
 
     def try_interact(self):
         tX = self.pos[0] + self.facing[0]
