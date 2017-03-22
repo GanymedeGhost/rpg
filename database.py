@@ -29,7 +29,7 @@ class Hero (object):
         self.attr["hp"] = self.baseMaxHP
         self.attr["sp"] = self.baseMaxSP
 
-        self.exp = 500
+        self.exp = 0
 
         self.resD = resD
         for dmgType in range(0, g.DamageType.SIZE):
@@ -378,7 +378,7 @@ class Animagus (object):
 
     @property
     def expToNext(self):
-        return math.ceil(pow(self.baseExp, 1 + (self.level / 100)))
+        return math.ceil(pow(self.baseExp, 1 + (self.level / 50)))
 
 
 def create_data():
@@ -802,8 +802,9 @@ def create_data():
     attr['gold'] = 6
 
     drops = []
-    drops.append(("Antidote", 50))
     drops.append(("Revive", 10))
+    drops.append(("Antidote", 50))
+
 
     steals = []
 
@@ -821,8 +822,8 @@ def create_data():
     ##ANIMAGI##
     ###########
 
-    name = "Polaris"
-    baseExp = 100
+    name = "Signis"
+    baseExp = 50
     growth = {}
     growth["agi"] = 1
     growth["lck"] = 1
@@ -831,8 +832,8 @@ def create_data():
 
     Animagus(name, baseExp, growth, skills)
 
-    name = "Megro"
-    baseExp = 100
+    name = "Zeir"
+    baseExp = 50
     growth = {}
     growth["wis"] = 1
     growth["spr"] = 1
@@ -842,7 +843,7 @@ def create_data():
     Animagus(name, baseExp, growth, skills)
 
     name = "Luna"
-    baseExp = 100
+    baseExp = 50
     growth = {}
     growth["str"] = 1
     growth["end"] = 1

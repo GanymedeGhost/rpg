@@ -19,7 +19,7 @@ def add_animagus(key):
         return False
 
 def can_level(animagus, hero):
-    if animagus.level < 5:
+    if animagus.level < g.ANIMAGUS_MAX_LEVEL:
         if hero.exp >= animagus.levelUpAt:
             return True
         else:
@@ -33,7 +33,7 @@ def level_up(animagus, hero):
 
         if "str" in animagus.growth:
             min = animagus.growth['str']
-            max = min + 1
+            max = min + animagus.level
         else:
             min = 0
             max = 1
@@ -41,7 +41,7 @@ def level_up(animagus, hero):
 
         if "end" in animagus.growth:
             min = animagus.growth['end']
-            max = min + 1
+            max = min + animagus.level
         else:
             min = 0
             max = 1
@@ -49,7 +49,7 @@ def level_up(animagus, hero):
 
         if "wis" in animagus.growth:
             min = animagus.growth['wis']
-            max = min + 1
+            max = min + animagus.level
         else:
             min = 0
             max = 1
@@ -57,7 +57,7 @@ def level_up(animagus, hero):
 
         if "spr" in animagus.growth:
             min = animagus.growth['spr']
-            max = min + 1
+            max = min + animagus.level
         else:
             min = 0
             max = 1
@@ -65,7 +65,7 @@ def level_up(animagus, hero):
 
         if "agi" in animagus.growth:
             min = animagus.growth['agi']
-            max = min + 1
+            max = min + animagus.level
         else:
             min = 0
             max = 1
@@ -73,14 +73,14 @@ def level_up(animagus, hero):
 
         if "lck" in animagus.growth:
             min = animagus.growth['lck']
-            max = min + 1
+            max = min + animagus.level
         else:
             min = 0
             max = 1
         hero.attr['lck'] += random.randint(min, max+1)
 
         animagus.exp += animagus.levelUpAt
-        animagus.level += 1
+        animagus.level += animagus.level
         animagus.levelUpAt += animagus.expToNext
         learn_skill(animagus, hero)
 

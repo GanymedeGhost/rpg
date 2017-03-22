@@ -213,7 +213,7 @@ class BattleController (object):
             if hero.isHero and not hero.isDead:
                 db.Hero.dic[hero.attr['name']].exp += expPool
         self.UI.create_message("Received " + str(goldPool) + " gold")
-        self.UI.create_message("Gained " + str(expPool) + " EXP")
+        self.UI.create_message("Gained " + str(expPool) + " Anima")
 
     def battle_cleanup(self):
         for battler in self.battlers:
