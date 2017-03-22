@@ -12,6 +12,12 @@ map = 2..........ttt
       ...........r.t
       .#...#.rr....t
       .#t.t#.....ttt
+	  
+[battle]
+rate = 10,15
+enemies = 	Slime,Slime,Slime
+			Mold,Slime,Slime
+			Slime,Mold,Slime,Slime,Mold
 
 [.]
 name = floor
