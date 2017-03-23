@@ -546,6 +546,25 @@ def create_data():
 
     Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
+    name = "Dummy"
+    desc = "A charm hot to the touch"
+    equipType = g.ItemType.ACC
+    attr = {}
+    attr["agi"] = 2
+    dmgType = None
+    resD = {}
+    resD[g.DamageType.FIRE] = 0.05
+    resD[g.DamageType.COLD] = -0.05
+    resS = {}
+    onAttack = None
+    onHit = None
+    limit = 99
+    useAction = None
+    battleAction = None
+    sortPriority = {}
+
+    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+
     ################
     ##BLOOD SKILLS##
     ################
