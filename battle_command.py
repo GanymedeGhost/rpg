@@ -391,12 +391,6 @@ class Finale():
 
     def run(self):
         utility.log(self.user.attr['name'] + " uses Finale.", g.LogLevel.FEEDBACK)
-        red = 0
-        ylw = 0
-        blu = 0
-        grn = 0
-        wht = 0
-        blk = 0
 
         hash = ""
 
@@ -406,13 +400,13 @@ class Finale():
 
         if hash == "44":
             self.user.BC.UI.create_message("Thunderclap")
-            baseDmg = 30 + self.user.attr['matk']
+            baseDmg = 15 + self.user.attr['matk']
             for target in self.targets:
                 dmg = random.randint(baseDmg, baseDmg + self.user.totalMAtk) - target.totalMDef
                 target.take_damage(dmg, g.DamageType.ELEC)
         else:
             self.user.BC.UI.create_message("Dissonance")
-            baseDmg = 20 + self.user.attr['matk']
+            baseDmg = 15 + self.user.attr['matk']
             for target in self.targets:
                 dmg = random.randint(baseDmg, baseDmg + self.user.totalMAtk) - target.totalMDef
                 target.take_damage(dmg, g.DamageType.NONE)

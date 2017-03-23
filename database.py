@@ -378,7 +378,7 @@ class Animagus (object):
 
     @property
     def expToNext(self):
-        return math.ceil(pow(self.baseExp, 1 + (self.level / 50)))
+        return math.ceil(pow(self.baseExp, 1 + (self.level / 7)))
 
 
 def create_data():
