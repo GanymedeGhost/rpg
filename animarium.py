@@ -33,54 +33,48 @@ def level_up(animagus, hero):
 
         if "str" in animagus.growth:
             min = animagus.growth['str']
-            max = min + animagus.level
         else:
             min = 0
-            max = 1
+        max = min + animagus.level
         hero.attr['str'] += random.randint(min, max+1)
 
         if "end" in animagus.growth:
             min = animagus.growth['end']
-            max = min + animagus.level
         else:
             min = 0
-            max = 1
+        max = min + animagus.level
         hero.attr['end'] += random.randint(min, max+1)
 
         if "wis" in animagus.growth:
             min = animagus.growth['wis']
-            max = min + animagus.level
         else:
             min = 0
-            max = 1
+        max = min + animagus.level
         hero.attr['wis'] += random.randint(min, max+1)
 
         if "spr" in animagus.growth:
             min = animagus.growth['spr']
-            max = min + animagus.level
         else:
             min = 0
-            max = 1
+        max = min + animagus.level
         hero.attr['spr'] += random.randint(min, max+1)
 
         if "agi" in animagus.growth:
             min = animagus.growth['agi']
-            max = min + animagus.level
         else:
             min = 0
-            max = 1
+        max = min + animagus.level
         hero.attr['agi'] += random.randint(min, max+1)
 
         if "lck" in animagus.growth:
             min = animagus.growth['lck']
-            max = min + animagus.level
         else:
             min = 0
-            max = 1
+        max = min + animagus.level
         hero.attr['lck'] += random.randint(min, max+1)
 
         animagus.exp += animagus.levelUpAt
-        animagus.level += animagus.level
+        animagus.level += 1
         animagus.levelUpAt += animagus.expToNext
         learn_skill(animagus, hero)
 
@@ -96,7 +90,5 @@ def learn_skill(animagus, hero):
                 hero.skills.append(skill)
                 animagus.skillsTaught.append(skill)
                 return True
-            else:
-                return False
     else:
         return False

@@ -26,7 +26,7 @@ WIN_HEIGHT = VIEW_HEIGHT * VIEW_SCALE
 
 BLACK = (0,0,0)
 WHITE = (255, 255, 255)
-GRAY = (180, 180, 180)
+GRAY = (127, 127, 127)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
@@ -47,7 +47,7 @@ METER_MAX = 5
 MOON_COUNTER_MAX = 50
 
 ANIMARIUM_MAX_SLOTS = 50
-ANIMAGUS_MAX_LEVEL = 3
+ANIMAGUS_MAX_LEVEL = 4
 
 FONT_SML = pygame.font.Font('font/percy.ttf', 8)
 FONT_MED = pygame.font.Font('font/pixel8.ttf', 8)

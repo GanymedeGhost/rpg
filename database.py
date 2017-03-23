@@ -825,20 +825,18 @@ def create_data():
     name = "Signis"
     baseExp = 50
     growth = {}
-    growth["agi"] = 1
-    growth["lck"] = 1
     skills = []
     skills.append(Skill.dic["Blood Slash"])
+    skills.append(Skill.dic["Staccato"])
+    skills.append(Skill.dic["Double Cut"])
 
     Animagus(name, baseExp, growth, skills)
 
     name = "Zeir"
     baseExp = 50
     growth = {}
-    growth["wis"] = 1
-    growth["spr"] = 1
+    growth["end"] = 1
     skills = []
-    skills.append(Skill.dic["Staccato"])
 
     Animagus(name, baseExp, growth, skills)
 
@@ -846,9 +844,7 @@ def create_data():
     baseExp = 50
     growth = {}
     growth["str"] = 1
-    growth["end"] = 1
     skills = []
-    skills.append(Skill.dic["Double Cut"])
 
     Animagus(name, baseExp, growth, skills)
 

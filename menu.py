@@ -105,9 +105,9 @@ class MenuUI(object):
         self.animagiHeroAnchor = (44, 20)
         self.animagiListAnchor = [(48, 20), (48, 30), (48, 40), (48, 50), (48, 60)]
         self.animagiPageAnchor = (100, 72)
-        self.animagiStatsAnchor = (52, 82)
-        self.animagiGrowthAnchor = [(68, 82), (68, 92), (68, 102), (124, 82), (124, 92), (124, 102)]
-        self.animagiSkillAnchor = [(48, 86), (48, 96), (48, 106), (48, 116), (48, 126)]
+        self.animagiStatsAnchor = [(44, 114), (44, 124)]
+        self.animagiGrowthAnchor = [(68, 80), (68, 90), (68, 100), (124, 80), (124, 90), (124, 100)]
+        self.animagiSkillAnchor = [(48, 80), (48, 90), (48, 100)]
 
         self.resOffset = (-25, 0)
 
@@ -157,7 +157,7 @@ class MenuUI(object):
         self.statusPages = 2
 
         self.animagiPage = 0
-        self.animagiPages = 3
+        self.animagiPages = 2
 
         self.currentHero = None
         self.currentSkill = None
@@ -404,62 +404,55 @@ class MenuUI(object):
             for animagus in range(self.animagiCursorOffset, self.animagiCursorOffset + 4):
                 if animagus < len(g.ANIMAGI):
                     self.MC.controller.TEXT_MANAGER.draw_text(g.ANIMAGI[animagus].name, self.animagiListAnchor[index], g.WHITE)
-                    self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(g.ANIMAGI[animagus].level) + "/" + str(g.ANIMAGUS_MAX_LEVEL), utility.add_tuple(self.animagiListAnchor[index], (106,0)), g.WHITE)
+                    self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(g.ANIMAGI[animagus].level) + "/" + str(g.ANIMAGUS_MAX_LEVEL), utility.add_tuple(self.animagiListAnchor[index], (106,0)), g.GRAY)
                     index += 1
 
             if self.animagiPage == 0:
-                self.MC.controller.TEXT_MANAGER.draw_text_centered("Level " + str(g.ANIMAGI[selIndex].level) + "/" + str(g.ANIMAGUS_MAX_LEVEL), self.animagiPageAnchor, g.WHITE)
-                self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.attr['name'] + "'s Anima", self.animagiStatsAnchor, g.WHITE)
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.animagiStatsAnchor, (96, 10)), g.WHITE)
-                self.MC.controller.TEXT_MANAGER.draw_text("To Next", utility.add_tuple(self.animagiStatsAnchor, (0, 24)), g.WHITE)
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(g.ANIMAGI[selIndex].levelUpAt), utility.add_tuple(self.animagiStatsAnchor, (96, 34)), g.WHITE)
-
-            elif self.animagiPage == 1:
                 self.MC.controller.TEXT_MANAGER.draw_text_centered("Growth", self.animagiPageAnchor, g.WHITE)
 
                 if "str" in g.ANIMAGI[selIndex].growth:
                     text = str(g.ANIMAGI[selIndex].growth['str']) + "-" + str(g.ANIMAGI[selIndex].growth['str'] + g.ANIMAGI[selIndex].level)
                 else:
-                    text = "0-1"
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign("STR", self.animagiGrowthAnchor[0], g.WHITE)
+                    text = "0-" + str(g.ANIMAGI[selIndex].level)
+                self.MC.controller.TEXT_MANAGER.draw_text_ralign("Str", self.animagiGrowthAnchor[0], g.WHITE)
                 self.MC.controller.TEXT_MANAGER.draw_text_ralign(text, utility.add_tuple(self.animagiGrowthAnchor[0], (26,0)), g.GRAY)
 
                 if "end" in g.ANIMAGI[selIndex].growth:
                     text = str(g.ANIMAGI[selIndex].growth['end']) + "-" + str(g.ANIMAGI[selIndex].growth['end'] + g.ANIMAGI[selIndex].level)
                 else:
-                    text = "0-1"
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign("DEF", self.animagiGrowthAnchor[1], g.WHITE)
+                    text = "0-" + str(g.ANIMAGI[selIndex].level)
+                self.MC.controller.TEXT_MANAGER.draw_text_ralign("End", self.animagiGrowthAnchor[1], g.WHITE)
                 self.MC.controller.TEXT_MANAGER.draw_text_ralign(text, utility.add_tuple(self.animagiGrowthAnchor[1], (26, 0)), g.GRAY)
 
                 if "wis" in g.ANIMAGI[selIndex].growth:
                     text = str(g.ANIMAGI[selIndex].growth['wis']) + "-" + str(g.ANIMAGI[selIndex].growth['wis'] + g.ANIMAGI[selIndex].level)
                 else:
-                    text = "0-1"
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign("WIS", self.animagiGrowthAnchor[2], g.WHITE)
+                    text = "0-" + str(g.ANIMAGI[selIndex].level)
+                self.MC.controller.TEXT_MANAGER.draw_text_ralign("Wis", self.animagiGrowthAnchor[2], g.WHITE)
                 self.MC.controller.TEXT_MANAGER.draw_text_ralign(text, utility.add_tuple(self.animagiGrowthAnchor[2], (26, 0)), g.GRAY)
 
                 if "spr" in g.ANIMAGI[selIndex].growth:
                     text = str(g.ANIMAGI[selIndex].growth['spr']) + "-" + str(g.ANIMAGI[selIndex].growth['spr'] + g.ANIMAGI[selIndex].level)
                 else:
-                    text = "0-1"
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign("SPR", self.animagiGrowthAnchor[3], g.WHITE)
+                    text = "0-" + str(g.ANIMAGI[selIndex].level)
+                self.MC.controller.TEXT_MANAGER.draw_text_ralign("Spr", self.animagiGrowthAnchor[3], g.WHITE)
                 self.MC.controller.TEXT_MANAGER.draw_text_ralign(text, utility.add_tuple(self.animagiGrowthAnchor[3], (26, 0)), g.GRAY)
 
                 if "agi" in g.ANIMAGI[selIndex].growth:
                     text = str(g.ANIMAGI[selIndex].growth['agi']) + "-" + str(g.ANIMAGI[selIndex].growth['agi'] + g.ANIMAGI[selIndex].level)
                 else:
-                    text = "0-1"
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign("AGI", self.animagiGrowthAnchor[4], g.WHITE)
+                    text = "0-" + str(g.ANIMAGI[selIndex].level)
+                self.MC.controller.TEXT_MANAGER.draw_text_ralign("Agi", self.animagiGrowthAnchor[4], g.WHITE)
                 self.MC.controller.TEXT_MANAGER.draw_text_ralign(text, utility.add_tuple(self.animagiGrowthAnchor[4], (26, 0)), g.GRAY)
 
                 if "lck" in g.ANIMAGI[selIndex].growth:
                     text = str(g.ANIMAGI[selIndex].growth['lck']) + "-" + str(g.ANIMAGI[selIndex].growth['lck'] + g.ANIMAGI[selIndex].level)
                 else:
-                    text = "0-1"
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign("LCK", self.animagiGrowthAnchor[5], g.WHITE)
+                    text = "0-" + str(g.ANIMAGI[selIndex].level)
+                self.MC.controller.TEXT_MANAGER.draw_text_ralign("Lck", self.animagiGrowthAnchor[5], g.WHITE)
                 self.MC.controller.TEXT_MANAGER.draw_text_ralign(text, utility.add_tuple(self.animagiGrowthAnchor[5], (26, 0)), g.GRAY)
 
-            elif self.animagiPage == 2:
+            elif self.animagiPage == 1:
                 self.MC.controller.TEXT_MANAGER.draw_text_centered("Skills", self.animagiPageAnchor, g.WHITE)
                 index = 0
                 for skill in g.ANIMAGI[selIndex].skills:
@@ -477,6 +470,11 @@ class MenuUI(object):
 
                     self.MC.controller.TEXT_MANAGER.draw_text(skill.name, utility.add_tuple(self.animagiSkillAnchor[index], (6,0)), color)
                     index += 1
+
+            self.MC.controller.TEXT_MANAGER.draw_text("Anima", self.animagiStatsAnchor[0], g.WHITE)
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.animagiStatsAnchor[0], (108, 0)), g.GRAY)
+            self.MC.controller.TEXT_MANAGER.draw_text("To Next", self.animagiStatsAnchor[1], g.WHITE)
+            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(g.ANIMAGI[selIndex].levelUpAt), utility.add_tuple(self.animagiStatsAnchor[1], (108, 0)), g.GRAY)
 
             if self.MC.menuState == g.MenuState.ANIMAGI_CONFIRM:
                 self.MC.controller.VIEW_SURF.blit(self.itemOptionsPanel, (0, 0))
