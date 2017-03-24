@@ -122,25 +122,19 @@ class TextManager:
         glyphList = []
         glyphX = []
         glyphLine = []
-        nextWord = False
 
         while (wordIndex < len(words)):
-            for icon in g.ICON:
-                if words[wordIndex] == icon:
-                    curLine += "  "
-                    wordIndex += 1
-                    curWidth += self.curFont.size("  ")[0]
+            if words[wordIndex].find("&i") >= 0:
+                curLine += "  "
+                curWidth += self.curFont.size("  ")[0]
 
-                    glyphX.append(curWidth)
-                    glyphList.append(g.ICON[icon])
-                    glyphLine.append(len(lines))
-                    nextWord = True
-                    break
-            if nextWord:
-                nextWord = False
-                continue
+                glyphX.append(curWidth)
+                glyphList.append(g.ICON_CACHE.icon(words[wordIndex]))
+                glyphLine.append(len(lines))
 
-            if (words[wordIndex] == "&n"):
+                wordIndex += 1
+
+            elif words[wordIndex] == "&n":
                 wordIndex += 1
                 lines.append(curLine)
                 curLine = ""

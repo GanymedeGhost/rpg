@@ -90,7 +90,6 @@ class MenuUI(object):
         self.iconNotes[g.DamageType.WIND] = pygame.image.load("spr/battle/icon-note-grn.png")
 
         self.infoAnchor = (106, 91)
-        self.commandAnchor = [(110, 12), (110, 21), (110, 30), (110, 39), (110, 48), (110, 57), (110, 66)]
         self.statusAnchor = [(94, 15), (94, 55), (94, 95)]
         self.statusAnchorOffset = (0, 9)
         self.portraitAnchor = [(15, 21), (15, 61), (15, 101)]
@@ -308,6 +307,7 @@ class MenuUI(object):
 
                 strings[i][2] = str(self.currentHero.skills[ii].spCost)
             else:
+                strings[i][0] = ""
                 strings[i][1] = ""
                 strings[i][2] = ""
 
@@ -360,6 +360,7 @@ class MenuUI(object):
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
     def update_equip_cur_stats_strings(self):
+        self.equipCurStatsTable.strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings = self.equipCurStatsTable.strings
         colors = self.equipCurStatsTable.colors
 
@@ -384,7 +385,7 @@ class MenuUI(object):
 
     def init_equip_cur_res_table(self):
         topLeft = (48, 104)
-        widths = [32, 18, 32, 18]
+        widths = [32, 18, 35, 18]
         heights = [10, 10, 10]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
@@ -392,6 +393,7 @@ class MenuUI(object):
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
     def update_equip_cur_res_strings(self):
+        self.equipCurResTable.strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings = self.equipCurResTable.strings
         colors = self.equipCurResTable.colors
 
@@ -427,6 +429,7 @@ class MenuUI(object):
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
     def update_equip_sel_stats_strings(self):
+        self.equipSelStatsTable.strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings = self.equipSelStatsTable.strings
         colors = self.equipSelStatsTable.colors
 
@@ -451,7 +454,7 @@ class MenuUI(object):
 
     def init_equip_sel_res_table(self):
         topLeft = (48, 62)
-        widths = [32, 18, 32, 18]
+        widths = [32, 18, 35, 18]
         heights = [10, 10, 10]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
@@ -459,6 +462,7 @@ class MenuUI(object):
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
     def update_equip_sel_res_strings(self):
+        self.equipSelResTable.strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings = self.equipSelResTable.strings
         colors = self.equipSelResTable.colors
 
@@ -1064,62 +1068,22 @@ class MenuUI(object):
                     if self.currentHero.equip[self.currentEquipSlot].name != "":
                         self.update_equip_cur_stats_strings()
                         self.equipCurStatsTable.render()
-                        # offset = (0, 10)
-                        # anchor = utility.add_tuple(offset, self.equipCurAnchor)
-                        # stats = False
-                        # for key in self.currentHero.equip[self.currentEquipSlot].attr:
-                        #     self.MC.controller.TEXT_MANAGER.draw_text(g.ATTR_NAME[key] + ": " + str(self.currentHero.equip[self.currentEquipSlot].attr[key]), anchor, g.GRAY)
-                        #     anchor = utility.add_tuple(offset, anchor)
-                        #     stats = True
-                        # if not stats:
-                        #     self.MC.controller.TEXT_MANAGER.draw_text("No stats", anchor, g.GRAY)
+
                     #selected
                     self.update_equip_sel_stats_strings()
                     self.equipSelStatsTable.render()
-                    # offset = (0, 10)
-                    # anchor = utility.add_tuple(offset, self.equipSelAnchor)
-                    # stats = False
-                    # for key in self.currentEquipList[selIndex].attr:
-                    #     self.MC.controller.TEXT_MANAGER.draw_text(g.ATTR_NAME[key] + ": " + str(self.currentEquipList[selIndex].attr[key]), anchor, g.GRAY)
-                    #     anchor = utility.add_tuple(offset, anchor)
-                    #     stats = True
-                    # if not stats:
-                    #     self.MC.controller.TEXT_MANAGER.draw_text("No stats", anchor, g.GRAY)
+
                 #Show resistances
                 elif self.equipInfoPage == 1:
                     #current
                     if self.currentHero.equip[self.currentEquipSlot].name != "":
                         self.update_equip_cur_res_strings()
                         self.equipCurResTable.render()
-                        # offset = (0, 10)
-                        # anchor = utility.add_tuple(offset, self.equipCurAnchor)
-                        # res = False
-                        # for key in self.currentHero.equip[self.currentEquipSlot].resD:
-                        #     self.MC.controller.TEXT_MANAGER.draw_text(g.DamageType.NAME[key] + ": " + str(math.trunc(self.currentHero.equip[self.currentEquipSlot].resD[key] * 100)), anchor, g.GRAY)
-                        #     anchor = utility.add_tuple(offset, anchor)
-                        #     res = True
-                        # for key in self.currentHero.equip[self.currentEquipSlot].resS:
-                        #     self.MC.controller.TEXT_MANAGER.draw_text(g.BattlerStatus.NAME[key] + ": " + str(math.trunc(self.currentHero.equip[self.currentEquipSlot].resS[key] * 100)), anchor, g.GRAY)
-                        #     anchor = utility.add_tuple(offset, anchor)
-                        #     res = True
-                        # if not res:
-                        #     self.MC.controller.TEXT_MANAGER.draw_text("No resistances", anchor, g.GRAY)
+
                     #selected
                     self.update_equip_sel_res_strings()
                     self.equipSelResTable.render()
-                    # offset = (0, 10)
-                    # anchor = utility.add_tuple(offset, self.equipSelAnchor)
-                    # res = False
-                    # for key in self.currentEquipList[selIndex].resD:
-                    #     self.MC.controller.TEXT_MANAGER.draw_text(g.DamageType.NAME[key] + ": " + str(math.trunc(self.currentEquipList[selIndex].resD[key] * 100)), anchor, g.GRAY)
-                    #     anchor = utility.add_tuple(offset, anchor)
-                    #     res = True
-                    # for key in self.currentEquipList[selIndex].resS:
-                    #     self.MC.controller.TEXT_MANAGER.draw_text(g.BattlerStatus.NAME[key] + ": " + str(math.trunc(self.currentEquipList[selIndex].resS[key] * 100)), anchor, g.GRAY)
-                    #     anchor = utility.add_tuple(offset, anchor)
-                    #     res = True
-                    # if not res:
-                    #     self.MC.controller.TEXT_MANAGER.draw_text("No resistances", anchor, g.GRAY)
+
                 #Show descriptions
                 elif self.equipInfoPage == 2:
                     # current
@@ -1424,101 +1388,73 @@ class MenuUI(object):
         return -1
 
     def limit_cursor(self, cMin, cMax):
-        if self.MC.menuState == g.MenuState.SKILL:
-            if self.cursorIndex >= len(self.currentHero.skills):
+        if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
+            if self.cursorIndex > self.itemTableLength - 1:
+                self.itemCursorOffset += 1
+                self.cursorIndex -= 1
+            elif self.cursorIndex < 0:
+                self.itemCursorOffset -= 1
+                self.cursorIndex += 1
+
+            if self.itemCursorOffset > g.INVENTORY_MAX_SLOTS - self.itemTableLength:
+                self.itemCursorOffset = 0
                 self.cursorIndex = 0
-            elif self.cursorIndex < 0:
-                self.cursorIndex = len(self.currentHero.skills) - 1
+            elif self.itemCursorOffset < 0:
+                self.itemCursorOffset = g.INVENTORY_MAX_SLOTS - self.itemTableLength
+                self.cursorIndex = self.itemTableLength - 1
 
-            if self.skillCursorOffset > len(self.currentHero.skills) - self.skillTableLength:
+        elif self.MC.menuState == g.MenuState.SKILL:
+            maxLength = min(len(self.currentHero.skills) - 1, self.skillTableLength - 1)
+            if self.cursorIndex > maxLength:
+                self.skillCursorOffset += 1
+                self.cursorIndex -= 1
+            elif self.cursorIndex < 0:
+                self.skillCursorOffset -= 1
+                self.cursorIndex += 1
+
+            if self.skillCursorOffset + maxLength > len(self.currentHero.skills) - 1:
                 self.skillCursorOffset = 0
+                self.cursorIndex = 0
             elif self.skillCursorOffset < 0:
-                self.skillCursorOffset = len(self.currentHero.skills) - self.skillTableLength
-
-            if self.cursorIndex > self.skillTableLength - 1:
-                if self.skillCursorOffset < len(self.currentHero.skills) - self.skillTableLength:
-                    self.skillCursorOffset += 1
-                    self.cursorIndex -= 1
-            elif self.cursorIndex < 0:
-                if self.skillCursorOffset > 0:
-                    self.skillCursorOffset -= 1
-                    self.cursorIndex += 1
+                self.skillCursorOffset = len(self.currentHero.skills) - maxLength - 1
+                self.cursorIndex = maxLength
 
         elif self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
-            if self.equipListCursorOffset > len(self.currentEquipList) - self.equipListTableLength:
-                self.equipListCursorOffset = 0
-            elif self.equipListCursorOffset < 0:
-                self.equipListCursorOffset = len(self.currentEquipList) - self.equipListTableLength
-
-            if self.cursorIndex > self.equipListTableLength - 1 or self.cursorIndex >= len(self.currentEquipList):
-                if self.equipListCursorOffset < len(self.currentEquipList) - self.equipListTableLength:
-                    self.equipListCursorOffset += 1
-                    self.cursorIndex -= 1
-                else:
-                    self.cursorIndex = 0
-                    self.equipListCursorOffset = 0
+            maxLength = min(len(self.currentEquipList) - 1, self.skillTableLength - 1)
+            if self.cursorIndex > maxLength:
+                self.equipListCursorOffset += 1
+                self.cursorIndex -= 1
             elif self.cursorIndex < 0:
-                if self.equipListCursorOffset > 0:
-                    self.equipListCursorOffset -= 1
-                    self.cursorIndex += 1
-                else:
-                    self.cursorIndex = min(len(self.currentEquipList) - 1, self.equipListTableLength - 1)
-                    self.equipListCursorOffset = max(0, len(self.currentEquipList) - self.equipListTableLength - 1)
+                self.equipListCursorOffset -= 1
+                self.cursorIndex += 1
+
+            if self.equipListCursorOffset + maxLength > len(self.currentEquipList) - 1:
+                self.equipListCursorOffset = 0
+                self.cursorIndex = 0
+            elif self.equipListCursorOffset < 0:
+                self.equipListCursorOffset = len(self.currentEquipList) - maxLength - 1
+                self.cursorIndex = maxLength
 
         elif self.MC.menuState == g.MenuState.ANIMAGI:
-            if self.animagiCursorOffset > len(g.ANIMAGI) - self.animagiTableLength:
-                self.animagiCursorOffset = 0
-            elif self.animagiCursorOffset < 0:
-                self.animagiCursorOffset = len(g.ANIMAGI) - self.animagiTableLength
-
-            if self.cursorIndex > self.animagiTableLength - 1 or self.cursorIndex >= len(g.ANIMAGI):
-                if self.animagiCursorOffset < len(g.ANIMAGI) - self.animagiTableLength:
-                    self.animagiCursorOffset += 1
-                    self.cursorIndex -= 1
-                else:
-                    self.animagiCursorOffset = 0
-                    self.cursorIndex = 0
+            maxLength = min(len(g.ANIMAGI) - 1, self.animagiTableLength - 1)
+            if self.cursorIndex > maxLength:
+                self.animagiCursorOffset += 1
+                self.cursorIndex -= 1
             elif self.cursorIndex < 0:
-                if self.animagiCursorOffset > 0:
-                    self.animagiCursorOffset -= 1
-                    self.cursorIndex += 1
-                else:
-                    self.animagiCursorOffset = max(0, len(g.ANIMAGI) - self.animagiTableLength)
-                    self.cursorIndex = min(len(g.ANIMAGI) - 1, self.animagiTableLength - 1)
+                self.animagiCursorOffset -= 1
+                self.cursorIndex += 1
 
-        elif (self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE):
-                if self.itemCursorOffset > g.INVENTORY_MAX_SLOTS - self.itemTableLength:
-                    self.itemCursorOffset = 0
+            if self.animagiCursorOffset + maxLength > len(g.ANIMAGI) - 1:
+                self.animagiCursorOffset = 0
+                self.cursorIndex = 0
+            elif self.animagiCursorOffset < 0:
+                self.animagiCursorOffset = len(g.ANIMAGI) - maxLength - 1
+                self.cursorIndex = maxLength
 
-                if self.itemCursorOffset < 0:
-                    self.itemCursorOffset = g.INVENTORY_MAX_SLOTS - self.itemTableLength - 1
-                    self.cursorIndex -= 1
-
-                if self.cursorIndex > self.itemTableLength - 1:
-                    if self.itemCursorOffset < g.INVENTORY_MAX_SLOTS - self.itemTableLength:
-                        self.itemCursorOffset += 1
-                        self.cursorIndex -= 1
-                    else:
-                        self.itemCursorOffset = 0
-                        self.cursorIndex = 0
-
-                if self.cursorIndex < 0:
-                    if self.itemCursorOffset > 0:
-                        self.itemCursorOffset -= 1
-                        self.cursorIndex += 1
-
-        if self.cursorIndex > cMax:
+        elif self.cursorIndex > cMax:
             self.cursorIndex = cMin
-            if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
-                self.itemCursorOffset = 0
-            elif self.MC.menuState == g.MenuState.SKILL:
-                self.skillCursorOffset = 0
         elif self.cursorIndex < cMin:
             self.cursorIndex = cMax
-            if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
-                self.itemCursorOffset = g.INVENTORY_MAX_SLOTS - self.itemTableLength - 1
-            elif self.MC.menuState == g.MenuState.SKILL:
-                self.skillCursorOffset = len(self.MC.currentHero.skills) - self.skillTableLength
 
     def update(self):
         self.MC.controller.VIEW_SURF.fill(g.BLACK)

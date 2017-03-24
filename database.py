@@ -508,6 +508,8 @@ def create_data():
     attr["def"] = 1
     dmgType = None
     resD = {}
+    resD = {}
+    resD[g.DamageType.EARTH] = 0.10
     resS = {}
     onAttack = None
     onHit = None
@@ -544,8 +546,8 @@ def create_data():
     attr["agi"] = 2
     dmgType = None
     resD = {}
-    resD[g.DamageType.FIRE] = 0.05
-    resD[g.DamageType.COLD] = -0.05
+    resD[g.DamageType.FIRE] = 0.10
+    resD[g.DamageType.COLD] = -0.10
     resS = {}
     onAttack = None
     onHit = None
@@ -561,7 +563,7 @@ def create_data():
     ################
     name = "Sacrifice"
     desc = "Lower M.HP to recover the party's SP"
-    icon = "&sBlood"
+    icon = "&iBlood"
     skillType = g.SkillType.BLOOD
     spCost = 0
     meterReq = 0
@@ -572,7 +574,7 @@ def create_data():
 
     name = "Blood Slash"
     desc = "Deals NULL damage to an enemy"
-    icon = "&sBlood"
+    icon = "&iBlood"
     skillType = g.SkillType.BLOOD
     spCost = 15
     meterReq = 0
@@ -587,7 +589,7 @@ def create_data():
 
     name = "Finale"
     desc = "Resolve the melody"
-    icon = "&sMusic"
+    icon = "&iMusic"
     skillType = g.SkillType.MUSIC
     spCost = 0
     meterReq = 1
@@ -598,7 +600,7 @@ def create_data():
 
     name = "Staccato"
     desc = "Deals ELEC damage to an enemy"
-    icon = "&sMusic"
+    icon = "&iMusic"
     skillType = g.SkillType.MUSIC
     spCost = 10
     meterReq = 0
@@ -609,7 +611,7 @@ def create_data():
 
     name = "Adagio"
     desc = "Restores some HP to an ally"
-    icon = "&sMusic"
+    icon = "&iMusic"
     skillType = g.SkillType.MUSIC
     spCost = 15
     meterReq = 0
@@ -624,7 +626,7 @@ def create_data():
 
     name = "Transform"
     desc = "The moon changes one's physical form"
-    icon = "&sMoon"
+    icon = "&iMoon"
     skillType = g.SkillType.MOON
     spCost = 0
     meterReq = 1
@@ -635,7 +637,7 @@ def create_data():
 
     name = "Double Cut"
     desc = "Attack twice"
-    icon = "&sMoon"
+    icon = "&iMoon"
 
     skillType = g.SkillType.MOON
     spCost = 12
@@ -692,6 +694,7 @@ def create_data():
     commands.append(cmd.Defend)
     commands.append(cmd.Escape)
     skills = [Skill.dic["Sacrifice"]]
+    skills.append(Skill.dic["Blood Slash"])
 
     spr = "spr/battle/hero-luxe.png"
     size = 16

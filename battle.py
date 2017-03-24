@@ -415,7 +415,10 @@ class BattleUI (object):
         self.BC = bc
         self.output = []
         self.cursorPos = (0,0)
+
         self.cursorImage = pygame.image.load("spr/cursor-h.png")
+        self.hCursorPosOffset = (-8, 0)
+
         self.cursorRect = self.cursorImage.get_rect()
         self.heroStatusAnchors = [(101, 91), (101, 109), (101, 125)]
         self.cmdAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
@@ -439,13 +442,15 @@ class BattleUI (object):
         self.itemCursor = []
         self.skillSelectOffset = []
         self.itemSelectOffset = []
-        for i in range(0,7):
+        self.targetCursorOffset = []
+        for i in range(0,10):
             self.commandCursor.append(0)
             self.targetCursor.append(0)
             self.skillCursor.append(0)
             self.itemCursor.append(0)
             self.skillSelectOffset.append(0)
             self.itemSelectOffset.append(0)
+            self.targetCursorOffset.append(0)
 
         self.windowImage = pygame.image.load("spr/battle/ui-window.png")
         self.indexImage = pygame.image.load("spr/battle/ui-index.png")
@@ -488,6 +493,129 @@ class BattleUI (object):
         self.selectedThing = None
         self.queuedMethod = None
 
+        self.commandTable = None
+
+        self.skillTableLength = 5
+        self.skillTable = self.init_skill_table()
+
+        self.itemTableLength = 5
+        self.itemTable = self.init_item_table()
+
+        self.targetTableLength = 5
+        self.targetTable = self.init_target_table()
+
+
+    def init_command_table(self):
+        length = len(self.BC.currentBattler.commands)
+
+        topLeft = (8, 92)
+        widths = [80]
+
+        heights = []
+        for i in range(0, length):
+            heights.append(10)
+
+        strings = []
+        for i in range(length):
+            strings.append([self.BC.currentBattler.commands[i].name()])
+        aligns = ["left"]
+        return Table(self.BC, topLeft, widths, heights, strings, aligns, [])
+
+    def init_skill_table(self):
+        length = self.skillTableLength
+
+        topLeft = (8, 92)
+        widths = [72, 16]
+
+        heights = []
+        for i in range(0, length):
+            heights.append(10)
+
+        strings = []
+        for i in range(0, length):
+            strings.append(["",""])
+
+        aligns = ["left", "right"]
+        return Table(self.BC, topLeft, widths, heights, strings, aligns, [])
+
+    def update_skill_table_strings(self):
+        strings = self.skillTable.strings
+        colors = self.skillTable.colors
+        curBattler = self.BC.currentBattler
+
+        for i in range(0, self.skillTableLength):
+            if i+self.skillSelectOffset[curBattler.battlerIndex] < len(curBattler.skills):
+                curSkill = curBattler.skills[i+self.skillSelectOffset[curBattler.battlerIndex]]
+
+                strings[i][0] = curSkill.icon + " " + curSkill.name
+                strings[i][1] = str(curSkill.spCost)
+                if db.Skill.check_cost(curBattler, curSkill) and curSkill.usableBattle:
+                    colors[i][0] = g.WHITE
+                    colors[i][1] = g.WHITE
+                else:
+                    colors[i][0] = g.GRAY
+                    colors[i][1] = g.GRAY
+            else:
+                strings[i][0] = ""
+                strings[i][1] = ""
+
+    def init_item_table(self):
+        length = self.itemTableLength
+
+        topLeft = (8, 92)
+        widths = [72, 16]
+
+        heights = []
+        for i in range(0, length):
+            heights.append(10)
+
+        strings = []
+        colors = []
+        for i in range(0, length):
+            strings.append(["", ""])
+            colors.append([g.WHITE, g.GRAY])
+
+        aligns = ["left", "right"]
+        return Table(self.BC, topLeft, widths, heights, strings, aligns, colors)
+
+    def update_item_table_strings(self):
+        strings = self.itemTable.strings
+        colors = self.itemTable.colors
+        curBattler = self.BC.currentBattler
+
+        for i in range(0, self.itemTableLength):
+            strings[i][0] = g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][0].icon + " " + g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][0].name
+            strings[i][1] = str(g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][1])
+            if g.INVENTORY[i + self.itemSelectOffset[curBattler.battlerIndex]][0].usableBattle:
+                colors[i][0] = g.WHITE
+            else:
+                colors[i][0] = g.GRAY
+
+    def init_target_table(self):
+        length = self.targetTableLength
+
+        topLeft = (8, 92)
+        widths = [80]
+
+        heights = []
+        for i in range(0, length):
+            heights.append(10)
+
+        strings = []
+        for i in range(0, length):
+            strings.append([""])
+
+        aligns = ["left"]
+        return Table(self.BC, topLeft, widths, heights, strings, aligns, [])
+
+    def update_target_table_strings(self):
+        strings = self.targetTable.strings
+        curBattler = self.BC.currentBattler
+
+        for i in range(0, self.targetTableLength):
+            if i+self.targetCursorOffset[curBattler.battlerIndex] < len(self.validTargets):
+                strings[i][0] = self.validTargets[i+self.targetCursorOffset[curBattler.battlerIndex]].attr['name']
+
     def get_command(self, user):
         self.currentUser = user
         self.selectedThing = None
@@ -496,6 +624,7 @@ class BattleUI (object):
         self.init_cursor()
 
         self.BC.change_state(g.BattleState.COMMAND)
+        self.commandTable = self.init_command_table()
 
     def get_target(self, user, validTargets):
         self.currentUser = user
@@ -509,6 +638,7 @@ class BattleUI (object):
         self.init_cursor()
 
         self.BC.change_state(g.BattleState.TARGET)
+        self.update_target_table_strings()
 
     def get_item(self, user):
         self.currentUser = user
@@ -518,6 +648,7 @@ class BattleUI (object):
         self.init_cursor()
 
         self.BC.change_state(g.BattleState.ITEM)
+        self.update_item_table_strings()
 
     def get_skill(self, user):
         self.currentUser = user
@@ -527,6 +658,7 @@ class BattleUI (object):
         self.init_cursor()
 
         self.BC.change_state(g.BattleState.SKILL)
+        self.update_skill_table_strings()
 
     def process_get_command(self):
         selection = self.process_input(0, len(self.currentUser.commands)-1)
@@ -574,43 +706,18 @@ class BattleUI (object):
                 self.BC.change_state(g.BattleState.FIGHT)
 
     def render_command_window(self):
-        index = 0
-        for command in self.currentUser.commands:
-            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(command.name(), self.cmdAnchors[index], g.WHITE)
-            index += 1
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.cmdAnchors[self.cursorIndex],(-self.cursorImage.get_width(),0)))
+        if self.commandTable != None:
+            self.commandTable.render(self.cursorIndex)
 
     def render_target_window(self):
-        index = 0
-        for target in self.validTargets:
-            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(target.attr['name'], self.tgtAnchors[index], g.WHITE)
-            index += 1
-        if self.validTargets:
-            battler = self.validTargets[self.cursorIndex]
-            if battler:
-                if battler.isHero:
-                    if self.showHP:
-                        self.render_battler_hp(battler)
-                    elif self.showSP:
-                        self.render_battler_sp(battler)
-
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.tgtAnchors[self.cursorIndex],(-self.cursorImage.get_width(),0)))
+        self.targetTable.render(self.cursorIndex)
 
     def render_item_window(self):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.indexImage, utility.add_tuple(self.windowAnchors[0], (2, -10)))
         self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(1 + self.cursorIndex + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]) + "/" + str(g.INVENTORY_MAX_SLOTS), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
 
-        minIndex = self.itemSelectOffset[self.BC.currentBattler.battlerIndex]
-        maxIndex = minIndex + 5
-        index = 0
-        for i in range(minIndex, maxIndex):
-            if i < g.INVENTORY_MAX_SLOTS:
-                item = g.INVENTORY[i][0]
-                if (item.name != "" and item.usableBattle):
-                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text(item.name, self.itemAnchors[index], g.WHITE)
-                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(g.INVENTORY[i][1]), utility.add_tuple(self.itemAnchors[index], (86, 0)), g.WHITE)
-            index += 1
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
+        self.update_item_table_strings()
+        self.itemTable.render(self.cursorIndex)
 
     def render_skill_window(self):
         battler = self.BC.currentBattler
@@ -618,23 +725,9 @@ class BattleUI (object):
         self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(1 + self.cursorIndex + self.skillSelectOffset[battler.battlerIndex]) + "/" + str(len(battler.skills)), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
 
         self.render_battler_sp(battler)
-        
-        minIndex = max(0, self.skillSelectOffset[self.BC.currentBattler.battlerIndex])
-        maxIndex = minIndex + 5
-        
-        index = 0
-        for i in range(minIndex, min(len(battler.skills), maxIndex)):
-            if i < 50:
-                skill = battler.skills[i]
-                if (skill.name != "" and skill.usableBattle):
-                    if db.Skill.check_cost(battler, skill):
-                        col = g.WHITE
-                    else:
-                        col = g.GRAY
-                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text(skill.name, self.skillAnchors[index], col)
-                    self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(skill.spCost), utility.add_tuple(self.skillAnchors[index], (88, 0)), g.WHITE)
-                index += 1
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.skillAnchors[self.cursorIndex], (-self.cursorImage.get_width(),0)))
+
+        self.update_skill_table_strings()
+        self.skillTable.render(self.cursorIndex)
 
     def render_hero_status(self):
         self.BC.CONTROLLER.VIEW_SURF.blit(self.windowImage, self.windowAnchors[0])
@@ -655,7 +748,6 @@ class BattleUI (object):
                     self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
                     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                 self.render_meter(hero.skillType, self.heroStatusAnchors[index])
-                #self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(hero.SP), utility.add_tuple(self.heroStatusAnchors[index], (56, 0)), g.WHITE)
                 index += 1
 
     def render_battler_hp(self, battler):
@@ -860,55 +952,63 @@ class BattleUI (object):
                     self.BC.prev_state()
                     self.restore_cursor()
 
-        #limit/wrap the cursor
-        if self.BC.BATTLE_STATE == g.BattleState.SKILL:
-            if self.cursorIndex >= len(self.BC.currentBattler.skills):
-                self.cursorIndex = 0
-            elif self.cursorIndex < 0:
-                self.cursorIndex = len(self.BC.currentBattler.skills)-1
-
-        if self.BC.BATTLE_STATE == g.BattleState.ITEM and self.cursorIndex > 4:
-            if self.itemSelectOffset[self.BC.currentBattler.battlerIndex] < g.INVENTORY_MAX_SLOTS - 5:
-                self.itemSelectOffset[self.BC.currentBattler.battlerIndex] += 1
-                self.cursorIndex -= 1
-        if self.BC.BATTLE_STATE == g.BattleState.SKILL and self.cursorIndex > 4:
-            if self.skillSelectOffset[self.BC.currentBattler.battlerIndex] < len(self.BC.currentBattler.skills)-5:
-                self.skillSelectOffset[self.BC.currentBattler.battlerIndex] += 1
-                self.cursorIndex -= 1
-
-        if self.BC.BATTLE_STATE == g.BattleState.ITEM and self.cursorIndex < 0:
-            if self.itemSelectOffset[self.BC.currentBattler.battlerIndex] > 0:
-                self.itemSelectOffset[self.BC.currentBattler.battlerIndex] -= 1
-                self.cursorIndex += 1
-        if self.BC.BATTLE_STATE == g.BattleState.SKILL and self.cursorIndex < 0:
-            if self.skillSelectOffset[self.BC.currentBattler.battlerIndex] > 0:
-                self.skillSelectOffset[self.BC.currentBattler.battlerIndex] -= 1
-                self.cursorIndex += 1
-
-        if self.itemSelectOffset[self.BC.currentBattler.battlerIndex] > g.INVENTORY_MAX_SLOTS - 5:
-            self.itemSelectOffset[self.BC.currentBattler.battlerIndex] = 0
-        elif self.skillSelectOffset[self.BC.currentBattler.battlerIndex] > len(self.BC.currentBattler.skills)-5:
-            self.skillSelectOffset[self.BC.currentBattler.battlerIndex] = 0
-
-        if self.itemSelectOffset[self.BC.currentBattler.battlerIndex] < 0:
-            self.itemSelectOffset[self.BC.currentBattler.battlerIndex] = g.INVENTORY_MAX_SLOTS - 5
-        elif self.skillSelectOffset[self.BC.currentBattler.battlerIndex] < 0:
-            self.skillSelectOffset[self.BC.currentBattler.battlerIndex] = len(self.BC.currentBattler.skills)-5
-
-        if self.cursorIndex > cMax:
-            self.cursorIndex = cMin
-            if self.BC.BATTLE_STATE == g.BattleState.ITEM:
-                self.itemSelectOffset[self.BC.currentBattler.battlerIndex] = 0
-            elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
-                self.skillSelectOffset[self.BC.currentBattler.battlerIndex] = 0
-        elif self.cursorIndex < cMin:
-            self.cursorIndex = cMax
-            if self.BC.BATTLE_STATE == g.BattleState.ITEM:
-                self.itemSelectOffset[self.BC.currentBattler.battlerIndex] = g.INVENTORY_MAX_SLOTS - 5
-            elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
-                self.skillSelectOffset[self.BC.currentBattler.battlerIndex] = len(self.BC.currentBattler.skills) - 5
+        self.limit_cursor(cMin, cMax)
 
         return -1
+
+    def limit_cursor(self, cMin, cMax):
+        bIndex = self.BC.currentBattler.battlerIndex
+        if self.BC.BATTLE_STATE == g.BattleState.ITEM:
+            if self.cursorIndex > self.itemTableLength - 1:
+                self.itemSelectOffset[bIndex] += 1
+                self.cursorIndex -= 1
+            elif self.cursorIndex < 0:
+                self.itemSelectOffset[bIndex] -= 1
+                self.cursorIndex += 1
+
+            if self.itemSelectOffset[bIndex] > g.INVENTORY_MAX_SLOTS - self.itemTableLength:
+                self.itemSelectOffset[bIndex] = 0
+                self.cursorIndex = 0
+            elif self.itemSelectOffset[bIndex] < 0:
+                self.itemSelectOffset[bIndex] = g.INVENTORY_MAX_SLOTS - self.itemTableLength
+                self.cursorIndex = self.itemTableLength - 1
+
+        elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
+            maxLength = min(len(self.BC.currentBattler.skills) - 1, self.skillTableLength - 1)
+            if self.cursorIndex > maxLength:
+                self.skillSelectOffset[bIndex] += 1
+                self.cursorIndex -= 1
+            elif self.cursorIndex < 0:
+                self.skillSelectOffset[bIndex] -= 1
+                self.cursorIndex += 1
+
+            if self.skillSelectOffset[bIndex] + maxLength > len(self.BC.currentBattler.skills) - 1:
+                self.skillSelectOffset[bIndex] = 0
+                self.cursorIndex = 0
+            elif self.skillSelectOffset[bIndex] < 0:
+                self.skillSelectOffset[bIndex] = len(self.BC.currentBattler.skills) - maxLength - 1
+                self.cursorIndex = maxLength
+
+        elif self.BC.BATTLE_STATE == g.BattleState.TARGET:
+            maxLength = min(len(self.validTargets) - 1, self.targetTableLength - 1)
+            if self.cursorIndex > maxLength:
+                self.targetCursorOffset[bIndex] += 1
+                self.cursorIndex -= 1
+            elif self.cursorIndex < 0:
+                self.targetCursorOffset[bIndex] -= 1
+                self.cursorIndex += 1
+
+            if self.targetCursorOffset[bIndex] + maxLength > len(self.validTargets) - 1:
+                self.targetCursorOffset[bIndex] = 0
+                self.cursorIndex = 0
+            elif self.targetCursorOffset[bIndex] < 0:
+                self.targetCursorOffset[bIndex] = len(self.validTargets) - maxLength - 1
+                self.cursorIndex = maxLength
+
+        elif self.cursorIndex > cMax:
+            self.cursorIndex = cMin
+        elif self.cursorIndex < cMin:
+            self.cursorIndex = cMax
 
     def restore_cursor(self):
         if self.BC.BATTLE_STATE == g.BattleState.COMMAND:
@@ -1503,3 +1603,42 @@ class BattleActor (object):
         self.attr['hp'] = max(1, math.floor(self.totalMaxHP * hpPercent / 100))
         self.reset_anim()
         self.mods[g.BattlerStatus.DEATH] = 0
+
+
+class Table ():
+
+    def __init__(self, BC, topLeft, widths, heights, strings, aligns, colors):
+        self.BC = BC
+        self.TM = BC.CONTROLLER.TEXT_MANAGER
+        self.topLeft = topLeft
+        self.widths = widths
+        self.heights = heights
+        self.cols = len(self.widths)
+        self.rows = len(self.heights)
+        self.strings = strings
+        self.aligns = aligns
+        self.colors = colors
+
+        if not colors:
+            for y in range(0, self.rows):
+                self.colors.append([])
+                for x in range(0, self.cols):
+                    self.colors[y].append(g.WHITE)
+
+    def updateString(self, string, x, y):
+        self.strings[x][y] = string
+
+    def render(self, cursor = -1, globalOffset = (0,0)):
+        globalOffset = utility.add_tuple(self.topLeft, globalOffset)
+        offset = globalOffset
+
+        for y in range(0, self.rows):
+            for x in range(0, self.cols):
+                if self.aligns[x] == "left":
+                    self.TM.draw_text_f(self.strings[y][x], offset, self.colors[y][x])
+                elif self.aligns[x] == "right":
+                    self.TM.draw_text_fr(self.strings[y][x], utility.add_tuple(offset, (self.widths[x], 0)), self.colors[y][x])
+                offset = utility.add_tuple(offset, (self.widths[x], 0))
+            if cursor == y:
+                self.BC.CONTROLLER.VIEW_SURF.blit(self.BC.UI.cursorImage, utility.add_tuple((globalOffset[0], offset[1]), self.BC.UI.hCursorPosOffset))
+            offset = utility.add_tuple((globalOffset[0], offset[1]), (0, self.heights[y]))

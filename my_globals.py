@@ -80,19 +80,6 @@ ATTR_NAME["mdef"] = "MDef"
 ATTR_NAME["hit"] = "Hit%"
 ATTR_NAME["eva"] = "Eva%"
 
-ICON = {}
-ICON["&sBlood"] = pygame.image.load("spr/icon/blood.png")
-ICON["&sMoon"] = pygame.image.load("spr/icon/moon.png")
-ICON["&sMusic"] = pygame.image.load("spr/icon/music.png")
-
-ICON["&iPotion"] = pygame.image.load("spr/icon/potion.png")
-ICON["&iSword"] = pygame.image.load("spr/icon/sword.png")
-ICON["&iBell"] = pygame.image.load("spr/icon/bell.png")
-ICON["&iGlove"] = pygame.image.load("spr/icon/glove.png")
-ICON["&iRing"] = pygame.image.load("spr/icon/ring.png")
-ICON["&iCharm"] = pygame.image.load("spr/icon/charm.png")
-ICON["&iGem"] = pygame.image.load("spr/icon/gem.png")
-
 class LogLevel():
     SYSTEM = 0
     DEBUG = 1
@@ -238,6 +225,22 @@ class Initiative():
 ### END CONSTANTS ###
 #####################
 
+
+class IconCache():
+
+    def __init__(self):
+        self.dic = {}
+
+    def icon(self, icon):
+        icon = icon.replace("&i","").lower()
+        try:
+            return self.dic[icon]
+        except KeyError:
+            self.dic[icon] = pygame.image.load("spr/icon/" + icon + ".png")
+            return self.dic[icon]
+
+ICON_CACHE = IconCache()
+
 CURSOR_TIMER = 0
 CONFIRM_TIMER = 0
 INPUT_TIMER = 0
@@ -285,3 +288,5 @@ def music_meter_add(damageType):
     METER[SkillType.MUSIC].insert(0, damageType)
     if len(METER[SkillType.MUSIC]) > METER_MAX:
         del METER[SkillType.MUSIC][METER_MAX]
+
+
