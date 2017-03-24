@@ -244,7 +244,7 @@ class TextManager:
 
         index = 0
         for glyph in glyphList:
-            self.SURF.blit(glyph, (pos[0] - glyphX[index] + 3, pos[1] - glyphLine[index] * font.size('X')[1]))
+            self.SURF.blit(glyph, (pos[0] - glyphX[index], pos[1] - glyphLine[index] * font.size('X')[1]))
             index += 1
 
     def draw_text_centered(self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
