@@ -119,22 +119,43 @@ class TextManager:
         curLine = ""
         curWidth = 0
         lines = []
+        glyphList = []
+        glyphX = []
+        glyphLine = []
+        nextWord = False
+
         while (wordIndex < len(words)):
+            for icon in g.ICON:
+                if words[wordIndex] == icon:
+                    curLine += "  "
+                    wordIndex += 1
+                    curWidth += self.curFont.size("  ")[0]
+
+                    glyphX.append(curWidth)
+                    glyphList.append(g.ICON[icon])
+                    glyphLine.append(len(lines))
+                    nextWord = True
+                    break
+            if nextWord:
+                nextWord = False
+                continue
+
             if (words[wordIndex] == "&n"):
                 wordIndex += 1
                 lines.append(curLine)
                 curLine = ""
                 curWidth = 0
-            if curWidth + self.curFont.size(words[wordIndex])[0] < maxX:
-                curWidth += self.curFont.size(words[wordIndex] + " ")[0]
+            elif curWidth + self.curFont.size(words[wordIndex])[0] < maxX:
                 curLine += words[wordIndex] + " "
                 wordIndex += 1
+                curWidth = self.curFont.size(curLine)[0]
             else:
-                lines.append(curLine)
+                lines.append(curLine[0:-1])
                 curLine = ""
                 curWidth = 0
+
         lines.append(curLine)
-        return lines
+        return lines, glyphList, glyphX, glyphLine
 
     def create_text_box(self, string, font = g.FONT_MED):
         self.SURF.blit(self.boxImage, (0, 111))
@@ -197,6 +218,34 @@ class TextManager:
         textRect = textObj.get_rect()
         textRect.topleft = pos
         self.SURF.blit(textObj, textRect)
+
+    def draw_text_f(self, string, pos=(0,0), color = g.BLACK, maxWidth = g.VIEW_WIDTH, wrap = False, font = g.FONT_MED):
+        parsedStr, glyphList, glyphX, glyphLine = self.parse_string(string, maxWidth)
+        offset = pos
+        heightInc = (0, font.size("X")[1])
+
+        for line in parsedStr:
+            self.draw_text(line, offset, color)
+            offset = add_tuple(offset, heightInc)
+
+        index = 0
+        for glyph in glyphList:
+            self.SURF.blit(glyph, (pos[0] + glyphX[index] - 8, pos[1] + glyphLine[index] * font.size('X')[1]))
+            index += 1
+
+    def draw_text_fr(self, string, pos=(0,0), color = g.BLACK, maxWidth = g.VIEW_WIDTH, wrap = False, font = g.FONT_MED):
+        parsedStr, glyphList, glyphX, glyphLine = self.parse_string(string, maxWidth)
+        offset = add_tuple(pos, (4, 0))
+        heightInc = (0, font.size("X")[1])
+
+        for line in parsedStr:
+            self.draw_text_ralign(line, offset, color)
+            offset = add_tuple(offset, heightInc)
+
+        index = 0
+        for glyph in glyphList:
+            self.SURF.blit(glyph, (pos[0] - glyphX[index] + 3, pos[1] - glyphLine[index] * font.size('X')[1]))
+            index += 1
 
     def draw_text_centered(self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
         textObj = font.render(string, False, color)

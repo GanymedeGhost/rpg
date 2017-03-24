@@ -275,10 +275,11 @@ class Monster (object):
 class InvItem (object):
     dic = {}
 
-    def __init__(self, index, desc, itemType = g.ItemType.NONE, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
+    def __init__(self, index, desc, icon, itemType = g.ItemType.NONE, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
         self.index = -len(InvItem.dic)
         self.name = index
         self.desc = desc
+        self.icon = icon
         self.itemType = itemType
         self.limit = limit
 
@@ -309,10 +310,8 @@ class InvItem (object):
 
 class Equip (InvItem):
 
-   def __init__(self, index, desc, itemType = g.ItemType.ACC, dmgType = g.DamageType.NONE, attr = {}, resD = {}, resS = {}, onAttack = None, onHit = None, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
-        InvItem.__init__(self, index, desc, itemType, limit, useAction, battleAction, sortPriority)
-
-        self.itemType = itemType
+   def __init__(self, index, desc, icon, itemType = g.ItemType.ACC, dmgType = g.DamageType.NONE, attr = {}, resD = {}, resS = {}, onAttack = None, onHit = None, limit = 99, useAction = None, battleAction = None, sortPriority = {}):
+        InvItem.__init__(self, index, desc, icon, itemType, limit, useAction, battleAction, sortPriority)
 
         if itemType != g.ItemType.ACC and dmgType == None:
             self.dmgType = g.DamageType.PHYS
@@ -331,9 +330,10 @@ class Equip (InvItem):
 class Skill (object):
     dic = {}
 
-    def __init__(self, index, desc, skillType, spCost, meterReq, useAction, battleAction):
+    def __init__(self, index, desc, icon, skillType, spCost, meterReq, useAction, battleAction):
         self.name = index
         self.desc = desc
+        self.icon = icon
         self.skillType = skillType
         self.spCost = spCost
         self.meterReq = meterReq
@@ -387,6 +387,7 @@ def create_data():
     #########
     name = ""
     desc = ""
+    icon = ""
     itemType = g.ItemType.NONE
     limit = 1
     useAction = None
@@ -397,10 +398,11 @@ def create_data():
     sortPriority["recovery"] = 0
     sortPriority["damage"] = 0
 
-    InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, icon, itemType, limit, useAction, battleAction, sortPriority)
 
     name = "Potion"
     desc = "Restores 50 HP"
+    icon = "&iPotion"
     itemType = g.ItemType.CONSUMABLE
     limit = 99
     useAction = fcmd.Potion
@@ -411,10 +413,11 @@ def create_data():
     sortPriority["recovery"] = 0
     sortPriority["damage"] = 99
 
-    InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, icon, itemType, limit, useAction, battleAction, sortPriority)
 
     name = "Revive"
     desc = "Restores life to a fallen ally"
+    icon = "&iPotion"
     itemType = g.ItemType.CONSUMABLE
     limit = 99
     useAction = fcmd.Revive
@@ -425,10 +428,11 @@ def create_data():
     sortPriority["recovery"] = 10
     sortPriority["damage"] = 99
 
-    InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, icon, itemType, limit, useAction, battleAction, sortPriority)
 
     name = "Antidote"
     desc = "Cures poison"
+    icon = "&iPotion"
     itemType = g.ItemType.CONSUMABLE
     limit = 99
     useAction = None
@@ -439,10 +443,11 @@ def create_data():
     sortPriority["recovery"] = 11
     sortPriority["damage"] = 99
 
-    InvItem(name, desc, itemType, limit, useAction, battleAction, sortPriority)
+    InvItem(name, desc, icon, itemType, limit, useAction, battleAction, sortPriority)
 
     name = "Royal Blade"
     desc = "A blade forged from royal blood"
+    icon = "&iSword"
     equipType = g.ItemType.SWORD
     attr = {}
     attr["atk"] = 5
@@ -456,10 +461,11 @@ def create_data():
     battleAction = None
     sortPriority = {}
 
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+    Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Resobell"
     desc = "A very sensitive bell"
+    icon = "&iBell"
     equipType = g.ItemType.BELL
     attr = {}
     attr["atk"] = 1
@@ -474,10 +480,11 @@ def create_data():
     battleAction = None
     sortPriority = {}
 
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+    Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Fur Gloves"
     desc = "Furry gloves, better than nothing"
+    icon = "&iGlove"
     equipType = g.ItemType.BELL
     attr = {}
     attr["atk"] = 2
@@ -491,10 +498,11 @@ def create_data():
     battleAction = None
     sortPriority = {}
 
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+    Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Stone Ring"
     desc = "A heavy ring carved from marbled stone"
+    icon = "&iRing"
     equipType = g.ItemType.ACC
     attr = {}
     attr["def"] = 1
@@ -508,10 +516,11 @@ def create_data():
     battleAction = None
     sortPriority = {}
 
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+    Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Crystal Shard"
     desc = "A fragment of broken crystal that glows dimly"
+    icon = "&iGem"
     equipType = g.ItemType.ACC
     attr = {}
     attr["maxSP"] = 5
@@ -525,10 +534,11 @@ def create_data():
     battleAction = None
     sortPriority = {}
 
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+    Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Pepper Charm"
     desc = "A charm hot to the touch"
+    icon = "&iCharm"
     equipType = g.ItemType.ACC
     attr = {}
     attr["agi"] = 2
@@ -544,49 +554,32 @@ def create_data():
     battleAction = None
     sortPriority = {}
 
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
-
-    name = "Dummy"
-    desc = "A charm hot to the touch"
-    equipType = g.ItemType.ACC
-    attr = {}
-    attr["agi"] = 2
-    dmgType = None
-    resD = {}
-    resD[g.DamageType.FIRE] = 0.05
-    resD[g.DamageType.COLD] = -0.05
-    resS = {}
-    onAttack = None
-    onHit = None
-    limit = 99
-    useAction = None
-    battleAction = None
-    sortPriority = {}
-
-    Equip(name, desc, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
+    Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     ################
     ##BLOOD SKILLS##
     ################
     name = "Sacrifice"
-    desc = "Lower MHP to restore the party's SP"
+    desc = "Lower M.HP to recover the party's SP"
+    icon = "&sBlood"
     skillType = g.SkillType.BLOOD
     spCost = 0
     meterReq = 0
     useAction = None
     battleAction = cmd.Sacrifice
 
-    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     name = "Blood Slash"
     desc = "Deals NULL damage to an enemy"
+    icon = "&sBlood"
     skillType = g.SkillType.BLOOD
     spCost = 15
     meterReq = 0
     useAction = None
     battleAction = cmd.BloodSlash
 
-    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     ################
     ##MUSIC SKILLS##
@@ -594,33 +587,36 @@ def create_data():
 
     name = "Finale"
     desc = "Resolve the melody"
+    icon = "&sMusic"
     skillType = g.SkillType.MUSIC
     spCost = 0
     meterReq = 1
     useAction = None
     battleAction = cmd.Finale
 
-    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     name = "Staccato"
     desc = "Deals ELEC damage to an enemy"
+    icon = "&sMusic"
     skillType = g.SkillType.MUSIC
     spCost = 10
     meterReq = 0
     useAction = None
     battleAction = cmd.Staccato
 
-    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     name = "Adagio"
     desc = "Restores some HP to an ally"
+    icon = "&sMusic"
     skillType = g.SkillType.MUSIC
     spCost = 15
     meterReq = 0
     useAction = fcmd.Adagio
     battleAction = cmd.Adagio
 
-    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     ################
     ##MOON SKILLS##
@@ -628,36 +624,40 @@ def create_data():
 
     name = "Transform"
     desc = "The moon changes one's physical form"
+    icon = "&sMoon"
     skillType = g.SkillType.MOON
     spCost = 0
     meterReq = 1
     useAction = None
     battleAction = cmd.Transform
 
-    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     name = "Double Cut"
     desc = "Attack twice"
+    icon = "&sMoon"
+
     skillType = g.SkillType.MOON
     spCost = 12
     meterReq = 1
     useAction = None
     battleAction = cmd.DoubleCut
 
-    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     ################
     ##ENEMY SKILLS##
     ################
     name = "Toxic"
     desc = "Small chance to inflict Poison"
+    icon = ""
     skillType = g.SkillType.ENEMY
     spCost = 10
     meterReq = 0
     useAction = None
     battleAction = cmd.Toxic
 
-    Skill(name, desc, skillType, spCost, meterReq, useAction, battleAction)
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     ##########
     ##HEROES##

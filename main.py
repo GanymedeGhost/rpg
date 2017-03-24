@@ -42,7 +42,6 @@ class Control(object):
         inventory.add_item("Stone Ring")
         inventory.add_item("Crystal Shard")
         inventory.add_item("Pepper Charm")
-        inventory.add_item("Dummy")
         animarium.add_animagus("Signis")
         animarium.add_animagus("Zeir")
         animarium.add_animagus("Luna")

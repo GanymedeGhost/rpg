@@ -80,6 +80,18 @@ ATTR_NAME["mdef"] = "MDef"
 ATTR_NAME["hit"] = "Hit%"
 ATTR_NAME["eva"] = "Eva%"
 
+ICON = {}
+ICON["&sBlood"] = pygame.image.load("spr/icon/blood.png")
+ICON["&sMoon"] = pygame.image.load("spr/icon/moon.png")
+ICON["&sMusic"] = pygame.image.load("spr/icon/music.png")
+
+ICON["&iPotion"] = pygame.image.load("spr/icon/potion.png")
+ICON["&iSword"] = pygame.image.load("spr/icon/sword.png")
+ICON["&iBell"] = pygame.image.load("spr/icon/bell.png")
+ICON["&iGlove"] = pygame.image.load("spr/icon/glove.png")
+ICON["&iRing"] = pygame.image.load("spr/icon/ring.png")
+ICON["&iCharm"] = pygame.image.load("spr/icon/charm.png")
+ICON["&iGem"] = pygame.image.load("spr/icon/gem.png")
 
 class LogLevel():
     SYSTEM = 0
