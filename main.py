@@ -39,12 +39,10 @@ class Control(object):
         inventory.init()
         inventory.add_item("Potion", 2)
         inventory.add_item("Revive")
-        inventory.add_item("Stone Ring")
-        inventory.add_item("Crystal Shard")
-        inventory.add_item("Pepper Charm")
         animarium.add_animagus("Signis")
         animarium.add_animagus("Zeir")
         animarium.add_animagus("Luna")
+        animarium.add_animagus("Felix")
 
         self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
         self.LEVEL.load_file("lvl/level.map")

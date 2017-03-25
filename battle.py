@@ -585,7 +585,10 @@ class BattleUI (object):
 
         for i in range(0, self.itemTableLength):
             strings[i][0] = g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][0].icon + " " + g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][0].name
-            strings[i][1] = str(g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][1])
+            if g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][0].name != "":
+                strings[i][1] = str(g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][1])
+            else:
+                strings[i][1] = ""
             if g.INVENTORY[i + self.itemSelectOffset[curBattler.battlerIndex]][0].usableBattle:
                 colors[i][0] = g.WHITE
             else:

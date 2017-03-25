@@ -417,7 +417,7 @@ def create_data():
 
     name = "Revive"
     desc = "Restores life to a fallen ally"
-    icon = "&iPotion"
+    icon = "&iSalts"
     itemType = g.ItemType.CONSUMABLE
     limit = 99
     useAction = fcmd.Revive
@@ -432,7 +432,7 @@ def create_data():
 
     name = "Antidote"
     desc = "Cures poison"
-    icon = "&iPotion"
+    icon = "&iAntidote"
     itemType = g.ItemType.CONSUMABLE
     limit = 99
     useAction = None
@@ -600,7 +600,7 @@ def create_data():
 
     name = "Staccato"
     desc = "Deals ELEC damage to an enemy"
-    icon = "&iMusic"
+    icon = "&iNote-ylw"
     skillType = g.SkillType.MUSIC
     spCost = 10
     meterReq = 0
@@ -611,7 +611,7 @@ def create_data():
 
     name = "Adagio"
     desc = "Restores some HP to an ally"
-    icon = "&iMusic"
+    icon = "&iNote-wht"
     skillType = g.SkillType.MUSIC
     spCost = 15
     meterReq = 0
@@ -666,7 +666,7 @@ def create_data():
     ##########
     equip = {}
     equip["wpn"] = InvItem.dic["Royal Blade"]
-    equip["acc1"] = InvItem.dic[""]
+    equip["acc1"] = InvItem.dic["Crystal Shard"]
     equip["acc2"] = InvItem.dic[""]
 
     attr = {}
@@ -694,7 +694,6 @@ def create_data():
     commands.append(cmd.Defend)
     commands.append(cmd.Escape)
     skills = [Skill.dic["Sacrifice"]]
-    skills.append(Skill.dic["Blood Slash"])
 
     spr = "spr/battle/hero-luxe.png"
     size = 16
@@ -704,7 +703,7 @@ def create_data():
 
     equip = {}
     equip["wpn"] = InvItem.dic["Resobell"]
-    equip["acc1"] = InvItem.dic[""]
+    equip["acc1"] = InvItem.dic["Stone Ring"]
     equip["acc2"] = InvItem.dic[""]
     attr = {}
     attr["name"] = "Elle"
@@ -740,7 +739,7 @@ def create_data():
 
     equip = {}
     equip["wpn"] = InvItem.dic["Fur Gloves"]
-    equip["acc1"] = InvItem.dic[""]
+    equip["acc1"] = InvItem.dic["Pepper Charm"]
     equip["acc2"] = InvItem.dic[""]
     attr = {}
     attr["name"] = "Asa"
@@ -867,6 +866,15 @@ def create_data():
     growth = {}
     growth["str"] = 1
     skills = []
+
+    Animagus(name, baseExp, growth, skills)
+
+    name = "Felix"
+    baseExp = 80
+    growth = {}
+    growth["spr"] = 1
+    skills = []
+    skills.append(Skill.dic["Adagio"])
 
     Animagus(name, baseExp, growth, skills)
 
