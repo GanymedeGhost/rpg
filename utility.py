@@ -180,7 +180,7 @@ class TextManager:
                 if (self.charIndex < len(self.lines[self.lineIndex])):
 
                     if self.glyphIndex:
-                        if self.charIndex == self.glyphIndex[0]:
+                        if self.charIndex == self.glyphIndex[0] and self.lineIndex == self.glyphLine[0]:
                             self.uiSurf.blit(self.glyphList[0], (self.nextX, self.nextY))
                             del self.glyphList[0]
                             del self.glyphX[0]

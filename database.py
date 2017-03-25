@@ -29,7 +29,7 @@ class Hero (object):
         self.attr["hp"] = self.baseMaxHP
         self.attr["sp"] = self.baseMaxSP
 
-        self.exp = 0
+        self.exp = 500
 
         self.resD = resD
         for dmgType in range(0, g.DamageType.SIZE):
@@ -728,7 +728,6 @@ def create_data():
     commands.append(cmd.UseItem)
     commands.append(cmd.Defend)
     skills = [Skill.dic["Finale"]]
-    skills.append(Skill.dic["Staccato"])
 
     spr = "spr/battle/hero-elle.png"
     size = 16

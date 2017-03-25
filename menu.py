@@ -600,7 +600,7 @@ class MenuUI(object):
         colors = [[g.WHITE, g.WHITE], [g.WHITE, g.WHITE], [g.WHITE, g.WHITE]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_animagi_skills(self):
+    def update_animagi_skills_table(self):
         strings = self.animagiSkillsTable.strings
         colors = self.animagiSkillsTable.colors
         strings[0][1] = ""
@@ -779,7 +779,7 @@ class MenuUI(object):
     def open_animagi_menu(self):
         self.update_animagi_table()
         self.update_animagi_growth_table()
-        self.update_animagi_skills()
+        self.update_animagi_skills_table()
 
     def get_target(self, validTargets):
         self.validTargets = validTargets
@@ -862,11 +862,11 @@ class MenuUI(object):
             elif selection == 3:
                 inv.consolidate()
             elif selection == 1:
-                if (g.INVENTORY_SORT_KEY < len(g.INVENTORY_SORT_KEY)):
+                if (g.INVENTORY_SORT_KEY < len(g.INVENTORY_SORT_KEYS)):
                     g.INVENTORY_SORT_KEY = 0
                 else:
                     g.INVENTORY_SORT_KEY += 1
-                inv.sort_by(g.INVENTORY_SORT_KEY[g.INVENTORY_SORT_KEY])
+                inv.sort_by(g.INVENTORY_SORT_KEYS[g.INVENTORY_SORT_KEY])
             elif selection == 2:
                 self.MC.change_state(g.MenuState.ITEM_ORGANIZE)
                 self.restore_cursor()
@@ -960,7 +960,7 @@ class MenuUI(object):
         if self.animagiCursor + self.animagiCursorOffset != self.animagiCursorPrev + self.animagiCursorOffsetPrev:
             self.update_animagi_table()
             self.update_animagi_growth_table()
-            self.update_animagi_skills()
+            self.update_animagi_skills_table()
 
         self.animagiCursorPrev = self.animagiCursor
         self.animagiCursorOffsetPrev = self.animagiCursorOffset
@@ -979,6 +979,8 @@ class MenuUI(object):
             if selection == 0:
                 selIndex = self.animagiCursor + self.animagiCursorOffset
                 anmr.level_up(g.ANIMAGI[selIndex], self.currentHero)
+                self.update_animagi_growth_table()
+                self.update_animagi_skills_table()
                 self.MC.prev_state()
                 self.restore_cursor()
             else:
