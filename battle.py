@@ -20,13 +20,13 @@ import utility
 class BattleController (object):
     
     def __init__(self, controller, initiative = -1, escapable = False):
-        self.CONTROLLER = controller
+        self.controller = controller
         self.UI = BattleUI(self)
         
         random.seed()
         
-        self.BATTLE_STATE = g.BattleState.FIGHT
-        self.PREV_BATTLE_STATE = [self.BATTLE_STATE]
+        self.battleState = g.BattleState.FIGHT
+        self.prevBattleState = [self.battleState]
         
         self.battlers = []
         self.battlerCount = 0
@@ -52,7 +52,7 @@ class BattleController (object):
         self.escapable = escapable
         
         #heroes
-        for hero in g.PARTY_LIST:
+        for hero in g.partyList:
             isHero = True
             baseAttr = hero.attr.copy()
             baseAttr['atk'] = hero.baseAtk
@@ -80,7 +80,7 @@ class BattleController (object):
 
         #enemies
         self.monsterCounters = {}
-        for monster in g.MONSTER_LIST:
+        for monster in g.monsterList:
             isHero = False
             baseAttr = monster.attr.copy()
             baseAttr['maxHP'] = monster.attr['hp']
@@ -111,45 +111,45 @@ class BattleController (object):
         
         self.currentBattler = None
         self.queuedAction = None
-        self.UI_CALLBACK = None
+        self.uiCallback = None
         self.eventQueue = event.EventQueue()
 
     def change_state(self, state):
-        if self.BATTLE_STATE != g.BattleState.FIGHT and self.BATTLE_STATE != self.PREV_BATTLE_STATE:
-            self.PREV_BATTLE_STATE.append(self.BATTLE_STATE)
-        self.BATTLE_STATE = state
+        if self.battleState != g.BattleState.FIGHT and self.battleState != self.prevBattleState:
+            self.prevBattleState.append(self.battleState)
+        self.battleState = state
         
-        utility.log("BATTLE STATE CHANGED: " + str(self.PREV_BATTLE_STATE) + " >> " + str(self.BATTLE_STATE))
+        utility.log("BATTLE STATE CHANGED: " + str(self.prevBattleState) + " >> " + str(self.battleState))
 
     def prev_state(self):
-        index = len(self.PREV_BATTLE_STATE) - 1
-        self.BATTLE_STATE = self.PREV_BATTLE_STATE[index]
-        del self.PREV_BATTLE_STATE[index]
+        index = len(self.prevBattleState) - 1
+        self.battleState = self.prevBattleState[index]
+        del self.prevBattleState[index]
 
     def update(self):
         eventCallback = self.eventQueue.run()
         
         if not self.UI.messageList and eventCallback < 0:
-            if self.BATTLE_STATE == g.BattleState.AI:
+            if self.battleState == g.BattleState.AI:
                 self.UI.update()
-                if g.AI_TIMER > 0 and self.currentBattler.isDead == False:
-                    g.AI_TIMER -= self.CONTROLLER.CLOCK.get_time()
+                if g.aiTimer > 0 and self.currentBattler.isDead == False:
+                    g.aiTimer -= self.controller.clock.get_time()
                 else:
                     if not self.currentBattler.turnStarted:
                         self.currentBattler.take_turn()
                     else:
                         self.change_state(g.BattleState.FIGHT)
-            elif (self.BATTLE_STATE == g.BattleState.COMMAND or
-                  self.BATTLE_STATE == g.BattleState.ITEM or
-                  self.BATTLE_STATE == g.BattleState.SKILL):
-                self.UI_CALLBACK = self.UI.update()
-                if self.UI_CALLBACK != None:
-                    self.UI_CALLBACK.start(self.currentBattler)
-            elif self.BATTLE_STATE == g.BattleState.TARGET:
-                self.UI_CALLBACK = self.UI.update()
-                if self.UI_CALLBACK != None:
-                    self.queuedAction(self.currentBattler, self.UI_CALLBACK)
-            elif self.BATTLE_STATE == g.BattleState.FIGHT:
+            elif (self.battleState == g.BattleState.COMMAND or
+                  self.battleState == g.BattleState.ITEM or
+                  self.battleState == g.BattleState.SKILL):
+                self.uiCallback = self.UI.update()
+                if self.uiCallback != None:
+                    self.uiCallback.start(self.currentBattler)
+            elif self.battleState == g.BattleState.TARGET:
+                self.uiCallback = self.UI.update()
+                if self.uiCallback != None:
+                    self.queuedAction(self.currentBattler, self.uiCallback)
+            elif self.battleState == g.BattleState.FIGHT:
                 if self.enemies_alive() and self.heroes_alive():
                     if self.turnOrder:
                         if self.currentBattler:
@@ -160,7 +160,7 @@ class BattleController (object):
                                 battler.take_turn()
                             else:
                                 self.currentBattler = battler
-                                g.AI_TIMER = g.AI_DELAY
+                                g.aiTimer = g.AI_DELAY
                                 self.change_state(g.BattleState.AI)
                     else:
                         self.next_round()
@@ -173,19 +173,19 @@ class BattleController (object):
                             self.change_state(g.BattleState.LOSE)
                     else:
                         self.UI.update()
-            elif self.BATTLE_STATE == g.BattleState.ESCAPE:
+            elif self.battleState == g.BattleState.ESCAPE:
                 if not self.UI.messageList:
                     self.battle_cleanup()
                     self.change_state(g.BattleState.EXIT)
                 else:
                     self.UI.update()
-            elif self.BATTLE_STATE == g.BattleState.WIN:
+            elif self.battleState == g.BattleState.WIN:
                 if not self.UI.messageList:
                     self.battle_cleanup()
                     self.change_state(g.BattleState.EXIT)
                 else:
                     self.UI.update()
-            elif self.BATTLE_STATE == g.BattleState.LOSE:
+            elif self.battleState == g.BattleState.LOSE:
                 if not self.UI.messageList:
                     self.battle_cleanup()
                     self.change_state(g.BattleState.EXIT)
@@ -235,7 +235,7 @@ class BattleController (object):
         return nextBattler
 
     def next_round(self):
-        self.PREV_BATTLE_STATE = [self.BATTLE_STATE]
+        self.prevBattleState = [self.battleState]
         self.rounds += 1
         
         utility.log("", g.LogLevel.FEEDBACK)
@@ -538,7 +538,7 @@ class BattleUI (object):
         aligns = ["left", "right"]
         return Table(self.BC, topLeft, widths, heights, strings, aligns, [])
 
-    def update_skill_table_strings(self):
+    def update_skill_table(self):
         strings = self.skillTable.strings
         colors = self.skillTable.colors
         curBattler = self.BC.currentBattler
@@ -578,7 +578,7 @@ class BattleUI (object):
         aligns = ["left", "right"]
         return Table(self.BC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_item_table_strings(self):
+    def update_item_table(self):
         strings = self.itemTable.strings
         colors = self.itemTable.colors
         curBattler = self.BC.currentBattler
@@ -611,7 +611,7 @@ class BattleUI (object):
         aligns = ["left"]
         return Table(self.BC, topLeft, widths, heights, strings, aligns, [])
 
-    def update_target_table_strings(self):
+    def update_target_table(self):
         strings = self.targetTable.strings
         curBattler = self.BC.currentBattler
 
@@ -641,7 +641,10 @@ class BattleUI (object):
         self.init_cursor()
 
         self.BC.change_state(g.BattleState.TARGET)
-        self.update_target_table_strings()
+
+        del self.targetTable
+        self.targetTable = self.init_target_table()
+        self.update_target_table()
 
     def get_item(self, user):
         self.currentUser = user
@@ -651,7 +654,7 @@ class BattleUI (object):
         self.init_cursor()
 
         self.BC.change_state(g.BattleState.ITEM)
-        self.update_item_table_strings()
+        self.update_item_table()
 
     def get_skill(self, user):
         self.currentUser = user
@@ -661,7 +664,7 @@ class BattleUI (object):
         self.init_cursor()
 
         self.BC.change_state(g.BattleState.SKILL)
-        self.update_skill_table_strings()
+        self.update_skill_table()
 
     def process_get_command(self):
         selection = self.process_input(0, len(self.currentUser.commands)-1)
@@ -716,52 +719,52 @@ class BattleUI (object):
         self.targetTable.render(self.cursorIndex)
 
     def render_item_window(self):
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.indexImage, utility.add_tuple(self.windowAnchors[0], (2, -10)))
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(1 + self.cursorIndex + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]) + "/" + str(g.INVENTORY_MAX_SLOTS), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.indexImage, utility.add_tuple(self.windowAnchors[0], (2, -10)))
+        self.BC.controller.TM.draw_text_ralign(str(1 + self.cursorIndex + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]) + "/" + str(g.INVENTORY_MAX_SLOTS), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
 
-        self.update_item_table_strings()
+        self.update_item_table()
         self.itemTable.render(self.cursorIndex)
 
     def render_skill_window(self):
         battler = self.BC.currentBattler
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.indexImage, utility.add_tuple(self.windowAnchors[0], (2, -10)))
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(1 + self.cursorIndex + self.skillSelectOffset[battler.battlerIndex]) + "/" + str(len(battler.skills)), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.indexImage, utility.add_tuple(self.windowAnchors[0], (2, -10)))
+        self.BC.controller.TM.draw_text_ralign(str(1 + self.cursorIndex + self.skillSelectOffset[battler.battlerIndex]) + "/" + str(len(battler.skills)), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
 
         self.render_battler_sp(battler)
 
-        self.update_skill_table_strings()
+        self.update_skill_table()
         self.skillTable.render(self.cursorIndex)
 
     def render_hero_status(self):
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.windowImage, self.windowAnchors[0])
+        self.BC.controller.viewSurf.blit(self.windowImage, self.windowAnchors[0])
         index = 0
         for hero in self.BC.battlers:
             iconOffset = (0, 7)
             iconOffsetH = (9, 0)
             if (hero.isHero):
-                self.BC.CONTROLLER.TEXT_MANAGER.draw_text(hero.attr['name'][0:4], self.heroStatusAnchors[index], g.WHITE)
-                self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(hero.attr['hp']), utility.add_tuple(self.heroStatusAnchors[index], (56, 0)), g.WHITE)
+                self.BC.controller.TM.draw_text(hero.attr['name'][0:4], self.heroStatusAnchors[index], g.WHITE)
+                self.BC.controller.TM.draw_text_ralign(str(hero.attr['hp']), utility.add_tuple(self.heroStatusAnchors[index], (56, 0)), g.WHITE)
                 if hero.mods[g.BattlerStatus.STUN] > 0:
-                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
+                    self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
                     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                 if hero.mods[g.BattlerStatus.DEFEND] > 0:
-                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
+                    self.BC.controller.viewSurf.blit(self.iconDefend, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
                     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                 if hero.mods[g.BattlerStatus.POISON] > 0:
-                    self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
+                    self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
                     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                 self.render_meter(hero.skillType, self.heroStatusAnchors[index])
                 index += 1
 
     def render_battler_hp(self, battler):
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text("HP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.totalMaxHP), utility.add_tuple(self.windowAnchors[0], (116, -6)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
+        self.BC.controller.TM.draw_text("HP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
+        self.BC.controller.TM.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.totalMaxHP), utility.add_tuple(self.windowAnchors[0], (116, -6)), g.WHITE)
 
     def render_battler_sp(self, battler):
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text("SP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
-        self.BC.CONTROLLER.TEXT_MANAGER.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.totalMaxSP), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
+        self.BC.controller.TM.draw_text("SP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
+        self.BC.controller.TM.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.totalMaxSP), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
 
     def render_meter(self, skillType, pos):
         pos = utility.add_tuple(pos, self.meterIconOffset)
@@ -771,19 +774,19 @@ class BattleUI (object):
         elif skillType == g.SkillType.MOON:
             iconImg = self.iconMoon
         if skillType != g.SkillType.MUSIC:
-            for i in range (0, g.METER[skillType]):
-                self.BC.CONTROLLER.VIEW_SURF.blit(iconImg, pos)
+            for i in range (0, g.meter[skillType]):
+                self.BC.controller.viewSurf.blit(iconImg, pos)
                 pos = utility.add_tuple(pos, offset)
         else:
-            for i in g.METER[skillType]:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconNotes[i], pos)
+            for i in g.meter[skillType]:
+                self.BC.controller.viewSurf.blit(self.iconNotes[i], pos)
                 pos = utility.add_tuple(pos, offset)
 
     def render_turn_cursor(self):
         if self.BC.currentBattler:
             cursorOffset = utility.add_tuple((0, -self.BC.currentBattler.size), self.battlerCursorOffset)
             if self.BC.currentBattler:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTurnCursor, utility.add_tuple(self.BC.currentBattler.spr.pos, cursorOffset))
+                self.BC.controller.viewSurf.blit(self.currentTurnCursor, utility.add_tuple(self.BC.currentBattler.spr.pos, cursorOffset))
 
     def render_target_cursor(self):
         if self.validTargets:
@@ -791,14 +794,14 @@ class BattleUI (object):
                 battler = self.validTargets[self.cursorIndex]
                 if battler:
                     cursorOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
-                    self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetCursor, utility.add_tuple(battler.spr.pos, cursorOffset))
+                    self.BC.controller.viewSurf.blit(self.currentTargetCursor, utility.add_tuple(battler.spr.pos, cursorOffset))
                     if battler.turnOrder >= 0:
                         #this is currently rendering over any icons in the turn area
-                        self.BC.CONTROLLER.VIEW_SURF.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
+                        self.BC.controller.viewSurf.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
 
     def render_battlers(self):
-        dt = self.BC.CONTROLLER.CLOCK.get_time()
-        surf = self.BC.CONTROLLER.VIEW_SURF
+        dt = self.BC.controller.clock.get_time()
+        surf = self.BC.controller.viewSurf
         
         index = 0
         for battler in self.BC.battlers:
@@ -811,18 +814,18 @@ class BattleUI (object):
                 if not battler.isDead:
                     battler.spr.draw(surf)
                     if battler.mods[g.BattlerStatus.DEFEND] > 0:
-                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(battler.spr.pos, iconOffset))
+                        self.BC.controller.viewSurf.blit(self.iconDefend, utility.add_tuple(battler.spr.pos, iconOffset))
                         iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                     if battler.mods[g.BattlerStatus.STUN] > 0:
-                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, utility.add_tuple(battler.spr.pos, iconOffset))
+                        self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(battler.spr.pos, iconOffset))
                         iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
                     if battler.mods[g.BattlerStatus.POISON] > 0:
-                        self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(battler.spr.pos, iconOffset))
+                        self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(battler.spr.pos, iconOffset))
                         iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             index += 1
 
     def render_turns(self):
-        self.BC.CONTROLLER.VIEW_SURF.blit(self.turnImage, self.turnBannerAnchor)
+        self.BC.controller.viewSurf.blit(self.turnImage, self.turnBannerAnchor)
         for battler in self.BC.turnOrder:
             if (battler.isHero):
                 img = self.heroTurnImage
@@ -830,57 +833,57 @@ class BattleUI (object):
                 img = self.monTurnImage
                 
             anchorIndex = battler.turnOrder
-            self.BC.CONTROLLER.VIEW_SURF.blit(img, self.turnAnchors[anchorIndex])
-            self.BC.CONTROLLER.VIEW_SURF.blit(battler.icon, utility.add_tuple(self.turnAnchors[anchorIndex], (3,0)))
+            self.BC.controller.viewSurf.blit(img, self.turnAnchors[anchorIndex])
+            self.BC.controller.viewSurf.blit(battler.icon, utility.add_tuple(self.turnAnchors[anchorIndex], (3,0)))
             label = battler.attr['name'][0:5]
-            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(label, utility.add_tuple(self.turnAnchors[anchorIndex], (2,17)), g.WHITE, g.FONT_SML)
+            self.BC.controller.TM.draw_text(label, utility.add_tuple(self.turnAnchors[anchorIndex], (2,17)), g.WHITE, g.FONT_SML)
 
             iconOffset = (0, 0)
             iconOffsetH = (9, 0)
             
             if (battler.attr['hp'] <= 0):
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDead, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                self.BC.controller.viewSurf.blit(self.iconDead, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             if battler.mods[g.BattlerStatus.STUN] > 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDown, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             if battler.mods[g.BattlerStatus.DEFEND] > 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconDefend, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                self.BC.controller.viewSurf.blit(self.iconDefend, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             if battler.mods[g.BattlerStatus.POISON] > 0:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.iconPoison, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
 
     def render_help(self):
         if (self.helpLabel != ""):
-            self.BC.CONTROLLER.VIEW_SURF.blit(self.helpImage, utility.add_tuple(self.windowAnchors[0], (0,-11)))
-            self.BC.CONTROLLER.TEXT_MANAGER.draw_text(self.helpLabel, utility.add_tuple(self.windowAnchors[0], (4,-6)), g.WHITE)
+            self.BC.controller.viewSurf.blit(self.helpImage, utility.add_tuple(self.windowAnchors[0], (0,-11)))
+            self.BC.controller.TM.draw_text(self.helpLabel, utility.add_tuple(self.windowAnchors[0], (4,-6)), g.WHITE)
 
     def init_cursor(self):
-        g.CURSOR_TIMER = 0
-        g.CONFIRM_TIMER = g.CONFIRM_DELAY
+        g.cursorTimer = 0
+        g.confirmTimer = g.CONFIRM_DELAY
 
     def update(self):
-        self.BC.CONTROLLER.VIEW_SURF.fill(g.GREEN_BLUE)
+        self.BC.controller.viewSurf.fill(g.GREEN_BLUE)
         self.render_battlers()
         self.render_hero_status()
         #self.render_help()
 
-        if (self.BC.BATTLE_STATE != g.BattleState.WIN):
+        if (self.BC.battleState != g.BattleState.WIN):
             self.render_turns()
             self.render_turn_cursor()
 
-        if (self.BC.BATTLE_STATE == g.BattleState.TARGET):
+        if (self.BC.battleState == g.BattleState.TARGET):
             self.render_target_window()
             self.render_target_cursor()
             self.process_get_target()
-        elif (self.BC.BATTLE_STATE == g.BattleState.COMMAND):
+        elif (self.BC.battleState == g.BattleState.COMMAND):
             self.process_get_command()
             self.render_command_window()
-        elif (self.BC.BATTLE_STATE == g.BattleState.ITEM):
+        elif (self.BC.battleState == g.BattleState.ITEM):
             self.process_get_item()
             self.render_item_window()
-        elif (self.BC.BATTLE_STATE == g.BattleState.SKILL):
+        elif (self.BC.battleState == g.BattleState.SKILL):
             self.process_get_skill()
             self.render_skill_window()
 
@@ -896,7 +899,7 @@ class BattleUI (object):
             else:
                 del self.popupList[0]
         
-        self.BC.CONTROLLER.window_render()
+        self.BC.controller.window_render()
 
         if self.selectedThing != None:
             returnVal = self.selectedThing
@@ -906,50 +909,50 @@ class BattleUI (object):
             return None
 
     def process_input(self, cMin, cMax):
-        dT = self.BC.CONTROLLER.CLOCK.get_time()
-        if (g.CURSOR_TIMER >= 0):
-            g.CURSOR_TIMER -= dT
-        if (g.CONFIRM_TIMER >= 0):
-            g.CONFIRM_TIMER -= dT   
+        dT = self.BC.controller.clock.get_time()
+        if (g.cursorTimer >= 0):
+            g.cursorTimer -= dT
+        if (g.confirmTimer >= 0):
+            g.confirmTimer -= dT
         
-        if self.BC.CONTROLLER.KEYS[g.KEY_DOWN]:
-            if g.CURSOR_TIMER < 0:
-                g.CURSOR_TIMER = g.CURSOR_DELAY
+        if self.BC.controller.eventKeys[g.keyDown]:
+            if g.cursorTimer < 0:
+                g.cursorTimer = g.CURSOR_DELAY
                 self.cursorIndex += 1
-        elif self.BC.CONTROLLER.KEYS[g.KEY_UP]:
-            if g.CURSOR_TIMER < 0:
-                g.CURSOR_TIMER = g.CURSOR_DELAY
+        elif self.BC.controller.eventKeys[g.keyUp]:
+            if g.cursorTimer < 0:
+                g.cursorTimer = g.CURSOR_DELAY
                 self.cursorIndex -= 1
-        elif self.BC.CONTROLLER.KEYS[g.KEY_LEFT]:
-            if g.CURSOR_TIMER < 0:
-                g.CURSOR_TIMER = g.CURSOR_DELAY
-                if self.BC.BATTLE_STATE == g.BattleState.ITEM:
+        elif self.BC.controller.eventKeys[g.keyLeft]:
+            if g.cursorTimer < 0:
+                g.cursorTimer = g.CURSOR_DELAY
+                if self.BC.battleState == g.BattleState.ITEM:
                     self.itemSelectOffset[self.BC.currentBattler.battlerIndex] -= 5
-                elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
+                elif self.BC.battleState == g.BattleState.SKILL:
                     self.skillSelectOffset[self.BC.currentBattler.battlerIndex] -= 5
-        elif self.BC.CONTROLLER.KEYS[g.KEY_RIGHT]:
-            if g.CURSOR_TIMER < 0:
-                g.CURSOR_TIMER = g.CURSOR_DELAY
-                if self.BC.BATTLE_STATE == g.BattleState.ITEM:
+        elif self.BC.controller.eventKeys[g.keyRight]:
+            if g.cursorTimer < 0:
+                g.cursorTimer = g.CURSOR_DELAY
+                if self.BC.battleState == g.BattleState.ITEM:
                     self.itemSelectOffset[self.BC.currentBattler.battlerIndex] += 5
-                elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
+                elif self.BC.battleState == g.BattleState.SKILL:
                     self.skillSelectOffset[self.BC.currentBattler.battlerIndex] += 5
-        elif self.BC.CONTROLLER.KEYS[g.KEY_CONFIRM]:
-            if g.CONFIRM_TIMER < 0:
-                g.CONFIRM_TIMER = g.CONFIRM_DELAY
+        elif self.BC.controller.eventKeys[g.keyConfirm]:
+            if g.confirmTimer < 0:
+                g.confirmTimer = g.CONFIRM_DELAY
                 self.helpLabel = ""
                 return self.cursorIndex
-        elif self.BC.CONTROLLER.KEYS[g.KEY_CANCEL]:
-            if g.CONFIRM_TIMER < 0:
-                g.CONFIRM_TIMER = g.CONFIRM_DELAY
-                if self.BC.BATTLE_STATE != g.BattleState.COMMAND:
-                    if self.BC.BATTLE_STATE == g.BattleState.TARGET:
+        elif self.BC.controller.eventKeys[g.keyCancel]:
+            if g.confirmTimer < 0:
+                g.confirmTimer = g.CONFIRM_DELAY
+                if self.BC.battleState != g.BattleState.COMMAND:
+                    if self.BC.battleState == g.BattleState.TARGET:
                         self.showHP = False
                         self.showSP = False
                         self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
-                    elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
+                    elif self.BC.battleState == g.BattleState.SKILL:
                         self.skillCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
-                    elif self.BC.BATTLE_STATE == g.BattleState.ITEM:
+                    elif self.BC.battleState == g.BattleState.ITEM:
                         self.itemCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
                     self.helpLabel = ""
                     self.BC.prev_state()
@@ -961,7 +964,7 @@ class BattleUI (object):
 
     def limit_cursor(self, cMin, cMax):
         bIndex = self.BC.currentBattler.battlerIndex
-        if self.BC.BATTLE_STATE == g.BattleState.ITEM:
+        if self.BC.battleState == g.BattleState.ITEM:
             if self.cursorIndex > self.itemTableLength - 1:
                 self.itemSelectOffset[bIndex] += 1
                 self.cursorIndex -= 1
@@ -976,7 +979,7 @@ class BattleUI (object):
                 self.itemSelectOffset[bIndex] = g.INVENTORY_MAX_SLOTS - self.itemTableLength
                 self.cursorIndex = self.itemTableLength - 1
 
-        elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
+        elif self.BC.battleState == g.BattleState.SKILL:
             maxLength = min(len(self.BC.currentBattler.skills) - 1, self.skillTableLength - 1)
             if self.cursorIndex > maxLength:
                 self.skillSelectOffset[bIndex] += 1
@@ -992,7 +995,7 @@ class BattleUI (object):
                 self.skillSelectOffset[bIndex] = len(self.BC.currentBattler.skills) - maxLength - 1
                 self.cursorIndex = maxLength
 
-        elif self.BC.BATTLE_STATE == g.BattleState.TARGET:
+        elif self.BC.battleState == g.BattleState.TARGET:
             maxLength = min(len(self.validTargets) - 1, self.targetTableLength - 1)
             if self.cursorIndex > maxLength:
                 self.targetCursorOffset[bIndex] += 1
@@ -1014,11 +1017,11 @@ class BattleUI (object):
             self.cursorIndex = cMax
 
     def restore_cursor(self):
-        if self.BC.BATTLE_STATE == g.BattleState.COMMAND:
+        if self.BC.battleState == g.BattleState.COMMAND:
             self.cursorIndex = self.commandCursor[self.BC.currentBattler.battlerIndex]
-        elif self.BC.BATTLE_STATE == g.BattleState.ITEM:
+        elif self.BC.battleState == g.BattleState.ITEM:
             self.cursorIndex = self.itemCursor[self.BC.currentBattler.battlerIndex]
-        elif self.BC.BATTLE_STATE == g.BattleState.SKILL:
+        elif self.BC.battleState == g.BattleState.SKILL:
             self.cursorIndex = self.skillCursor[self.BC.currentBattler.battlerIndex]
 
     def create_popup(self, string, pos, col = g.WHITE, life = g.BATTLE_POPUP_LIFE):
@@ -1045,8 +1048,8 @@ class BattleUIPopup (object):
             self.halfTrigger = True
             self.speed *= -1
         self.y -= self.speed
-        self.life -= self.ui.BC.CONTROLLER.CLOCK.get_time()
-        self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text_shaded_centered(self.string, (self.x, math.floor(self.y)), self.col)
+        self.life -= self.ui.BC.controller.clock.get_time()
+        self.ui.BC.controller.TM.draw_text_shaded_centered(self.string, (self.x, math.floor(self.y)), self.col)
 
 class BattleUIMessage (object):
 
@@ -1059,10 +1062,10 @@ class BattleUIMessage (object):
         #self.textPos = utility.add_tuple((80,4), (-g.FONT_LRG.size(string)[0] // 2, 0))
 
     def update(self):
-        self.life -= self.ui.BC.CONTROLLER.CLOCK.get_time()
-        self.ui.BC.CONTROLLER.VIEW_SURF.blit(self.ui.messageBoxImage, self.boxPos)
-        self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text_centered(self.string, self.textPos, g.WHITE, g.FONT_LRG)
-        #self.ui.BC.CONTROLLER.TEXT_MANAGER.draw_text(self.string, self.textPos, g.WHITE, g.FONT_LRG)
+        self.life -= self.ui.BC.controller.clock.get_time()
+        self.ui.BC.controller.viewSurf.blit(self.ui.messageBoxImage, self.boxPos)
+        self.ui.BC.controller.TM.draw_text_centered(self.string, self.textPos, g.WHITE, g.FONT_LRG)
+        #self.ui.BC.controller.TM.draw_text(self.string, self.textPos, g.WHITE, g.FONT_LRG)
 
 #################
 ##ACTOR CLASSES##
@@ -1226,7 +1229,7 @@ class BattleActor (object):
         self.skillType = skillType
 
         if skillType == g.SkillType.BLOOD:
-            for i in range(0, g.METER[g.SkillType.BLOOD]):
+            for i in range(0, g.meter[g.SkillType.BLOOD]):
                 self.sacrifice()
 
         self.commands = commands
@@ -1502,13 +1505,13 @@ class BattleActor (object):
                 self.mods[g.BattlerStatus.WOLF] = 1
                 del self.spr
                 self.spr = Sprite("spr/battle/hero-asa-wolf.png", 16, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
-                self.attr['maxHP'] = self.baseAttr['maxHP'] + math.ceil(self.baseAttr['maxHP'] * 0.1 * g.METER[g.SkillType.MOON])
-                self.attr['atk'] = self.baseAttr['atk'] + math.ceil(self.baseAttr['atk'] * 0.1 * g.METER[g.SkillType.MOON])
-                self.attr['def'] = self.baseAttr['def'] + math.ceil(self.baseAttr['def'] * 0.1 * g.METER[g.SkillType.MOON])
-                self.attr['matk'] = self.baseAttr['matk'] - math.ceil(self.baseAttr['matk']  * 0.1 * g.METER[g.SkillType.MOON])
-                self.attr['mdef'] = self.baseAttr['mdef'] - math.ceil(self.baseAttr['mdef']  * 0.1 * g.METER[g.SkillType.MOON])
-                self.attr['agi'] = self.baseAttr['agi'] + math.ceil(self.baseAttr['agi'] * 0.1 * g.METER[g.SkillType.MOON])
-                self.attr['lck'] = self.baseAttr['lck'] - math.ceil(self.baseAttr['lck']  * 0.2 * g.METER[g.SkillType.MOON])
+                self.attr['maxHP'] = self.baseAttr['maxHP'] + math.ceil(self.baseAttr['maxHP'] * 0.1 * g.meter[g.SkillType.MOON])
+                self.attr['atk'] = self.baseAttr['atk'] + math.ceil(self.baseAttr['atk'] * 0.1 * g.meter[g.SkillType.MOON])
+                self.attr['def'] = self.baseAttr['def'] + math.ceil(self.baseAttr['def'] * 0.1 * g.meter[g.SkillType.MOON])
+                self.attr['matk'] = self.baseAttr['matk'] - math.ceil(self.baseAttr['matk'] * 0.1 * g.meter[g.SkillType.MOON])
+                self.attr['mdef'] = self.baseAttr['mdef'] - math.ceil(self.baseAttr['mdef'] * 0.1 * g.meter[g.SkillType.MOON])
+                self.attr['agi'] = self.baseAttr['agi'] + math.ceil(self.baseAttr['agi'] * 0.1 * g.meter[g.SkillType.MOON])
+                self.attr['lck'] = self.baseAttr['lck'] - math.ceil(self.baseAttr['lck'] * 0.2 * g.meter[g.SkillType.MOON])
             else:
                 self.clear_mods()
                 del self.spr
@@ -1612,7 +1615,7 @@ class Table ():
 
     def __init__(self, BC, topLeft, widths, heights, strings, aligns, colors):
         self.BC = BC
-        self.TM = BC.CONTROLLER.TEXT_MANAGER
+        self.TM = BC.controller.TM
         self.topLeft = topLeft
         self.widths = widths
         self.heights = heights
@@ -1643,5 +1646,5 @@ class Table ():
                     self.TM.draw_text_fr(self.strings[y][x], utility.add_tuple(offset, (self.widths[x], 0)), self.colors[y][x])
                 offset = utility.add_tuple(offset, (self.widths[x], 0))
             if cursor == y:
-                self.BC.CONTROLLER.VIEW_SURF.blit(self.BC.UI.cursorImage, utility.add_tuple((globalOffset[0], offset[1]), self.BC.UI.hCursorPosOffset))
+                self.BC.controller.viewSurf.blit(self.BC.UI.cursorImage, utility.add_tuple((globalOffset[0], offset[1]), self.BC.UI.hCursorPosOffset))
             offset = utility.add_tuple((globalOffset[0], offset[1]), (0, self.heights[y]))

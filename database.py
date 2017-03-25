@@ -353,10 +353,10 @@ class Skill (object):
     def check_cost(user, skill):
         if user.attr['sp'] >= skill.spCost:
             if skill.skillType != g.SkillType.MUSIC:
-                if g.METER[skill.skillType] >= skill.meterReq:
+                if g.meter[skill.skillType] >= skill.meterReq:
                     return True
             else:
-                if len(g.METER[skill.skillType]) >= skill.meterReq:
+                if len(g.meter[skill.skillType]) >= skill.meterReq:
                     return True
         return False
 

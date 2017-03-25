@@ -5,20 +5,14 @@ import pygame.locals
 import my_globals as g
 import utility
 
-DIR_DOWN = (0, 1)
-DIR_RIGHT = (1, 0)
-DIR_LEFT = (-1, 0)
-DIR_UP = (0, -1)
-
 class Level(object):
 
-    def __init__(self, viewport, control):
+    def __init__(self, viewport, controller):
         self.rect = pygame.Rect(0,0, 1,1)
         self.image = None
         self.viewport = viewport
-        #self.player = player
-        self.CONTROLLER = control
-        self.TEXT_MANAGER = self.CONTROLLER.TEXT_MANAGER
+        self.controllerler = controller
+        self.TM = self.controllerler.TM
         self.entities = {}
         self.tileset = {}
 
@@ -58,14 +52,14 @@ class Level(object):
                 self.key[section] = desc
         self.width = len(self.map[0])
         self.height = len(self.map)
-        self.MAP_CACHE = utility.TileCache(g.TILE_SIZE)
+        self.mapTileCache = utility.TileCache(g.TILE_SIZE)
         self.sprites = {}
         for y, line in enumerate(self.map):
             for x, c in enumerate(line):
                 if not self.is_wall(x, y) and 'sprite' in self.key[c]:
                     self.sprites[(x, y)] = self.key[c]
                 if 'entity' in self.key[c]:
-                    self.add_entity(ENTITY_DIC[self.key[c]['entity']](self.key[c]['name'], self, (x, y), self.MAP_CACHE['spr/red.png'], False))
+                    self.add_entity(ENTITY_DIC[self.key[c]['entity']](self.key[c]['name'], self, (x, y), self.mapTileCache['spr/red.png'], False))
 
     def get_tile(self, x, y):
         try:
@@ -104,7 +98,7 @@ class Level(object):
         if self.battleStepCounter <= 0:
             self.reset_battle_step_counter()
             index = random.randint(0, len(self.battleList)-1)
-            self.CONTROLLER.start_battle(self.battleList[index])
+            self.controllerler.start_battle(self.battleList[index])
 
     def reset_battle_step_counter(self):
         self.battleStepCounter = random.randint(self.battleRate[0], self.battleRate[1])
@@ -112,7 +106,7 @@ class Level(object):
     def add_entity(self, entity):
         try:
             if (self.entities[entity.handle] != entity):
-                utility.log("ERROR: An entity with handle '" + handle + "' already exists in this level", g.LogLevel.ERROR)
+                utility.log("ERROR: An entity with handle '" + entity.handle + "' already exists in this level", g.LogLevel.ERROR)
             else:
                 utility.log("ERROR: This entity already exists in this level", g.LogLevel.ERROR)
         except KeyError:
@@ -120,7 +114,7 @@ class Level(object):
 
     def render(self):
         wall = self.is_wall
-        tiles = self.MAP_CACHE[self.tileset]
+        tiles = self.mapTileCache[self.tileset]
         self.image = pygame.Surface((self.width*g.TILE_SIZE, self.height*g.TILE_SIZE))
         for map_y, line in enumerate(self.map):
             for map_x, c in enumerate(line):
@@ -152,7 +146,7 @@ class Entity(pygame.sprite.Sprite):
         self.animations = {}
         self.create_animation('default', [(0,0)])
 
-        self.facing = DIR_DOWN
+        self.facing = g.Dir.DOWN
         
         self.animated = animated
         self.animTime = animTime
@@ -167,6 +161,7 @@ class Entity(pygame.sprite.Sprite):
         self.pos = pos
 
         self.level = level
+        self.controller = self.level.controllerler
 
     def _get_pos(self):
         return (self.rect.topleft[0])//g.TILE_SIZE, (self.rect.topleft[1])//g.TILE_SIZE
@@ -226,7 +221,7 @@ class Entity(pygame.sprite.Sprite):
 class Actor(Entity):
     def __init__(self, handle, level, pos, tileset, animated, animTime = 200):
         Entity.__init__(self, handle, level, pos, tileset, animated, animTime)
-        
+
         self.create_animation('down', [(1,0), (0,0), (1,0), (2,0)])
         self.create_animation('up', [(1,1), (0,1), (1,1), (2,1)])
         self.create_animation('left', [(1,2), (0,2), (1,2), (2,2)])
@@ -281,13 +276,13 @@ class Actor(Entity):
         playerPos = self.level.entities["player"].pos
         dX = playerPos[0] - self.pos[0]
         dY = playerPos[1] - self.pos[1]
-        if ((dX,dY) == DIR_LEFT):
+        if ((dX,dY) == g.Dir.LEFT):
             self.set_anim("left", True)
-        elif ((dX,dY) == DIR_RIGHT):
+        elif ((dX,dY) == g.Dir.RIGHT):
             self.set_anim("right", True)
-        elif ((dX,dY) == DIR_UP):
+        elif ((dX,dY) == g.Dir.UP):
             self.set_anim("up", True)
-        elif ((dX,dY) == DIR_DOWN):
+        elif ((dX,dY) == g.Dir.DOWN):
             self.set_anim("down", True)
 
     def process_movement(self):
@@ -315,48 +310,48 @@ class Actor(Entity):
 class Player(Actor):
     def __init__(self, handle, level, pos, tileset, animated, animTime = 200):
         Actor.__init__(self, handle, level, pos, tileset, animated, animTime)
-        g.INPUT_TIMER = -1
+        g.inputTimer = -1
         self.resetConfirm = False
     
     def process_input(self, keys):
-        if (g.INPUT_TIMER > 0):
-            g.INPUT_TIMER -= self.level.CONTROLLER.CLOCK.get_time()
+        if (g.inputTimer > 0):
+            g.inputTimer -= self.controller.clock.get_time()
         mDir = ""
-        if not self.moving and not self.level.CONTROLLER.BATTLE:
-            if keys[g.KEY_DOWN]:
+        if not self.moving and not self.controller.BC:
+            if keys[g.keyDown]:
                 mDir = "down"
-                self.facing = DIR_DOWN
-            elif keys[g.KEY_UP]:
+                self.facing = g.Dir.DOWN
+            elif keys[g.keyUp]:
                 mDir = "up"
-                self.facing = DIR_UP
-            elif keys[g.KEY_LEFT]:
+                self.facing = g.Dir.UP
+            elif keys[g.keyLeft]:
                 mDir = "left"
-                self.facing = DIR_LEFT
-            elif keys[g.KEY_RIGHT]:
+                self.facing = g.Dir.LEFT
+            elif keys[g.keyRight]:
                 mDir = "right"
-                self.facing = DIR_RIGHT
-            if keys[g.KEY_MENU]:
-                if (g.INPUT_TIMER <= 0 and not self.resetConfirm):
-                    self.level.CONTROLLER.open_menu()
-            if keys[g.KEY_CONFIRM]:
-                if (g.INPUT_TIMER <= 0 and not self.resetConfirm):
+                self.facing = g.Dir.RIGHT
+            if keys[g.keyMenu]:
+                if (g.inputTimer <= 0 and not self.resetConfirm):
+                    self.controller.open_menu()
+            if keys[g.keyConfirm]:
+                if (g.inputTimer <= 0 and not self.resetConfirm):
                     self.try_interact()
-                    g.INPUT_TIMER = g.INPUT_DELAY
+                    g.inputTimer = g.INPUT_DELAY
                     self.resetConfirm = True
-            elif (g.INPUT_TIMER <= 0):
+            elif (g.inputTimer <= 0):
                     self.resetConfirm = False
             if (mDir != ""):
                 self.set_anim(mDir, False)
                 self.try_move(mDir)
 
     def on_step(self):
-        g.STEP_COUNTER += 1
-        g.MOON_COUNTER -= 1
-        if g.MOON_COUNTER < 0:
-            g.MOON_COUNTER = g.MOON_COUNTER_MAX
-            g.METER[g.SkillType.MOON] += 1
-            if g.METER[g.SkillType.MOON] > g.METER_MAX:
-                g.METER[g.SkillType.MOON] = 0
+        g.stepCounter += 1
+        g.moonStepCounter -= 1
+        if g.moonStepCounter < 0:
+            g.moonStepCounter = g.MOON_COUNTER_MAX
+            g.meter[g.SkillType.MOON] += 1
+            if g.meter[g.SkillType.MOON] > g.METER_MAX:
+                g.meter[g.SkillType.MOON] = 0
         self.level.check_random_battle()
 
     def try_interact(self):
@@ -392,13 +387,13 @@ class Actor001 (Actor):
         else:
             string = "This is the beginning of some really long diaglogue. Great dialogue! But, like, really long dialogue. You know? Isn't dialogue great? Isn't this dialogue great? I think this dialogue is excellent. Really exccellent. 1 2 3 4 5 6 7 8 9 0 20 300 4000 50000 600000 7000000 80000000 900000000 10000000000"
             
-        self.level.TEXT_MANAGER.create_text_box(string)
+        self.controller.TM.create_text_box(string)
 
 class Actor002 (Actor):
     
     def interact(self):
         self.face_player()
-        self.level.CONTROLLER.start_battle(["Slime", "Mold", "Slime", "Slime", "Mold"])
+        self.controller.start_battle(["Slime", "Mold", "Slime", "Slime", "Mold"])
 
 ENTITY_DIC = {}
 ENTITY_DIC["actor001"] = Actor001

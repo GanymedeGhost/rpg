@@ -344,8 +344,8 @@ class Sacrifice():
 
     def run(self):
         utility.log(self.user.attr['name'] + " uses Sacrifice.", g.LogLevel.FEEDBACK)
-        if g.METER[g.SkillType.BLOOD] < g.METER_MAX:
-            g.METER[g.SkillType.BLOOD] += 1
+        if g.meter[g.SkillType.BLOOD] < g.METER_MAX:
+            g.meter[g.SkillType.BLOOD] += 1
             self.user.BC.UI.create_popup("MAX HP DOWN", self.user.spr.pos, g.RED)
             self.user.sacrifice()
 
@@ -394,9 +394,9 @@ class Finale():
 
         hash = ""
 
-        for note in g.METER[g.SkillType.MUSIC]:
+        for note in g.meter[g.SkillType.MUSIC]:
             hash += str(note)
-        g.METER[g.SkillType.MUSIC] = []
+        g.meter[g.SkillType.MUSIC] = []
 
         if hash == "44":
             self.user.BC.UI.create_message("Thunderclap")
@@ -476,7 +476,7 @@ class BloodSlash():
                 if self.user.BC.crit_calc(self.user, self.target):
                     dmg*=2
                     self.target.stun()
-                dmg += dmg*g.METER[g.SkillType.BLOOD]
+                dmg += dmg*g.meter[g.SkillType.BLOOD]
                 dmg -= self.user.BC.phys_def_calc(self.user, self.target)
                 if (dmg < 0):
                     dmg = 0

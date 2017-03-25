@@ -13,23 +13,23 @@ def scale_tuple(o, f):
     return p0, p1
 
 def play_time():
-    g.PLAY_SEC += 1
-    if g.PLAY_SEC > 60:
-        g.PLAY_SEC -= 60
-        g.PLAY_MIN += 1
-    if g.PLAY_MIN > 60:
-        g.PLAY_MIN -= 60
-        g.PLAY_HR += 1
+    g.playTimeSec += 1
+    if g.playTimeSec > 60:
+        g.playTimeSec -= 60
+        g.playTimeMin += 1
+    if g.playTimeMin > 60:
+        g.playTimeMin -= 60
+        g.playTimeHour += 1
 
-    if g.PLAY_SEC < 10:
-        g.PLAY_SEC_STR = "0" + str(g.PLAY_SEC)
+    if g.playTimeSec < 10:
+        g.playTimeSecText = "0" + str(g.playTimeSec)
     else:
-        g.PLAY_SEC_STR = str(g.PLAY_SEC)
-    if g.PLAY_MIN < 10:
-        g.PLAY_MIN_STR = "0" + str(g.PLAY_MIN)
+        g.playTimeSecText = str(g.playTimeSec)
+    if g.playTimeMin < 10:
+        g.playTimeMinText = "0" + str(g.playTimeMin)
     else:
-        g.PLAY_MIN_STR = str(g.PLAY_MIN)
-    g.PLAY_HR_STR = str(g.PLAY_HR)
+        g.playTimeMinText = str(g.playTimeMin)
+    g.playTimeHourText = str(g.playTimeHour)
 
 def colorize(image, newColor):
     """
@@ -47,7 +47,7 @@ def colorize(image, newColor):
     return image
 
 def log(string = "", level = g.LogLevel.DEBUG):
-    if g.LOG_FILTER[level]:
+    if g.logFilter[level]:
         print (string)
                
 class TileCache:
@@ -129,7 +129,7 @@ class TextManager:
                 curWidth += self.curFont.size("  ")[0]
 
                 glyphX.append(curWidth)
-                glyphList.append(g.ICON_CACHE.icon(words[wordIndex]))
+                glyphList.append(g.iconCache.icon(words[wordIndex]))
                 glyphLine.append(len(lines))
 
                 wordIndex += 1
@@ -169,7 +169,7 @@ class TextManager:
         if not self.boxDrawn:
             self.SURF.blit(self.boxImage, (0, 111))
             self.boxDrawn = True
-        if (keys[g.KEY_CONFIRM]):
+        if (keys[g.keyConfirm]):
             self.frameCounter += self.frameSkip
         if (self.frameCounter > self.frameDelay):
             self.frameCounter = 0
@@ -186,7 +186,7 @@ class TextManager:
                     self.nextY += self.curFont.size("X")[1]
                     self.charIndex = 0
                     self.lineIndex += 1
-            elif (keys[g.KEY_CONFIRM]):
+            elif (keys[g.keyConfirm]):
                 if (self.confirmReleased):
                     if (self.lineIndex == len(self.lines)):
                         self.destroy_text_box()

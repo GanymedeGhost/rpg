@@ -9,7 +9,7 @@ def get_target(MC, cmdClass, alive = True, dead = False):
 
     validTargets = []
     index = 0
-    for target in g.PARTY_LIST:
+    for target in g.partyList:
         if alive and not target.isDead or dead and target.isDead:
             validTargets.append(target)
         index += 1

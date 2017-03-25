@@ -221,6 +221,13 @@ class Initiative():
 
     SIZE = 3
 
+
+class Dir():
+    DOWN = (0, 1)
+    RIGHT = (1, 0)
+    LEFT = (-1, 0)
+    UP = (0, -1)
+
 #####################
 ### END CONSTANTS ###
 #####################
@@ -236,57 +243,57 @@ class IconCache():
         try:
             return self.dic[icon]
         except KeyError:
-            self.dic[icon] = pygame.image.load("spr/icon/" + icon + ".png")
+            self.dic[icon] = pygame.image.load("spr/icons/" + icon + ".png")
             return self.dic[icon]
 
-ICON_CACHE = IconCache()
+iconCache = IconCache()
 
-CURSOR_TIMER = 0
-CONFIRM_TIMER = 0
-INPUT_TIMER = 0
-AI_TIMER = 0
+cursorTimer = 0
+confirmTimer = 0
+inputTimer = 0
+aiTimer = 0
 
-PLAY_SEC = 0
-PLAY_MIN = 0
-PLAY_HR = 0
-PLAY_SEC_STR = "00"
-PLAY_MIN_STR = "00"
-PLAY_HR_STR = "0"
+playTimeSec = 0
+playTimeMin = 0
+playTimeHour = 0
+playTimeSecText = "00"
+playTimeMinText = "00"
+playTimeHourText = "0"
 
-KEY_CONFIRM = pygame.K_z
-KEY_CANCEL = pygame.K_x
-KEY_MENU = pygame.K_c
-KEY_UP = pygame.K_UP
-KEY_DOWN = pygame.K_DOWN
-KEY_LEFT = pygame.K_LEFT
-KEY_RIGHT = pygame.K_RIGHT
+keyConfirm = pygame.K_z
+keyCancel = pygame.K_x
+keyMenu = pygame.K_c
+keyUp = pygame.K_UP
+keyDown = pygame.K_DOWN
+keyLeft = pygame.K_LEFT
+keyRight = pygame.K_RIGHT
 
-LOG_FILTER = {}
-LOG_FILTER[LogLevel.SYSTEM] = True
-LOG_FILTER[LogLevel.DEBUG] = False
-LOG_FILTER[LogLevel.ERROR] = True
-LOG_FILTER[LogLevel.FEEDBACK] = False
+logFilter = {}
+logFilter[LogLevel.SYSTEM] = True
+logFilter[LogLevel.DEBUG] = False
+logFilter[LogLevel.ERROR] = True
+logFilter[LogLevel.FEEDBACK] = False
 
-STEP_COUNTER = 0
+stepCounter = 0
+moonStepCounter = MOON_COUNTER_MAX
 
-MOON_COUNTER = MOON_COUNTER_MAX
-
-PARTY_LIST = []
-MONSTER_LIST = []
 INVENTORY = [] #stores tuples (item, quantity)
 INVENTORY_SORT_KEY = 0
 ANIMAGI = []
 ANIMAGI_SORT_KEY = 0
 GP = 100
 
-METER = {}
-METER[SkillType.BLOOD] = 0
-METER[SkillType.MUSIC] = [] #fills with damage types
-METER[SkillType.MOON] = 0
+partyList = []
+monsterList = []
+
+meter = {}
+meter[SkillType.BLOOD] = 0
+meter[SkillType.MUSIC] = [] #fills with damage types
+meter[SkillType.MOON] = 0
 
 def music_meter_add(damageType):
-    METER[SkillType.MUSIC].insert(0, damageType)
-    if len(METER[SkillType.MUSIC]) > METER_MAX:
-        del METER[SkillType.MUSIC][METER_MAX]
+    meter[SkillType.MUSIC].insert(0, damageType)
+    if len(meter[SkillType.MUSIC]) > METER_MAX:
+        del meter[SkillType.MUSIC][METER_MAX]
 
 

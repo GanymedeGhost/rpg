@@ -13,28 +13,28 @@ import utility
 class Control(object):
     def __init__(self):
         ##THIS SHOULD REALLY START AS INIT
-        self.GAME_STATE = g.GameState.MAP
+        self.gameState = g.GameState.MAP
 
-        self.VIEW_SURF = pygame.Surface((g.VIEW_WIDTH, g.VIEW_HEIGHT))
-        self.VIEW_RECT = self.VIEW_SURF.get_rect()
-        self.SCREEN = pygame.display.set_mode((g.WIN_WIDTH, g.WIN_HEIGHT))
-        self.CLOCK = pygame.time.Clock()
-        self.CURRENT_STATE = None
-        self.SPRITE_CACHE = utility.TileCache(g.TILE_SIZE)
+        self.viewSurf = pygame.Surface((g.VIEW_WIDTH, g.VIEW_HEIGHT))
+        self.viewRect = self.viewSurf.get_rect()
+        self.screen = pygame.display.set_mode((g.WIN_WIDTH, g.WIN_HEIGHT))
+        self.clock = pygame.time.Clock()
+        self.loopState = None
+        self.spriteCache = utility.TileCache(g.TILE_SIZE)
 
-        self.KEYS = pygame.key.get_pressed()
+        self.eventKeys = pygame.key.get_pressed()
 
-        self.TEXT_MANAGER = utility.TextManager(self.VIEW_SURF)
+        self.TM = utility.TextManager(self.viewSurf)
 
-        self.BATTLE = None
-        self.MENU = None
+        self.BC = None
+        self.MC = None
 
         self.playTimeEvent = pygame.USEREVENT + 1
         pygame.time.set_timer(self.playTimeEvent, 1000)
         
-        g.PARTY_LIST.append(db.Hero.dic["Luxe"])
-        g.PARTY_LIST.append(db.Hero.dic["Elle"])
-        g.PARTY_LIST.append(db.Hero.dic["Asa"])
+        g.partyList.append(db.Hero.dic["Luxe"])
+        g.partyList.append(db.Hero.dic["Elle"])
+        g.partyList.append(db.Hero.dic["Asa"])
         
         inventory.init()
         inventory.add_item("Potion", 2)
@@ -44,70 +44,70 @@ class Control(object):
         animarium.add_animagus("Luna")
         animarium.add_animagus("Felix")
 
-        self.LEVEL = world.Level(self.VIEW_RECT.copy(), self)
-        self.LEVEL.load_file("lvl/level.map")
-        self.LEVEL.add_entity(world.Player("player", self.LEVEL, (1,0), self.SPRITE_CACHE['spr/red.png'], True))
+        self.curLevel = world.Level(self.viewRect.copy(), self)
+        self.curLevel.load_file("lvl/level.map")
+        self.curLevel.add_entity(world.Player("player", self.curLevel, (1, 0), self.spriteCache['spr/red.png'], True))
 
         self.skipRender = False
 
     def start_battle(self, monsters, initiative = -1):
-        g.MONSTER_LIST = []
+        g.monsterList = []
         for key in monsters:
-            g.MONSTER_LIST.append(db.Monster.dic[key])
-        self.BATTLE = battle.BattleController(self, initiative)
-        self.GAME_STATE = g.GameState.BATTLE
+            g.monsterList.append(db.Monster.dic[key])
+        self.BC = battle.BattleController(self, initiative)
+        self.gameState = g.GameState.BATTLE
 
     def open_menu(self):
-        self.MENU = menu.MenuController(self)
-        self.GAME_STATE = g.GameState.MENU
+        self.MC = menu.MenuController(self)
+        self.gameState = g.GameState.MENU
 
     def event_loop(self):
         for event in pygame.event.get():
-            self.KEYS = pygame.key.get_pressed()
-            if event.type == pygame.QUIT or self.KEYS[pygame.K_ESCAPE]:
-                self.CURRENT_STATE = -1
+            self.eventKeys = pygame.key.get_pressed()
+            if event.type == pygame.QUIT or self.eventKeys[pygame.K_ESCAPE]:
+                self.loopState = -1
             if event.type == self.playTimeEvent:
                 utility.play_time()
                 pygame.time.set_timer(self.playTimeEvent, 1000)
             ###DEBUG KEYS
-            if self.KEYS[pygame.K_1]:
-                g.LOG_FILTER[g.LogLevel.DEBUG] = not g.LOG_FILTER[g.LogLevel.DEBUG]
-                utility.log("Debug Log: " + str(g.LOG_FILTER[g.LogLevel.DEBUG]), g.LogLevel.SYSTEM)
-            if self.KEYS[pygame.K_2]:
-                g.LOG_FILTER[g.LogLevel.ERROR] = not g.LOG_FILTER[g.LogLevel.ERROR]
-                utility.log("Error Log: " + str(g.LOG_FILTER[g.LogLevel.ERROR]), g.LogLevel.SYSTEM)
-            if self.KEYS[pygame.K_3]:
-                g.LOG_FILTER[g.LogLevel.FEEDBACK] = not g.LOG_FILTER[g.LogLevel.FEEDBACK]
-                utility.log("Feedback Log: " + str(g.LOG_FILTER[g.LogLevel.FEEDBACK]), g.LogLevel.SYSTEM)
-            if self.KEYS[pygame.K_4]:
+            if self.eventKeys[pygame.K_1]:
+                g.logFilter[g.LogLevel.DEBUG] = not g.logFilter[g.LogLevel.DEBUG]
+                utility.log("Debug Log: " + str(g.logFilter[g.LogLevel.DEBUG]), g.LogLevel.SYSTEM)
+            if self.eventKeys[pygame.K_2]:
+                g.logFilter[g.LogLevel.ERROR] = not g.logFilter[g.LogLevel.ERROR]
+                utility.log("Error Log: " + str(g.logFilter[g.LogLevel.ERROR]), g.LogLevel.SYSTEM)
+            if self.eventKeys[pygame.K_3]:
+                g.logFilter[g.LogLevel.FEEDBACK] = not g.logFilter[g.LogLevel.FEEDBACK]
+                utility.log("Feedback Log: " + str(g.logFilter[g.LogLevel.FEEDBACK]), g.LogLevel.SYSTEM)
+            if self.eventKeys[pygame.K_4]:
                 inventory.sort_by(g.INVENTORY_SORT_KEY)
 
     def display_fps(self):
-        caption = "{} - FPS: {:.2f}".format(g.CAPTION, self.CLOCK.get_fps())
+        caption = "{} - FPS: {:.2f}".format(g.CAPTION, self.clock.get_fps())
         pygame.display.set_caption(caption)
 
     def update(self):
-        if self.GAME_STATE == g.GameState.MAP:
-                if not self.TEXT_MANAGER.isTyping:
-                    self.LEVEL.update(self.CLOCK.get_time(), self.KEYS)
-                    self.LEVEL.draw(self.VIEW_SURF)
+        if self.gameState == g.GameState.MAP:
+                if not self.TM.isTyping:
+                    self.curLevel.update(self.clock.get_time(), self.eventKeys)
+                    self.curLevel.draw(self.viewSurf)
                 else:
-                    self.TEXT_MANAGER.type_text(self.KEYS)
-        elif self.GAME_STATE == g.GameState.BATTLE:
-            if self.BATTLE.BATTLE_STATE != g.BattleState.EXIT:
-                self.BATTLE.update()
+                    self.TM.type_text(self.eventKeys)
+        elif self.gameState == g.GameState.BATTLE:
+            if self.BC.battleState != g.BattleState.EXIT:
+                self.BC.update()
             else:
-                g.INPUT_TIMER = g.INPUT_DELAY
-                self.GAME_STATE = g.GameState.MAP
-                del self.BATTLE
-                self.BATTLE = None
-        elif self.GAME_STATE == g.GameState.MENU:
-            if self.MENU.menuState != g.MenuState.EXIT:
-                self.MENU.update()
+                g.inputTimer = g.INPUT_DELAY
+                self.gameState = g.GameState.MAP
+                del self.BC
+                self.BC = None
+        elif self.gameState == g.GameState.MENU:
+            if self.MC.menuState != g.MenuState.EXIT:
+                self.MC.update()
             else:
-                self.GAME_STATE = g.GameState.MAP
-                del self.MENU
-                self.MENU = None
+                self.gameState = g.GameState.MAP
+                del self.MC
+                self.MC = None
     
         if not self.skipRender:
                 self.window_render()
@@ -115,15 +115,15 @@ class Control(object):
                 self.skipRender = False
 
     def window_render(self):
-        pygame.transform.scale(self.VIEW_SURF, (g.WIN_WIDTH, g.WIN_HEIGHT), self.SCREEN)
+        pygame.transform.scale(self.viewSurf, (g.WIN_WIDTH, g.WIN_HEIGHT), self.screen)
         pygame.display.flip()
 
     def main_loop(self):
-        while self.CURRENT_STATE != -1:
+        while self.loopState != -1:
             self.event_loop()
             self.update()
             pygame.display.update()
-            self.CLOCK.tick(30)
+            self.clock.tick(30)
             self.display_fps()
 
 def main():

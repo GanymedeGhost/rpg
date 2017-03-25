@@ -264,7 +264,7 @@ class MenuUI(object):
         colors = [[g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_item_table_strings(self):
+    def update_item_table(self):
         strings = self.itemTable.strings
         for i in range(0, self.itemTableLength):
             ii = i + self.itemCursorOffset
@@ -286,7 +286,7 @@ class MenuUI(object):
         aligns = ["right", "left", "right"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
 
-    def update_skill_table_strings(self):
+    def update_skill_table(self):
         strings = self.skillTable.strings
         colors = self.skillTable.colors
         for i in range(0, self.skillTableLength):
@@ -320,7 +320,7 @@ class MenuUI(object):
         colors = [[g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_equip_slot_table_strings(self):
+    def update_equip_slot_table(self):
         strings = self.equipSlotTable.strings
         i = 0
         for slot in self.currentHero.equip:
@@ -338,7 +338,7 @@ class MenuUI(object):
         aligns = ["left"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
 
-    def update_equip_list_table_strings(self):
+    def update_equip_list_table(self):
         strings = self.equipListTable.strings
         for i in range(0, self.equipListTableLength):
             ii = i + self.equipListCursorOffset
@@ -359,7 +359,7 @@ class MenuUI(object):
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_equip_cur_stats_strings(self):
+    def update_equip_cur_stats(self):
         self.equipCurStatsTable.strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings = self.equipCurStatsTable.strings
         colors = self.equipCurStatsTable.colors
@@ -392,7 +392,7 @@ class MenuUI(object):
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_equip_cur_res_strings(self):
+    def update_equip_cur_res(self):
         self.equipCurResTable.strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings = self.equipCurResTable.strings
         colors = self.equipCurResTable.colors
@@ -428,7 +428,7 @@ class MenuUI(object):
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_equip_sel_stats_strings(self):
+    def update_equip_sel_stats(self):
         self.equipSelStatsTable.strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings = self.equipSelStatsTable.strings
         colors = self.equipSelStatsTable.colors
@@ -461,7 +461,7 @@ class MenuUI(object):
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_equip_sel_res_strings(self):
+    def update_equip_sel_res(self):
         self.equipSelResTable.strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings = self.equipSelResTable.strings
         colors = self.equipSelResTable.colors
@@ -497,7 +497,7 @@ class MenuUI(object):
         colors = [[g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_animagi_table_strings(self):
+    def update_animagi_table(self):
         strings = self.animagiTable.strings
         for i in range(0, self.animagiTableLength):
             ii = i + self.animagiCursorOffset
@@ -525,7 +525,7 @@ class MenuUI(object):
         colors = [[g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_animagi_growth_table_strings(self):
+    def update_animagi_growth_table(self):
         strings = self.animagiGrowthTable.strings
 
         selIndex = self.animagiCursor + self.animagiCursorOffset
@@ -578,7 +578,7 @@ class MenuUI(object):
         colors = [[g.WHITE, g.WHITE], [g.WHITE, g.WHITE], [g.WHITE, g.WHITE]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_animagi_skills_strings(self):
+    def update_animagi_skills(self):
         strings = self.animagiSkillsTable.strings
         colors = self.animagiSkillsTable.colors
         strings[0][1] = ""
@@ -625,7 +625,7 @@ class MenuUI(object):
         colors = [[g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_stats_table_strings(self):
+    def update_stats_table(self):
         strings = self.statsTable.strings
         colors = self.statsTable.colors
         strings[0][1] = str(self.currentHero.attr['str'])
@@ -681,7 +681,7 @@ class MenuUI(object):
         colors = [[g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
-    def update_res_table_strings(self):
+    def update_res_table(self):
         strings = self.resTable.strings
         colors = self.resTable.colors
 
@@ -745,19 +745,19 @@ class MenuUI(object):
         self.render_item_options(self)
 
     def open_item_menu(self):
-        self.update_item_table_strings()
+        self.update_item_table()
 
     def open_equip_menu(self):
-        self.update_equip_slot_table_strings()
-        self.update_equip_list_table_strings()
+        self.update_equip_slot_table()
+        self.update_equip_list_table()
 
     def open_skill_menu(self):
-        self.update_skill_table_strings()
+        self.update_skill_table()
 
     def open_animagi_menu(self):
-        self.update_animagi_table_strings()
-        self.update_animagi_growth_table_strings()
-        self.update_animagi_skills_strings()
+        self.update_animagi_table()
+        self.update_animagi_growth_table()
+        self.update_animagi_skills()
 
     def get_target(self, validTargets):
         self.validTargets = validTargets
@@ -795,31 +795,31 @@ class MenuUI(object):
 
     def process_get_skill_hero(self):
         self.skillHeroCursor = self.cursorIndex
-        selection = self.process_input(0, len(g.PARTY_LIST)-1)
+        selection = self.process_input(0, len(g.partyList) - 1)
         if selection > -1:
-            self.currentHero = g.PARTY_LIST[selection]
+            self.currentHero = g.partyList[selection]
             self.MC.change_state(g.MenuState.SKILL)
             self.cursorIndex = 0
 
     def process_get_equip_hero(self):
         self.equipHeroCursor = self.cursorIndex
-        selection = self.process_input(0, len(g.PARTY_LIST)-1)
+        selection = self.process_input(0, len(g.partyList) - 1)
         if selection > -1:
-            self.currentHero = g.PARTY_LIST[selection]
+            self.currentHero = g.partyList[selection]
             self.MC.change_state(g.MenuState.EQUIP)
             self.cursorIndex = 0
 
     def process_get_animagi_hero(self):
         self.animagiHeroCursor = self.cursorIndex
-        selection = self.process_input(0, len(g.PARTY_LIST)-1)
+        selection = self.process_input(0, len(g.partyList) - 1)
         if selection > -1:
-            self.currentHero = g.PARTY_LIST[selection]
+            self.currentHero = g.partyList[selection]
             self.MC.change_state(g.MenuState.ANIMAGI)
             self.open_animagi_menu()
             self.cursorIndex = 0
 
     def process_get_status_hero(self):
-        self.process_input(0, len(g.PARTY_LIST) - 1)
+        self.process_input(0, len(g.partyList) - 1)
 
     def process_get_item_options(self):
         self.itemOptionsCursor = self.cursorIndex
@@ -830,11 +830,11 @@ class MenuUI(object):
             elif selection == 3:
                 inv.consolidate()
             elif selection == 1:
-                if (g.INVENTORY_SORT_KEY < len(g.INVENTORY_SORT_KEYS)):
+                if (g.INVENTORY_SORT_KEY < len(g.INVENTORY_SORT_KEY)):
                     g.INVENTORY_SORT_KEY = 0
                 else:
                     g.INVENTORY_SORT_KEY += 1
-                inv.sort_by(g.INVENTORY_SORT_KEYS[g.INVENTORY_SORT_KEY])
+                inv.sort_by(g.INVENTORY_SORT_KEY[g.INVENTORY_SORT_KEY])
             elif selection == 2:
                 self.MC.change_state(g.MenuState.ITEM_ORGANIZE)
                 self.restore_cursor()
@@ -846,7 +846,7 @@ class MenuUI(object):
         self.itemCursor = self.cursorIndex
 
         if self.itemCursor + self.itemCursorOffset != self.itemCursorPrev + self.itemCursorOffsetPrev:
-            self.update_item_table_strings()
+            self.update_item_table()
 
         self.itemCursorPrev = self.itemCursor
         self.itemCursorOffsetPrev = self.itemCursorOffset
@@ -862,7 +862,7 @@ class MenuUI(object):
         self.itemCursor = self.cursorIndex
 
         if self.itemCursor + self.itemCursorOffset != self.itemCursorPrev + self.itemCursorOffsetPrev:
-            self.update_item_table_strings()
+            self.update_item_table()
 
         self.itemCursorPrev = self.itemCursor
         self.itemCursorOffsetPrev = self.itemCursorOffset
@@ -926,9 +926,9 @@ class MenuUI(object):
         self.animagiCursor = self.cursorIndex
 
         if self.animagiCursor + self.animagiCursorOffset != self.animagiCursorPrev + self.animagiCursorOffsetPrev:
-            self.update_animagi_table_strings()
-            self.update_animagi_growth_table_strings()
-            self.update_animagi_skills_strings()
+            self.update_animagi_table()
+            self.update_animagi_growth_table()
+            self.update_animagi_skills()
 
         self.animagiCursorPrev = self.animagiCursor
         self.animagiCursorOffsetPrev = self.animagiCursorOffset
@@ -965,140 +965,142 @@ class MenuUI(object):
             self.restore_cursor()
 
     def render_target_cursor(self):
-        self.MC.controller.VIEW_SURF.blit(self.targetCursorImage, utility.add_tuple(self.portraitAnchor[self.cursorIndex], self.targetCursorPosOffset))
+        curTarget = self.validTargets[self.cursorIndex]
+        targetIndex = g.partyList.index(curTarget)
+        self.MC.controller.viewSurf.blit(self.targetCursorImage, utility.add_tuple(self.portraitAnchor[targetIndex], self.targetCursorPosOffset))
 
     def render_skill_hero_cursor(self):
-        self.MC.controller.VIEW_SURF.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.skillHeroCursor], self.skillHeroCursorPosOffset))
+        self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.skillHeroCursor], self.skillHeroCursorPosOffset))
 
     def render_equip_hero_cursor(self):
-        self.MC.controller.VIEW_SURF.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.equipHeroCursor], self.skillHeroCursorPosOffset))
+        self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.equipHeroCursor], self.skillHeroCursorPosOffset))
 
     def render_animagi_hero_cursor(self):
-        self.MC.controller.VIEW_SURF.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.animagiHeroCursor], self.skillHeroCursorPosOffset))
+        self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.animagiHeroCursor], self.skillHeroCursorPosOffset))
 
     def render_status_window(self):
-        self.MC.controller.VIEW_SURF.blit(self.statusPanel, (0, 0))
+        self.MC.controller.viewSurf.blit(self.statusPanel, (0, 0))
 
         #Draw basic info for each hero
         index = 0
-        for hero in g.PARTY_LIST:
+        for hero in g.partyList:
             offset = self.statusAnchor[index]
-            self.MC.controller.VIEW_SURF.blit(hero.icon, self.portraitAnchor[index])
-            self.MC.controller.TEXT_MANAGER.draw_text("Lv", utility.add_tuple(self.portraitAnchor[index], (-6, 23)), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(hero.attr['lvl']), utility.add_tuple(self.portraitAnchor[index], (22, 23)), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(hero.attr['name']), offset, g.WHITE)
+            self.MC.controller.viewSurf.blit(hero.icon, self.portraitAnchor[index])
+            self.MC.controller.TM.draw_text("Lv", utility.add_tuple(self.portraitAnchor[index], (-6, 23)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(hero.attr['lvl']), utility.add_tuple(self.portraitAnchor[index], (22, 23)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(hero.attr['name']), offset, g.WHITE)
             offset = utility.add_tuple(offset, self.statusAnchorOffset)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(hero.totalMaxHP), offset, g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign("/", utility.add_tuple(offset, (-27, 0)), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(hero.attr['hp']), utility.add_tuple(offset, (-31, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(hero.totalMaxHP), offset, g.WHITE)
+            self.MC.controller.TM.draw_text_ralign("/", utility.add_tuple(offset, (-27, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(hero.attr['hp']), utility.add_tuple(offset, (-31, 0)), g.WHITE)
             offset = utility.add_tuple(offset, self.statusAnchorOffset)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(hero.totalMaxSP), offset, g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign("/", utility.add_tuple(offset, (-27, 0)), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(hero.attr['sp']), utility.add_tuple(offset, (-31, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(hero.totalMaxSP), offset, g.WHITE)
+            self.MC.controller.TM.draw_text_ralign("/", utility.add_tuple(offset, (-27, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(hero.attr['sp']), utility.add_tuple(offset, (-31, 0)), g.WHITE)
             offset = utility.add_tuple(offset, self.statusAnchorOffset)
             self.render_meter(hero.skillType, offset)
             index += 1
 
     def render_animagi_window(self):
-        self.MC.controller.VIEW_SURF.blit(self.animagiPanel, (0,0))
+        self.MC.controller.viewSurf.blit(self.animagiPanel, (0,0))
         selIndex = self.animagiCursor + self.animagiCursorOffset
 
         if g.ANIMAGI:
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(1 + selIndex) + "/" + str(len(g.ANIMAGI)), self.equipIndexAnchor, g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(1 + selIndex) + "/" + str(len(g.ANIMAGI)), self.equipIndexAnchor, g.WHITE)
 
            # self.update_animagi_table_strings()
             self.animagiTable.render(self.animagiCursor)
 
             #draw animagus growth page
             if self.animagiPage == 0:
-                self.MC.controller.TEXT_MANAGER.draw_text_centered("Growth", self.animagiPageAnchor, g.WHITE)
+                self.MC.controller.TM.draw_text_centered("Growth", self.animagiPageAnchor, g.WHITE)
 
                 #self.update_animagi_growth_table_strings()
                 self.animagiGrowthTable.render()
 
             #draw animagus skill page
             elif self.animagiPage == 1:
-                self.MC.controller.TEXT_MANAGER.draw_text_centered("Skills", self.animagiPageAnchor, g.WHITE)
+                self.MC.controller.TM.draw_text_centered("Skills", self.animagiPageAnchor, g.WHITE)
 
                 #self.update_animagi_skills_strings()
                 self.animagiSkillsTable.render()
 
             #always draw level up info
-            self.MC.controller.TEXT_MANAGER.draw_text("Anima", self.animagiStatsAnchor[0], g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.animagiStatsAnchor[0], (108, 0)), g.GRAY)
-            self.MC.controller.TEXT_MANAGER.draw_text("To Next", self.animagiStatsAnchor[1], g.WHITE)
+            self.MC.controller.TM.draw_text("Anima", self.animagiStatsAnchor[0], g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.animagiStatsAnchor[0], (108, 0)), g.GRAY)
+            self.MC.controller.TM.draw_text("To Next", self.animagiStatsAnchor[1], g.WHITE)
             if g.ANIMAGI[selIndex].level < g.ANIMAGUS_MAX_LEVEL:
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(g.ANIMAGI[selIndex].levelUpAt), utility.add_tuple(self.animagiStatsAnchor[1], (108, 0)), g.GRAY)
+                self.MC.controller.TM.draw_text_ralign(str(g.ANIMAGI[selIndex].levelUpAt), utility.add_tuple(self.animagiStatsAnchor[1], (108, 0)), g.GRAY)
             else:
-                self.MC.controller.TEXT_MANAGER.draw_text_ralign("Max Level", utility.add_tuple(self.animagiStatsAnchor[1], (108, 0)), g.GRAY)
+                self.MC.controller.TM.draw_text_ralign("Max Level", utility.add_tuple(self.animagiStatsAnchor[1], (108, 0)), g.GRAY)
 
             #draw confirm level up
             if self.MC.menuState == g.MenuState.ANIMAGI_CONFIRM:
-                self.MC.controller.VIEW_SURF.blit(self.itemOptionsPanel, (0, 0))
-                self.MC.controller.TEXT_MANAGER.draw_text("Level Up?", self.itemOptionsAnchor[0], g.WHITE)
-                self.MC.controller.TEXT_MANAGER.draw_text("Confirm", self.itemOptionsAnchor[1], g.GRAY)
-                self.MC.controller.TEXT_MANAGER.draw_text("Cancel", self.itemOptionsAnchor[2], g.GRAY)
-                self.MC.controller.VIEW_SURF.blit(self.cursorImage, utility.add_tuple(self.itemOptionsAnchor[self.animagiConfirmCursor+1], self.itemOptionsCursorPosOffset))
+                self.MC.controller.viewSurf.blit(self.itemOptionsPanel, (0, 0))
+                self.MC.controller.TM.draw_text("Level Up?", self.itemOptionsAnchor[0], g.WHITE)
+                self.MC.controller.TM.draw_text("Confirm", self.itemOptionsAnchor[1], g.GRAY)
+                self.MC.controller.TM.draw_text("Cancel", self.itemOptionsAnchor[2], g.GRAY)
+                self.MC.controller.viewSurf.blit(self.cursorImage, utility.add_tuple(self.itemOptionsAnchor[self.animagiConfirmCursor+1], self.itemOptionsCursorPosOffset))
 
         else:
-            self.MC.controller.TEXT_MANAGER.draw_text("No Animagi", self.animagiListAnchor[0], g.WHITE)
+            self.MC.controller.TM.draw_text("No Animagi", self.animagiListAnchor[0], g.WHITE)
 
     def render_equip_window(self):
-        self.MC.controller.VIEW_SURF.blit(self.equipPanel, (0,0))
+        self.MC.controller.viewSurf.blit(self.equipPanel, (0,0))
 
         if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
             selIndex = self.equipListCursor + self.equipListCursorOffset
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(1 + selIndex) + "/" + str(len(self.currentEquipList)), self.equipIndexAnchor, g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(1 + selIndex) + "/" + str(len(self.currentEquipList)), self.equipIndexAnchor, g.WHITE)
 
             index = 0
             if selIndex < len(self.currentEquipList):
 
-                self.update_equip_list_table_strings()
+                self.update_equip_list_table()
                 self.equipListTable.render(self.equipListCursor)
 
                 #Always show names of current and selected equip
                 if self.currentHero.equip[self.currentEquipSlot].name != "":
-                    self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.equip[self.currentEquipSlot].name, self.equipCurAnchor, g.WHITE)
+                    self.MC.controller.TM.draw_text(self.currentHero.equip[self.currentEquipSlot].name, self.equipCurAnchor, g.WHITE)
 
-                self.MC.controller.TEXT_MANAGER.draw_text(self.currentEquipList[selIndex].name, self.equipSelAnchor, g.WHITE)
+                self.MC.controller.TM.draw_text(self.currentEquipList[selIndex].name, self.equipSelAnchor, g.WHITE)
 
                 #Show stats of current and selected equip
                 if self.equipInfoPage == 0:
                     #current
                     if self.currentHero.equip[self.currentEquipSlot].name != "":
-                        self.update_equip_cur_stats_strings()
+                        self.update_equip_cur_stats()
                         self.equipCurStatsTable.render()
 
                     #selected
-                    self.update_equip_sel_stats_strings()
+                    self.update_equip_sel_stats()
                     self.equipSelStatsTable.render()
 
                 #Show resistances
                 elif self.equipInfoPage == 1:
                     #current
                     if self.currentHero.equip[self.currentEquipSlot].name != "":
-                        self.update_equip_cur_res_strings()
+                        self.update_equip_cur_res()
                         self.equipCurResTable.render()
 
                     #selected
-                    self.update_equip_sel_res_strings()
+                    self.update_equip_sel_res()
                     self.equipSelResTable.render()
 
                 #Show descriptions
                 elif self.equipInfoPage == 2:
                     # current
                     if self.currentHero.equip[self.currentEquipSlot].desc != "":
-                        self.MC.controller.TEXT_MANAGER.draw_text_f(self.currentHero.equip[self.currentEquipSlot].desc, utility.add_tuple(self.equipCurAnchor, (0,10)), g.GRAY, 108)
+                        self.MC.controller.TM.draw_text_f(self.currentHero.equip[self.currentEquipSlot].desc, utility.add_tuple(self.equipCurAnchor, (0,10)), g.GRAY, 108)
                     # selected
-                    self.MC.controller.TEXT_MANAGER.draw_text_f(self.currentEquipList[selIndex].desc, utility.add_tuple(self.equipSelAnchor, (0,10)), g.GRAY, 108)
+                    self.MC.controller.TM.draw_text_f(self.currentEquipList[selIndex].desc, utility.add_tuple(self.equipSelAnchor, (0,10)), g.GRAY, 108)
 
 
         else:
-            self.update_equip_slot_table_strings()
+            self.update_equip_slot_table()
             self.equipSlotTable.render(self.equipCursor)
 
     def render_item_options(self):
-        self.MC.controller.VIEW_SURF.blit(self.itemOptionsPanel, (0,0))
+        self.MC.controller.viewSurf.blit(self.itemOptionsPanel, (0,0))
         self.itemOptionsTable.render(self.itemOptionsCursor)
 
     def render_skill_window(self):
@@ -1112,20 +1114,20 @@ class MenuUI(object):
             helpWidth = 108
 
         #Draw panel and headers
-        self.MC.controller.VIEW_SURF.blit(self.skillPanel, globalOffset)
-        self.MC.controller.TEXT_MANAGER.draw_text("SP: ", utility.add_tuple(self.skillHeroAnchor, globalOffset), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.attr['sp']) + "/" + str(self.currentHero.baseMaxSP), utility.add_tuple(self.skillHeroAnchor, utility.add_tuple(globalOffset, (71, 0))), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(1 + self.skillCursor + self.skillCursorOffset) + "/" + str(len(self.currentHero.skills)), utility.add_tuple(self.skillIndexAnchor, globalOffset), g.WHITE)
+        self.MC.controller.viewSurf.blit(self.skillPanel, globalOffset)
+        self.MC.controller.TM.draw_text("SP: ", utility.add_tuple(self.skillHeroAnchor, globalOffset), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(str(self.currentHero.attr['sp']) + "/" + str(self.currentHero.baseMaxSP), utility.add_tuple(self.skillHeroAnchor, utility.add_tuple(globalOffset, (71, 0))), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(str(1 + self.skillCursor + self.skillCursorOffset) + "/" + str(len(self.currentHero.skills)), utility.add_tuple(self.skillIndexAnchor, globalOffset), g.WHITE)
 
         #Draw table
-        self.update_skill_table_strings()
+        self.update_skill_table()
         self.skillTable.render(self.skillCursor, globalOffset)
 
         #Draw current skill description
         if self.skillCursor + self.skillCursorOffset < len(self.currentHero.skills):
             curSkill = self.currentHero.skills[self.skillCursor + self.skillCursorOffset]
             if curSkill.desc != "":
-                self.MC.controller.TEXT_MANAGER.draw_text_f(curSkill.desc, utility.add_tuple(self.skillDescAnchor, globalOffset), g.WHITE, helpWidth)
+                self.MC.controller.TM.draw_text_f(curSkill.desc, utility.add_tuple(self.skillDescAnchor, globalOffset), g.WHITE, helpWidth)
 
     def render_item_window(self):
         selIndex = self.currentIndex - self.itemCursorOffset
@@ -1139,71 +1141,71 @@ class MenuUI(object):
             helpWidth = 108
 
         #Draw panel and index
-        self.MC.controller.VIEW_SURF.blit(self.itemPanel, globalOffset)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(1 + self.itemCursor + self.itemCursorOffset) + "/" + str( g.INVENTORY_MAX_SLOTS), utility.add_tuple(self.itemIndexAnchor, globalOffset), g.WHITE)
+        self.MC.controller.viewSurf.blit(self.itemPanel, globalOffset)
+        self.MC.controller.TM.draw_text_ralign(str(1 + self.itemCursor + self.itemCursorOffset) + "/" + str( g.INVENTORY_MAX_SLOTS), utility.add_tuple(self.itemIndexAnchor, globalOffset), g.WHITE)
 
         #Draw table
-        self.update_item_table_strings()
+        self.update_item_table()
         self.itemTable.render(self.itemCursor, globalOffset)
 
         #Draw arrange secondary cursor
         if self.MC.menuState != g.MenuState.ITEM_OPTIONS:
             if self.MC.menuState == g.MenuState.ITEM_ORGANIZE and selIndex >= 0 and selIndex <= 8:
-                self.MC.controller.VIEW_SURF.blit(self.cursorSelImage, utility.add_tuple(self.itemAnchor[selIndex], utility.add_tuple(globalOffset, self.itemCursorPosOffset)))
+                self.MC.controller.viewSurf.blit(self.cursorSelImage, utility.add_tuple(self.itemAnchor[selIndex], utility.add_tuple(globalOffset, self.itemCursorPosOffset)))
 
         #Draw current item description
         if selIndex < g.INVENTORY_MAX_SLOTS:
             curItem = g.INVENTORY[selIndex][0]
             if curItem.desc != "":
-                parsedStr = self.MC.controller.TEXT_MANAGER.parse_string(curItem.desc, helpWidth)[0]
+                parsedStr = self.MC.controller.TM.parse_string(curItem.desc, helpWidth)[0]
 
                 curOffset = utility.add_tuple(globalOffset, (0, 0))
                 lineOffset = (0, 8)
 
                 index = 0
                 for line in range(0, len(parsedStr)):
-                    self.MC.controller.TEXT_MANAGER.draw_text(parsedStr[index], utility.add_tuple(self.itemDescAnchor, curOffset), g.WHITE)
+                    self.MC.controller.TM.draw_text(parsedStr[index], utility.add_tuple(self.itemDescAnchor, curOffset), g.WHITE)
                     curOffset = utility.add_tuple(curOffset, lineOffset)
                     index += 1
 
     def render_stats_window(self):
-        self.currentHero = g.PARTY_LIST[self.cursorIndex]
-        self.MC.controller.VIEW_SURF.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.cursorIndex], self.skillHeroCursorPosOffset))
+        self.currentHero = g.partyList[self.cursorIndex]
+        self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.cursorIndex], self.skillHeroCursorPosOffset))
 
         if (self.statusPage == 0):
-            self.MC.controller.VIEW_SURF.blit(self.statsPanel, (0,0))
+            self.MC.controller.viewSurf.blit(self.statsPanel, (0,0))
 
-            self.MC.controller.TEXT_MANAGER.draw_text(self.currentHero.attr['name'] + ", " + self.currentHero.attr['title'], self.statsAnchor[0], g.GRAY)
+            self.MC.controller.TM.draw_text(self.currentHero.attr['name'] + ", " + self.currentHero.attr['title'], self.statsAnchor[0], g.GRAY)
 
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign("HP", utility.add_tuple(self.statsAnchor[1], (-68, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign("HP", utility.add_tuple(self.statsAnchor[1], (-68, 0)), g.WHITE)
             color = self.get_stat_color(self.currentHero.totalMaxHP, self.currentHero.baseMaxHP)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalMaxHP), self.statsAnchor[1], color)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign("/", utility.add_tuple(self.statsAnchor[1], (-30, 0)), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.attr['hp']), utility.add_tuple(self.statsAnchor[1], (-34, 0)), g.GRAY)
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.totalMaxHP), self.statsAnchor[1], color)
+            self.MC.controller.TM.draw_text_ralign("/", utility.add_tuple(self.statsAnchor[1], (-30, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.attr['hp']), utility.add_tuple(self.statsAnchor[1], (-34, 0)), g.GRAY)
 
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign("SP", utility.add_tuple(self.statsAnchor[2], (-68, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign("SP", utility.add_tuple(self.statsAnchor[2], (-68, 0)), g.WHITE)
             color = self.get_stat_color(self.currentHero.totalMaxSP, self.currentHero.baseMaxSP)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.totalMaxSP), self.statsAnchor[2], color)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign("/", utility.add_tuple(self.statsAnchor[2], (-30, 0)), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.attr['sp']), utility.add_tuple(self.statsAnchor[2], (-34, 0)), g.GRAY)
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.totalMaxSP), self.statsAnchor[2], color)
+            self.MC.controller.TM.draw_text_ralign("/", utility.add_tuple(self.statsAnchor[2], (-30, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.attr['sp']), utility.add_tuple(self.statsAnchor[2], (-34, 0)), g.GRAY)
 
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(g.SkillType.NAME[self.currentHero.skillType], utility.add_tuple(self.statsAnchor[2], (-68, 10)), g.GRAY)
+            self.MC.controller.TM.draw_text_ralign(g.SkillType.NAME[self.currentHero.skillType], utility.add_tuple(self.statsAnchor[2], (-68, 10)), g.GRAY)
             self.render_meter(self.currentHero.skillType, utility.add_tuple(self.statsAnchor[2], (-34, 10)))
 
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign("Anima", utility.add_tuple(self.statsAnchor[2], (-68, 20)), g.WHITE)
-            self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.statsAnchor[2], (0, 20)), g.GRAY)
+            self.MC.controller.TM.draw_text_ralign("Anima", utility.add_tuple(self.statsAnchor[2], (-68, 20)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.statsAnchor[2], (0, 20)), g.GRAY)
 
-            self.update_stats_table_strings()
+            self.update_stats_table()
             self.statsTable.render()
 
         elif (self.statusPage == 1):
-            self.MC.controller.VIEW_SURF.blit(self.resPanel, (0, 0))
+            self.MC.controller.viewSurf.blit(self.resPanel, (0, 0))
 
-            self.update_res_table_strings()
+            self.update_res_table()
             self.resTable.render()
 
 
-        self.MC.controller.TEXT_MANAGER.draw_text_centered(str(self.statusPage + 1) + "/" + str(self.statusPages), self.statusPageAnchor, g.WHITE)
+        self.MC.controller.TM.draw_text_centered(str(self.statusPage + 1) + "/" + str(self.statusPages), self.statusPageAnchor, g.WHITE)
 
     def get_stat_color(self, total, base):
         if total > base:
@@ -1221,28 +1223,28 @@ class MenuUI(object):
         elif skillType == g.SkillType.MOON:
             iconImg = self.iconMoon
         if skillType != g.SkillType.MUSIC:
-            for i in range (0, g.METER[skillType]):
-                self.MC.controller.VIEW_SURF.blit(iconImg, pos)
+            for i in range (0, g.meter[skillType]):
+                self.MC.controller.viewSurf.blit(iconImg, pos)
                 pos = utility.add_tuple(pos, offset)
         else:
-            for i in g.METER[skillType]:
-                self.MC.controller.VIEW_SURF.blit(self.iconNotes[i], utility.add_tuple(pos, (0,1)))
+            for i in g.meter[skillType]:
+                self.MC.controller.viewSurf.blit(self.iconNotes[i], utility.add_tuple(pos, (0,1)))
                 pos = utility.add_tuple(pos, offset)
 
     def render_command_window(self):
-        self.MC.controller.VIEW_SURF.blit(self.commandPanel, (0, 0))
+        self.MC.controller.viewSurf.blit(self.commandPanel, (0, 0))
         self.commandTable.render(self.commandCursor)
 
     def render_info_window(self):
-        self.MC.controller.VIEW_SURF.blit(self.infoPanel, (0, 0))
-        self.MC.controller.TEXT_MANAGER.draw_text("GP", self.infoAnchor, g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(str(g.GP), utility.add_tuple(self.infoAnchor, (48, 9)), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text("Time", utility.add_tuple(self.infoAnchor, (0, 18)), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(g.PLAY_SEC_STR, utility.add_tuple(self.infoAnchor, (48, 27)), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (35, 27)), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(g.PLAY_MIN_STR, utility.add_tuple(self.infoAnchor, (33, 27)), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (20, 27)), g.WHITE)
-        self.MC.controller.TEXT_MANAGER.draw_text_ralign(g.PLAY_HR_STR, utility.add_tuple(self.infoAnchor, (18, 27)), g.WHITE)
+        self.MC.controller.viewSurf.blit(self.infoPanel, (0, 0))
+        self.MC.controller.TM.draw_text("GP", self.infoAnchor, g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(str(g.GP), utility.add_tuple(self.infoAnchor, (48, 9)), g.WHITE)
+        self.MC.controller.TM.draw_text("Time", utility.add_tuple(self.infoAnchor, (0, 18)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(g.playTimeSecText, utility.add_tuple(self.infoAnchor, (48, 27)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (35, 27)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(g.playTimeMinText, utility.add_tuple(self.infoAnchor, (33, 27)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (20, 27)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(g.playTimeHourText, utility.add_tuple(self.infoAnchor, (18, 27)), g.WHITE)
 
     def restore_cursor(self):
         if self.MC.menuState == g.MenuState.MENU:
@@ -1267,23 +1269,23 @@ class MenuUI(object):
         self.currentIndex = -1
 
     def process_input(self, cMin, cMax):
-        dt = self.MC.controller.CLOCK.get_time()
-        if (g.CURSOR_TIMER >= 0):
-            g.CURSOR_TIMER -= dt
-        if (g.CONFIRM_TIMER >= 0):
-            g.CONFIRM_TIMER -= dt
+        dt = self.MC.controller.clock.get_time()
+        if (g.cursorTimer >= 0):
+            g.cursorTimer -= dt
+        if (g.confirmTimer >= 0):
+            g.confirmTimer -= dt
 
-        if self.MC.controller.KEYS[g.KEY_DOWN]:
-            if g.CURSOR_TIMER < 0:
-                g.CURSOR_TIMER = g.CURSOR_DELAY
+        if self.MC.controller.eventKeys[g.keyDown]:
+            if g.cursorTimer < 0:
+                g.cursorTimer = g.CURSOR_DELAY
                 self.cursorIndex += 1
-        elif self.MC.controller.KEYS[g.KEY_UP]:
-            if g.CURSOR_TIMER < 0:
-                g.CURSOR_TIMER = g.CURSOR_DELAY
+        elif self.MC.controller.eventKeys[g.keyUp]:
+            if g.cursorTimer < 0:
+                g.cursorTimer = g.CURSOR_DELAY
                 self.cursorIndex -= 1
-        elif self.MC.controller.KEYS[g.KEY_LEFT]:
-            if g.CURSOR_TIMER < 0:
-                g.CURSOR_TIMER = g.CURSOR_DELAY
+        elif self.MC.controller.eventKeys[g.keyLeft]:
+            if g.cursorTimer < 0:
+                g.cursorTimer = g.CURSOR_DELAY
                 if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
                     if self.itemCursorOffset - cMax > 0:
                         self.itemCursorOffset -= cMax
@@ -1295,16 +1297,16 @@ class MenuUI(object):
                     if self.skillHeroCursor > 0:
                         self.skillHeroCursor -= 1
                     else:
-                        self.skillHeroCursor = len(g.PARTY_LIST)-1
-                    self.currentHero = g.PARTY_LIST[self.skillHeroCursor]
+                        self.skillHeroCursor = len(g.partyList) - 1
+                    self.currentHero = g.partyList[self.skillHeroCursor]
                     self.cursorIndex = 0
                     self.skillCursorOffset = 0
                 if self.MC.menuState == g.MenuState.EQUIP:
                     if self.equipHeroCursor > 0:
                         self.equipHeroCursor -= 1
                     else:
-                        self.equipHeroCursor = len(g.PARTY_LIST)-1
-                    self.currentHero = g.PARTY_LIST[self.equipHeroCursor]
+                        self.equipHeroCursor = len(g.partyList) - 1
+                    self.currentHero = g.partyList[self.equipHeroCursor]
                 if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
                     if self.equipInfoPage <= 0:
                         self.equipInfoPage = self.equipInfoPages-1
@@ -1320,9 +1322,9 @@ class MenuUI(object):
                         self.animagiPage = self.animagiPages-1
                     else:
                         self.animagiPage -= 1
-        elif self.MC.controller.KEYS[g.KEY_RIGHT]:
-            if g.CURSOR_TIMER < 0:
-                g.CURSOR_TIMER = g.CURSOR_DELAY
+        elif self.MC.controller.eventKeys[g.keyRight]:
+            if g.cursorTimer < 0:
+                g.cursorTimer = g.CURSOR_DELAY
                 if self.MC.menuState == g.MenuState.ITEM or self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
                     if self.itemCursorOffset + cMax < g.INVENTORY_MAX_SLOTS:
                         self.itemCursorOffset += cMax
@@ -1331,19 +1333,19 @@ class MenuUI(object):
                     else:
                         self.itemCursorOffset = g.INVENTORY_MAX_SLOTS - cMax
                 if self.MC.menuState == g.MenuState.SKILL:
-                    if self.skillHeroCursor < len(g.PARTY_LIST)-1:
+                    if self.skillHeroCursor < len(g.partyList)-1:
                         self.skillHeroCursor += 1
                     else:
                         self.skillHeroCursor = 0
-                    self.currentHero = g.PARTY_LIST[self.skillHeroCursor]
+                    self.currentHero = g.partyList[self.skillHeroCursor]
                     self.cursorIndex = 0
                     self.skillCursorOffset = 0
                 if self.MC.menuState == g.MenuState.EQUIP:
-                    if self.equipHeroCursor < len(g.PARTY_LIST)-1:
+                    if self.equipHeroCursor < len(g.partyList)-1:
                         self.equipHeroCursor += 1
                     else:
                         self.equipHeroCursor = 0
-                    self.currentHero = g.PARTY_LIST[self.equipHeroCursor]
+                    self.currentHero = g.partyList[self.equipHeroCursor]
                 if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
                     if self.equipInfoPage >= self.equipInfoPages-1:
                         self.equipInfoPage = 0
@@ -1360,14 +1362,14 @@ class MenuUI(object):
                     else:
                         self.animagiPage += 1
 
-        elif self.MC.controller.KEYS[g.KEY_CONFIRM]:
-            if g.CONFIRM_TIMER < 0:
-                g.CONFIRM_TIMER = g.CONFIRM_DELAY
+        elif self.MC.controller.eventKeys[g.keyConfirm]:
+            if g.confirmTimer < 0:
+                g.confirmTimer = g.CONFIRM_DELAY
                 self.helpLabel = ""
                 return self.cursorIndex
-        elif self.MC.controller.KEYS[g.KEY_CANCEL]:
-            if g.CONFIRM_TIMER < 0:
-                g.CONFIRM_TIMER = g.CONFIRM_DELAY
+        elif self.MC.controller.eventKeys[g.keyCancel]:
+            if g.confirmTimer < 0:
+                g.confirmTimer = g.CONFIRM_DELAY
                 if self.MC.menuState != g.MenuState.MENU:
                     self.MC.prev_state()
                     self.restore_cursor()
@@ -1375,9 +1377,9 @@ class MenuUI(object):
                 else:
                     self.MC.change_state(g.MenuState.EXIT)
                     return -1
-        elif self.MC.controller.KEYS[g.KEY_MENU]:
-            if g.CONFIRM_TIMER < 0:
-                g.CONFIRM_TIMER = g.CONFIRM_DELAY
+        elif self.MC.controller.eventKeys[g.keyMenu]:
+            if g.confirmTimer < 0:
+                g.confirmTimer = g.CONFIRM_DELAY
                 if self.MC.menuState == g.MenuState.EQUIP:
                     if self.cursorIndex == 1:
                         inv.equip(self.currentHero, "", "acc1")
@@ -1457,7 +1459,7 @@ class MenuUI(object):
             self.cursorIndex = cMax
 
     def update(self):
-        self.MC.controller.VIEW_SURF.fill(g.BLACK)
+        self.MC.controller.viewSurf.fill(g.BLACK)
         self.render_status_window()
         self.render_command_window()
         self.render_info_window()
@@ -1527,7 +1529,7 @@ class Table ():
 
     def __init__(self, MC, topLeft, widths, heights, strings, aligns, colors):
         self.MC = MC
-        self.TM = MC.controller.TEXT_MANAGER
+        self.TM = MC.controller.TM
         self.topLeft = topLeft
         self.widths = widths
         self.heights = heights
@@ -1558,5 +1560,5 @@ class Table ():
                     self.TM.draw_text_fr(self.strings[y][x], utility.add_tuple(offset, (self.widths[x], 0)), self.colors[y][x])
                 offset = utility.add_tuple(offset, (self.widths[x], 0))
             if cursor == y:
-                self.MC.controller.VIEW_SURF.blit(self.MC.UI.cursorImage, utility.add_tuple((globalOffset[0], offset[1]), self.MC.UI.hCursorPosOffset))
+                self.MC.controller.viewSurf.blit(self.MC.UI.cursorImage, utility.add_tuple((globalOffset[0], offset[1]), self.MC.UI.hCursorPosOffset))
             offset = utility.add_tuple((globalOffset[0], offset[1]), (0, self.heights[y]))
