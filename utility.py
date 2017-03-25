@@ -94,8 +94,8 @@ class TextManager:
         self.textObj = None
         self.texRect = None
 
-        self.frameDelay = 1
-        self.frameSkip = 1
+        self.frameDelay = g.textDelay
+        self.frameSkip = g.textSkip
         self.frameCounter = 0
 
         self.boxIndex = 0

@@ -99,13 +99,18 @@ class Control(object):
             else:
                 g.inputTimer = g.INPUT_DELAY
                 self.gameState = g.GameState.MAP
+
+                self.BC.clean_up()
                 del self.BC
                 self.BC = None
+
         elif self.gameState == g.GameState.MENU:
             if self.MC.menuState != g.MenuState.EXIT:
                 self.MC.update()
             else:
                 self.gameState = g.GameState.MAP
+
+                self.MC.clean_up()
                 del self.MC
                 self.MC = None
     

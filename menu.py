@@ -58,6 +58,10 @@ class MenuController (object):
                     elif self.menuState == g.MenuState.TARGET_SKILL:
                         self.queuedAction (self, self.uiCallback)
 
+    def clean_up(self):
+        self.UI.clean_up()
+        del self.UI
+
 
 class MenuUI(object):
 
@@ -189,7 +193,7 @@ class MenuUI(object):
         self.currentQuantity = 0
         self.queuedAction = None
 
-        self.commandTableLength = 6
+        self.commandTableLength = 5
         self.commandTable = self.init_command_table()
 
         self.itemOptionsTableLength = 4
@@ -237,14 +241,31 @@ class MenuUI(object):
         self.resTableLength = 9
         self.resTable = self.init_res_table()
 
+    def clean_up(self):
+        del self.commandTable
+        del self.itemOptionsTable
+        del self.itemTable
+        del self.skillTable
+        del self.equipSlotTable
+        del self.equipListTable
+        del self.equipCurStatsTable
+        del self.equipSelStatsTable
+        del self.equipCurResTable
+        del self.equipSelResTable
+        del self.animagiTable
+        del self.animagiGrowthTable
+        del self.animagiSkillsTable
+        del self.statsTable
+        del self.resTable
+
     def on_state_change(self):
         self.restore_cursor()
 
     def init_command_table(self):
         topLeft = (110, 11)
         widths = [80]
-        heights = [9, 9, 9, 9, 9, 9, 9]
-        strings = [["Items"], ["Skills"], ["Equip"], ["Animagi"], ["Status"], ["Config"], ["Exit"]]
+        heights = [9, 9, 9, 9, 9, 9]
+        strings = [["Items"], ["Skills"], ["Equip"], ["Animagi"], ["Status"], ["Exit"]]
         aligns = ["left"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
 
@@ -793,6 +814,8 @@ class MenuUI(object):
             elif selection == 4:
                 self.selectedThing = g.MenuState.STATUS_HERO
                 self.cursorIndex = 0
+            elif selection == 5:
+                self.selectedThing = g.MenuState.EXIT
 
     def process_get_skill_hero(self):
         self.skillHeroCursor = self.cursorIndex

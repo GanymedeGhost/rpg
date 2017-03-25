@@ -254,6 +254,9 @@ confirmTimer = 0
 inputTimer = 0
 aiTimer = 0
 
+textDelay = 1
+textSkip = 1
+
 playTimeSec = 0
 playTimeMin = 0
 playTimeHour = 0

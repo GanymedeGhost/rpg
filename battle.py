@@ -114,6 +114,14 @@ class BattleController (object):
         self.uiCallback = None
         self.eventQueue = event.EventQueue()
 
+    def clean_up(self):
+        self.UI.clean_up()
+        for actor in self.battlers:
+            del actor.spr
+            del actor
+        del self.UI
+        del self.eventQueue
+
     def change_state(self, state):
         if self.battleState != g.BattleState.FIGHT and self.battleState != self.prevBattleState:
             self.prevBattleState.append(self.battleState)
@@ -504,6 +512,11 @@ class BattleUI (object):
         self.targetTableLength = 5
         self.targetTable = self.init_target_table()
 
+    def clean_up(self):
+        del self.commandTable
+        del self.skillTable
+        del self.itemTable
+        del self.targetTable
 
     def init_command_table(self):
         length = len(self.BC.currentBattler.commands)
