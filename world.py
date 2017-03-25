@@ -236,6 +236,7 @@ class Actor(Entity):
         self.set_move_target(pos[0], pos[1])
         self.moveSpeed = 2
         self.moving = False
+        self.moveSuccess = False
 
     def set_move_target(self, tx, ty):
         tx *= g.TILE_SIZE
@@ -261,15 +262,19 @@ class Actor(Entity):
         self.moving = True
         if (direction == 'up'):
             if not (self.level.is_blocking(self.pos[0], self.pos[1]-1)):
+                self.moveSuccess = True
                 self.set_move_target_rel(0,-1)
         elif (direction == 'left'):
             if not (self.level.is_blocking(self.pos[0]-1, self.pos[1])):
+                self.moveSuccess = True
                 self.set_move_target_rel(-1,0)
         elif (direction == 'down'):
             if not (self.level.is_blocking(self.pos[0], self.pos[1]+1)):
+                self.moveSuccess = True
                 self.set_move_target_rel(0,1)
         elif (direction == 'right'):
             if not (self.level.is_blocking(self.pos[0]+1, self.pos[1])):
+                self.moveSuccess = True
                 self.set_move_target_rel(1,0)
 
     def face_player(self):
@@ -297,8 +302,10 @@ class Actor(Entity):
         elif (y > ty):
             self.rect.move_ip(0, -self.moveSpeed)
         elif self.moving:
-            self.on_step()
             self.moving = False
+            if self.moveSuccess:
+                self.on_step()
+                self.moveSuccess = False
 
     def on_step(self):
         utility.log("Actor move complete")
@@ -360,7 +367,6 @@ class Player(Actor):
         for ent in self.level.entities:
             if (self.level.entities[ent].pos == (tX, tY)):
                 self.level.entities[ent].interact()
-                
         
     def update(self, dt, keys):
         Actor.update(self, dt, keys)
@@ -393,7 +399,7 @@ class Actor002 (Actor):
     
     def interact(self):
         self.face_player()
-        self.controller.start_battle(["Slime"])
+        self.controller.start_battle(["Slime"], -1, False)
 
 ENTITY_DIC = {}
 ENTITY_DIC["actor001"] = Actor001

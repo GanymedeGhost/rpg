@@ -50,11 +50,11 @@ class Control(object):
 
         self.skipRender = False
 
-    def start_battle(self, monsters, initiative = -1):
+    def start_battle(self, monsters, initiative = -1, escapable = True):
         g.monsterList = []
         for key in monsters:
             g.monsterList.append(db.Monster.dic[key])
-        self.BC = battle.BattleController(self, initiative)
+        self.BC = battle.BattleController(self, initiative, escapable)
         self.gameState = g.GameState.BATTLE
 
     def open_menu(self):

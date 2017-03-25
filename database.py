@@ -692,7 +692,6 @@ def create_data():
     commands.append(cmd.UseSkill)
     commands.append(cmd.UseItem)
     commands.append(cmd.Defend)
-    commands.append(cmd.Escape)
     skills = [Skill.dic["Sacrifice"]]
 
     spr = "spr/battle/hero-luxe.png"
@@ -728,8 +727,8 @@ def create_data():
     commands.append(cmd.UseSkill)
     commands.append(cmd.UseItem)
     commands.append(cmd.Defend)
-    commands.append(cmd.Escape)
     skills = [Skill.dic["Finale"]]
+    skills.append(Skill.dic["Staccato"])
 
     spr = "spr/battle/hero-elle.png"
     size = 16
@@ -764,7 +763,6 @@ def create_data():
     commands.append(cmd.UseSkill)
     commands.append(cmd.UseItem)
     commands.append(cmd.Defend)
-    commands.append(cmd.Escape)
     skills = [Skill.dic["Transform"]]
 
     spr = "spr/battle/hero-asa.png"

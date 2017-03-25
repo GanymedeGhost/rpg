@@ -1,3 +1,4 @@
+import copy
 import math
 import random
 import heapq
@@ -8,6 +9,7 @@ import pygame.locals
 import my_globals as g
 import database as db
 import battle_ai as bai
+import battle_command as cmd
 import inventory as inv
 import event
 import utility
@@ -19,7 +21,7 @@ import utility
 
 class BattleController (object):
     
-    def __init__(self, controller, initiative = -1, escapable = False):
+    def __init__(self, controller, initiative = -1, escapable = True):
         self.controller = controller
         self.UI = BattleUI(self)
         
@@ -71,7 +73,9 @@ class BattleController (object):
             resS = hero.resS
             skills = hero.skills
             skillType = hero.skillType
-            commands = hero.commands
+            commands = hero.commands[:]
+            if self.escapable:
+                commands.append(cmd.Escape)
             drops = []
             steals = []
             
@@ -99,7 +103,6 @@ class BattleController (object):
             
             if monster.attr['name'] in self.monsterCounters:
                 self.monsterCounters[monster.attr['name']] += 1
-                #NAME += str(self.monsterCounters[NAME])
             else:
                 self.monsterCounters[monster.attr['name']] = 1
             
@@ -117,6 +120,7 @@ class BattleController (object):
     def clean_up(self):
         self.UI.clean_up()
         for actor in self.battlers:
+            del actor.spr.frameCache
             del actor.spr
             del actor
         del self.UI
@@ -907,10 +911,15 @@ class BattleUI (object):
                 del self.messageList[0]
 
         if self.popupList:
-            if self.popupList[0].life > 0:
-                self.popupList[0].update()
-            else:
-                del self.popupList[0]
+            updated = []
+            for popup in self.popupList:
+                if popup.life > 0:
+                    if not popup.anchor in updated:
+                        updated.append(popup.anchor)
+                        popup.update()
+                else:
+                    index = self.popupList.index(popup)
+                    del self.popupList[index]
         
         self.BC.controller.window_render()
 
@@ -1053,6 +1062,7 @@ class BattleUIPopup (object):
         self.halfLife = life // 2
         self.halfTrigger = False
         self.speed = .6
+        self.anchor = pos
         self.x = pos[0]
         self.y = pos[1] + self.ui.battlerCursorOffset[1]
 
@@ -1072,13 +1082,11 @@ class BattleUIMessage (object):
         self.life = life
         self.boxPos = (0,0)
         self.textPos = (80, 11)
-        #self.textPos = utility.add_tuple((80,4), (-g.FONT_LRG.size(string)[0] // 2, 0))
 
     def update(self):
         self.life -= self.ui.BC.controller.clock.get_time()
         self.ui.BC.controller.viewSurf.blit(self.ui.messageBoxImage, self.boxPos)
         self.ui.BC.controller.TM.draw_text_centered(self.string, self.textPos, g.WHITE, g.FONT_LRG)
-        #self.ui.BC.controller.TM.draw_text(self.string, self.textPos, g.WHITE, g.FONT_LRG)
 
 #################
 ##ACTOR CLASSES##
@@ -1104,7 +1112,6 @@ class Sprite (pygame.sprite.Sprite):
         self.curTime = 0
         self.curFrame = 0
         self.curAnim = 'idle'
-
 
         self.image = None
         self.set_anim(self.curAnim, True)
