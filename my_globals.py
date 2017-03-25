@@ -46,7 +46,7 @@ METER_MAX = 5
 
 MOON_COUNTER_MAX = 50
 
-ANIMARIUM_MAX_SLOTS = 50
+ANIMAGI_MAX_SLOTS = 50
 ANIMAGUS_MAX_LEVEL = 4
 
 FONT_SML = pygame.font.Font('font/percy.ttf', 8)
@@ -210,8 +210,9 @@ class MenuState():
     ANIMAGI = 16
     ANIMAGI_CONFIRM = 17
     ANIMAGI_HERO = 18
+    STATUS_HERO = 19
 
-    SIZE = 19
+    SIZE = 20
 
 
 class Initiative():

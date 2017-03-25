@@ -380,7 +380,7 @@ class Actor001 (Actor):
         
         if (self.talk01 == False):
             self.talk01 = True
-            string = "Don't mind me. I'm just chilling here."
+            string = "Don't mind &iPotion me. I'm just chilling here."
         elif (self.talk02 == False):
             self.talk02 = True
             string = "Oh, it's you again."

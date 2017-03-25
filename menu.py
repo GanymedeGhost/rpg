@@ -173,6 +173,7 @@ class MenuUI(object):
         self.equipInfoPage = 0
         self.equipInfoPages = 3
 
+        self.statusHeroCursor = 0
         self.statusPage = 0
         self.statusPages = 2
 
@@ -790,7 +791,7 @@ class MenuUI(object):
                 self.selectedThing = g.MenuState.ANIMAGI_HERO
                 self.cursorIndex = 0
             elif selection == 4:
-                self.selectedThing = g.MenuState.STATUS
+                self.selectedThing = g.MenuState.STATUS_HERO
                 self.cursorIndex = 0
 
     def process_get_skill_hero(self):
@@ -819,6 +820,14 @@ class MenuUI(object):
             self.cursorIndex = 0
 
     def process_get_status_hero(self):
+        self.statusHeroCursor = self.cursorIndex
+        selection = self.process_input(0, len(g.partyList) - 1)
+        if selection > -1:
+            self.currentHero = g.partyList[selection]
+            self.MC.change_state(g.MenuState.STATUS)
+
+    def process_get_status(self):
+        self.statusHeroCursor = self.cursorIndex
         self.process_input(0, len(g.partyList) - 1)
 
     def process_get_item_options(self):
@@ -977,6 +986,9 @@ class MenuUI(object):
 
     def render_animagi_hero_cursor(self):
         self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.animagiHeroCursor], self.skillHeroCursorPosOffset))
+
+    def render_status_hero_cursor(self):
+        self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.statusHeroCursor], self.skillHeroCursorPosOffset))
 
     def render_status_window(self):
         self.MC.controller.viewSurf.blit(self.statusPanel, (0, 0))
@@ -1170,7 +1182,7 @@ class MenuUI(object):
 
     def render_stats_window(self):
         self.currentHero = g.partyList[self.cursorIndex]
-        self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.cursorIndex], self.skillHeroCursorPosOffset))
+        #self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.cursorIndex], self.skillHeroCursorPosOffset))
 
         if (self.statusPage == 0):
             self.MC.controller.viewSurf.blit(self.statsPanel, (0,0))
@@ -1293,7 +1305,7 @@ class MenuUI(object):
                         self.itemCursorOffset = g.INVENTORY_MAX_SLOTS - cMax
                     else:
                         self.itemCursorOffset = 0
-                if self.MC.menuState == g.MenuState.SKILL:
+                elif self.MC.menuState == g.MenuState.SKILL:
                     if self.skillHeroCursor > 0:
                         self.skillHeroCursor -= 1
                     else:
@@ -1301,23 +1313,23 @@ class MenuUI(object):
                     self.currentHero = g.partyList[self.skillHeroCursor]
                     self.cursorIndex = 0
                     self.skillCursorOffset = 0
-                if self.MC.menuState == g.MenuState.EQUIP:
+                elif self.MC.menuState == g.MenuState.EQUIP:
                     if self.equipHeroCursor > 0:
                         self.equipHeroCursor -= 1
                     else:
                         self.equipHeroCursor = len(g.partyList) - 1
                     self.currentHero = g.partyList[self.equipHeroCursor]
-                if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
+                elif self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
                     if self.equipInfoPage <= 0:
                         self.equipInfoPage = self.equipInfoPages-1
                     else:
                         self.equipInfoPage -= 1
-                if self.MC.menuState == g.MenuState.STATUS:
+                elif self.MC.menuState == g.MenuState.STATUS:
                     if self.statusPage <= 0:
                         self.statusPage = self.statusPages-1
                     else:
                         self.statusPage -= 1
-                if self.MC.menuState == g.MenuState.ANIMAGI:
+                elif self.MC.menuState == g.MenuState.ANIMAGI:
                     if self.animagiPage <= 0:
                         self.animagiPage = self.animagiPages-1
                     else:
@@ -1332,7 +1344,7 @@ class MenuUI(object):
                         self.itemCursorOffset = 0
                     else:
                         self.itemCursorOffset = g.INVENTORY_MAX_SLOTS - cMax
-                if self.MC.menuState == g.MenuState.SKILL:
+                elif self.MC.menuState == g.MenuState.SKILL:
                     if self.skillHeroCursor < len(g.partyList)-1:
                         self.skillHeroCursor += 1
                     else:
@@ -1340,23 +1352,23 @@ class MenuUI(object):
                     self.currentHero = g.partyList[self.skillHeroCursor]
                     self.cursorIndex = 0
                     self.skillCursorOffset = 0
-                if self.MC.menuState == g.MenuState.EQUIP:
+                elif self.MC.menuState == g.MenuState.EQUIP:
                     if self.equipHeroCursor < len(g.partyList)-1:
                         self.equipHeroCursor += 1
                     else:
                         self.equipHeroCursor = 0
                     self.currentHero = g.partyList[self.equipHeroCursor]
-                if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
+                elif self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
                     if self.equipInfoPage >= self.equipInfoPages-1:
                         self.equipInfoPage = 0
                     else:
                         self.equipInfoPage += 1
-                if self.MC.menuState == g.MenuState.STATUS:
+                elif self.MC.menuState == g.MenuState.STATUS:
                     if self.statusPage >= self.statusPages-1:
                         self.statusPage = 0
                     else:
                         self.statusPage += 1
-                if self.MC.menuState == g.MenuState.ANIMAGI:
+                elif self.MC.menuState == g.MenuState.ANIMAGI:
                     if self.animagiPage >= self.animagiPages-1:
                         self.animagiPage = 0
                     else:
@@ -1490,9 +1502,13 @@ class MenuUI(object):
             self.render_skill_hero_cursor()
             self.render_skill_window()
             self.process_get_skill()
-        elif self.MC.menuState == g.MenuState.STATUS:
-            self.render_stats_window()
+        elif self.MC.menuState == g.MenuState.STATUS_HERO:
+            self.render_status_hero_cursor()
             self.process_get_status_hero()
+        elif self.MC.menuState == g.MenuState.STATUS:
+            self.render_status_hero_cursor()
+            self.render_stats_window()
+            self.process_get_status()
         elif self.MC.menuState == g.MenuState.EQUIP_HERO:
             self.render_equip_hero_cursor()
             self.process_get_equip_hero()
