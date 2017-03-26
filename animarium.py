@@ -20,7 +20,7 @@ def add_animagus(key):
 
 def can_level(animagus, hero):
     if animagus.level < g.ANIMAGUS_MAX_LEVEL:
-        if hero.exp >= animagus.levelUpAt:
+        if hero.exp >= animagus.levelUpAt * hero.attr['lvl']:
             return True
         else:
             return False
@@ -28,7 +28,7 @@ def can_level(animagus, hero):
 
 def level_up(animagus, hero):
     if can_level(animagus, hero):
-        hero.exp -= animagus.levelUpAt
+        hero.exp -= animagus.levelUpAt * hero.attr["lvl"]
         hero.attr['lvl'] += 1
 
         if "str" in animagus.growth:

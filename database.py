@@ -29,7 +29,7 @@ class Hero (object):
         self.attr["hp"] = self.baseMaxHP
         self.attr["sp"] = self.baseMaxSP
 
-        self.exp = 500
+        self.exp = 1000
 
         self.resD = resD
         for dmgType in range(0, g.DamageType.SIZE):
@@ -841,7 +841,7 @@ def create_data():
     ###########
 
     name = "Signis"
-    baseExp = 50
+    baseExp = 15
     growth = {}
     skills = []
     skills.append(Skill.dic["Blood Slash"])
@@ -851,7 +851,7 @@ def create_data():
     Animagus(name, baseExp, growth, skills)
 
     name = "Zeir"
-    baseExp = 50
+    baseExp = 15
     growth = {}
     growth["end"] = 1
     skills = []
@@ -859,7 +859,7 @@ def create_data():
     Animagus(name, baseExp, growth, skills)
 
     name = "Luna"
-    baseExp = 50
+    baseExp = 15
     growth = {}
     growth["str"] = 1
     skills = []
@@ -867,7 +867,7 @@ def create_data():
     Animagus(name, baseExp, growth, skills)
 
     name = "Felix"
-    baseExp = 80
+    baseExp = 25
     growth = {}
     growth["spr"] = 1
     skills = []

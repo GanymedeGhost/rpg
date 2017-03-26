@@ -621,7 +621,10 @@ class MenuUI(object):
                 if skill in curAnimagus.skillsTaught:
                     color = g.GRAY
                 else:
-                    color = g.WHITE
+                    if skill.skillType == g.SkillType.NONE or skill.skillType == self.currentHero.skillType:
+                        color = g.WHITE
+                    else:
+                        color = g.RED
                 strings[i][1] = skill.name
                 colors[i][1] = color
                 i += 1
@@ -915,7 +918,7 @@ class MenuUI(object):
 
     def process_get_equip_slot(self):
         self.equipCursor = self.cursorIndex
-        selection = self.process_input(0, self.equipSlotTableLength)
+        selection = self.process_input(0, self.equipSlotTableLength-1)
         if selection > -1:
             if selection == 0:
                 self.MC.change_state(g.MenuState.EQUIP_WEAPON)
@@ -979,6 +982,7 @@ class MenuUI(object):
             if selection == 0:
                 selIndex = self.animagiCursor + self.animagiCursorOffset
                 anmr.level_up(g.ANIMAGI[selIndex], self.currentHero)
+                self.update_animagi_table()
                 self.update_animagi_growth_table()
                 self.update_animagi_skills_table()
                 self.MC.prev_state()
@@ -1064,10 +1068,15 @@ class MenuUI(object):
 
             #always draw level up info
             self.MC.controller.TM.draw_text("Anima", self.animagiStatsAnchor[0], g.WHITE)
-            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.animagiStatsAnchor[0], (108, 0)), g.GRAY)
-            self.MC.controller.TM.draw_text("To Next", self.animagiStatsAnchor[1], g.WHITE)
+            if self.currentHero.exp >= g.ANIMAGI[selIndex].levelUpAt * self.currentHero.attr['lvl']:
+                color = g.GREEN
+            else:
+                color = g.RED
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.animagiStatsAnchor[0], (108, 0)), color)
+
             if g.ANIMAGI[selIndex].level < g.ANIMAGUS_MAX_LEVEL:
-                self.MC.controller.TM.draw_text_ralign(str(g.ANIMAGI[selIndex].levelUpAt), utility.add_tuple(self.animagiStatsAnchor[1], (108, 0)), g.GRAY)
+                self.MC.controller.TM.draw_text("To Next", self.animagiStatsAnchor[1], g.WHITE)
+                self.MC.controller.TM.draw_text_ralign(str(g.ANIMAGI[selIndex].levelUpAt * self.currentHero.attr['lvl']), utility.add_tuple(self.animagiStatsAnchor[1], (108, 0)), g.GRAY)
             else:
                 self.MC.controller.TM.draw_text_ralign("Max Level", utility.add_tuple(self.animagiStatsAnchor[1], (108, 0)), g.GRAY)
 
