@@ -140,7 +140,7 @@ class Attack():
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Attack(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
@@ -220,7 +220,7 @@ class Potion():
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Potion(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
@@ -254,7 +254,7 @@ class Revive():
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Revive(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
@@ -289,7 +289,7 @@ class Antidote():
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Antidote(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
@@ -383,7 +383,7 @@ class Finale():
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Finale(user, targets))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
@@ -460,8 +460,9 @@ class BloodSlash():
         user.BC.UI.create_message(BloodSlash.name())
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(BloodSlash(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
@@ -505,8 +506,9 @@ class Staccato():
         user.BC.UI.create_message(Staccato.name())
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Staccato(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
@@ -549,8 +551,9 @@ class Adagio():
         user.BC.UI.create_message(Adagio.name())
         lastAnim = user.spr.curAnim
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Adagio(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))
@@ -585,11 +588,12 @@ class DoubleCut():
         lastAnim = user.spr.curAnim
         user.attr['sp'] -= db.Skill.dic["Double Cut"].spCost
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
         user.BC.eventQueue.queue(event.BattlerStepForward(user, 2))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Attack(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
-        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "sleep"))
+        user.BC.eventQueue.queue(event.PlayAnimation(user.spr, "attack"))
         user.BC.eventQueue.queue(Attack(user, target))
         user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
         user.BC.eventQueue.queue(event.BattlerReturn(user))

@@ -10,10 +10,13 @@ class Level(object):
     def __init__(self, viewport, controller):
         self.rect = pygame.Rect(0,0, 1,1)
         self.image = None
+        self.overlayImage = None
         self.viewport = viewport
-        self.controllerler = controller
-        self.TM = self.controllerler.TM
+        self.controller = controller
+        self.TM = self.controller.TM
         self.entities = {}
+        self.scenery = []
+        self.overlays = []
         self.tileset = {}
 
         self.battleStepCounter = 100
@@ -58,8 +61,16 @@ class Level(object):
             for x, c in enumerate(line):
                 if not self.is_wall(x, y) and 'sprite' in self.key[c]:
                     self.sprites[(x, y)] = self.key[c]
-                if 'entity' in self.key[c]:
+                elif 'entity' in self.key[c]:
                     self.add_entity(ENTITY_DIC[self.key[c]['entity']](self.key[c]['name'], self, (x, y), self.mapTileCache['spr/red.png'], False))
+                if 'scenery' in self.key[c]:
+                    tile = self.key[c]['scenery'].split(",")
+                    image = self.mapTileCache[self.tileset][int(tile[0])][int(tile[1])]
+                    self.scenery.append(Tile(image, (x,y)))
+                if 'overlay' in self.key[c]:
+                    tile = self.key[c]['overlay'].split(",")
+                    image = self.mapTileCache[self.tileset][int(tile[0])][int(tile[1])]
+                    self.overlays.append(Tile(image, (x,y)))
 
     def get_tile(self, x, y):
         try:
@@ -88,7 +99,7 @@ class Level(object):
         self.viewport.clamp_ip(self.rect)
 
     def update(self, dt, keys):
-        #run update() for all entites, then center the viewport
+        #run update() for all entities, then center the viewport
         for ent in self.entities:
             self.entities[ent].update(dt, keys)
         self.update_viewport()
@@ -98,7 +109,7 @@ class Level(object):
         if self.battleStepCounter <= 0:
             self.reset_battle_step_counter()
             index = random.randint(0, len(self.battleList)-1)
-            self.controllerler.start_battle(self.battleList[index])
+            self.controller.start_battle(self.battleList[index])
 
     def reset_battle_step_counter(self):
         self.battleStepCounter = random.randint(self.battleRate[0], self.battleRate[1])
@@ -116,6 +127,7 @@ class Level(object):
         wall = self.is_wall
         tiles = self.mapTileCache[self.tileset]
         self.image = pygame.Surface((self.width*g.TILE_SIZE, self.height*g.TILE_SIZE))
+
         for map_y, line in enumerate(self.map):
             for map_x, c in enumerate(line):
                 if wall(map_x, map_y):
@@ -129,18 +141,51 @@ class Level(object):
                         tile = 0, 0
                 tile_image = tiles[tile[0]][tile[1]]
                 self.image.blit(tile_image, (map_x*g.TILE_SIZE, map_y*g.TILE_SIZE))
+
         self.rect = self.image.get_rect()
 
     def draw (self, surface):
         new_image = self.image.copy()
+
+        for scenery in self.scenery:
+            scenery.draw(new_image)
+
         for ent in self.entities:
             self.entities[ent].draw(new_image)
+
+        for over in self.overlays:
+            over.draw(new_image)
+
         surface.blit(new_image, (0,0), self.viewport)
+
+
+class Tile(pygame.sprite.Sprite):
+
+    def __init__(self, image, pos):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = image
+        self.rect = self.image.get_rect()
+
+        self.pos = pos
+
+    def _get_pos(self):
+        return (self.rect.topleft[0])//g.TILE_SIZE, (self.rect.topleft[1])//g.TILE_SIZE
+
+    def _set_pos(self, value):
+        self.rect.topleft = value[0]*g.TILE_SIZE, value[1]*g.TILE_SIZE
+        self.depth = self.rect.center[1]
+
+    pos = property(_get_pos, _set_pos)
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, handle, level, pos, tileset, animated = False, animTime = 200):
         pygame.sprite.Sprite.__init__(self)
-        
+
         self.handle = handle
         self.tileset = tileset
         self.animations = {}
@@ -161,7 +206,7 @@ class Entity(pygame.sprite.Sprite):
         self.pos = pos
 
         self.level = level
-        self.controller = self.level.controllerler
+        self.controller = self.level.controller
 
     def _get_pos(self):
         return (self.rect.topleft[0])//g.TILE_SIZE, (self.rect.topleft[1])//g.TILE_SIZE
@@ -213,7 +258,7 @@ class Entity(pygame.sprite.Sprite):
         self.animate(dt)
 
     def draw(self, surface):
-        surface.blit(self.image, self.rect)
+        surface.blit(self.image, utility.add_tuple(self.rect.topleft, (-4, -20)))
 
     def interact(self):
         utility.log("test")
@@ -222,10 +267,10 @@ class Actor(Entity):
     def __init__(self, handle, level, pos, tileset, animated, animTime = 200):
         Entity.__init__(self, handle, level, pos, tileset, animated, animTime)
 
-        self.create_animation('down', [(1,0), (0,0), (1,0), (2,0)])
-        self.create_animation('up', [(1,1), (0,1), (1,1), (2,1)])
-        self.create_animation('left', [(1,2), (0,2), (1,2), (2,2)])
-        self.create_animation('right', [(1,3), (0,3), (1,3), (2,3)])
+        self.create_animation('up', [(1,0), (0,0), (1,0), (2,0)])
+        self.create_animation('right', [(1,1), (0,1), (1,1), (2,1)])
+        self.create_animation('down', [(1,2), (0,2), (1,2), (2,2)])
+        self.create_animation('left', [(1,3), (0,3), (1,3), (2,3)])
 
         self.curAnim = 'down'
         self.set_anim(self.curAnim, True)

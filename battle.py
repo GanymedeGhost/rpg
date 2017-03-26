@@ -1143,13 +1143,15 @@ class Sprite (pygame.sprite.Sprite):
                      (1,1),
                      (2,1)]
         self.create_animation("defend", framelist)
-        
-        framelist = [(0,1)]
+
+        framelist = [(0, 6),
+                     (1, 6),
+                     (2, 6)]
         self.create_animation("attack", framelist)
         
         framelist = [(0,4)]
         self.create_animation("dead", framelist)
-        
+
         framelist = [(0,2)]
         self.create_animation("damage", framelist)
         

@@ -20,7 +20,8 @@ class Control(object):
         self.screen = pygame.display.set_mode((g.WIN_WIDTH, g.WIN_HEIGHT))
         self.clock = pygame.time.Clock()
         self.loopState = None
-        self.spriteCache = utility.TileCache(g.TILE_SIZE)
+        #self.spriteCache = utility.TileCache(g.TILE_SIZE)
+        self.spriteCache = utility.TileCache(g.SPRITE_WIDTH, g.SPRITE_HEIGHT)
 
         self.eventKeys = pygame.key.get_pressed()
 
@@ -45,8 +46,8 @@ class Control(object):
         animarium.add_animagus("Felix")
 
         self.curLevel = world.Level(self.viewRect.copy(), self)
-        self.curLevel.load_file("lvl/level.map")
-        self.curLevel.add_entity(world.Player("player", self.curLevel, (1, 0), self.spriteCache['spr/red.png'], True))
+        self.curLevel.load_file("lvl/level02.map")
+        self.curLevel.add_entity(world.Player("player", self.curLevel, (1, 1), self.spriteCache['spr/heroes.png'], True))
 
         self.skipRender = False
 

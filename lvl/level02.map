@@ -1,0 +1,38 @@
+[level]
+tileset = lvl/forest.png
+map = wwwwwwwwwwwwww
+      w............w
+      w............w
+      w.....f......w
+      w.........f..w
+      w............w
+	  w..f.........w
+	  w............w
+	  w............w
+	  w............w
+	  w............w
+	  w............w
+	  wwwwwwwwwwwwww
+
+	  
+[battle]
+rate = 10,15
+enemies = 	Slime,Slime,Slime
+			Mold,Slime,Slime
+			Slime,Mold,Slime,Slime,Mold
+
+[.]
+name = grass
+tile = 0, 9
+
+[w]
+name = rock
+tile = 0, 9
+scenery = 19, 9
+block = true
+
+[f]
+name = flower
+tile = 0, 9
+scenery = 18, 10
+block = false
