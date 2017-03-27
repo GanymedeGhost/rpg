@@ -34,7 +34,7 @@ class Control(object):
         pygame.time.set_timer(self.playTimeEvent, 1000)
         
         g.partyList.append(db.Hero.dic["Luxe"])
-        g.partyList.append(db.Hero.dic["Elle"])
+        g.partyList.append(db.Hero.dic["Elle"]);
         g.partyList.append(db.Hero.dic["Asa"])
         
         inventory.init()
@@ -47,7 +47,7 @@ class Control(object):
 
         self.curLevel = world.Level(self.viewRect.copy(), self)
         self.curLevel.load_file("lvl/level02.map")
-        self.curLevel.add_entity(world.Player("player", self.curLevel, (1, 1), self.spriteCache['spr/heroes.png'], True))
+        self.curLevel.add_entity(world.Player("player", self.curLevel, (1, 1), self.spriteCache['spr/actors/luxe.png'], True))
 
         self.skipRender = False
 

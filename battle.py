@@ -441,8 +441,9 @@ class BattleUI (object):
         self.itemAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.skillAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.outAnchors = [(2, 66), (2, 58), (2,50), (2,42), (2,34), (2, 26), (2, 18), (2,10), (2,2)]
-        self.battlerAnchors = [(240, 84), (256, 116), (270, 148), (125, 74), (109, 111), (93, 143), (77, 74), (61, 111), (45, 143)]
+        self.battlerAnchors = [(240, 84), (256, 116), (270, 148), (125, 74), (109, 111), (93, 143), (77, 74), (61, 111), (45, 143), (175, 74), (159, 111), (143, 143)]
         self.turnBannerAnchor = (2, 0)
+        self.turnAnchor = (8,0)
         self.turnAnchors = [(8, 0), (34, 0), (59, 0), (84, 0), (109, 0), (134, 0), (159, 0), (185, 0), (185, 0), (185, 0), (185, 0)]
         self.meterIconOffset = (30, 7)
 
@@ -479,10 +480,12 @@ class BattleUI (object):
         self.currentTargetCursor = pygame.image.load("spr/battle/cursor-target.png")
         self.currentTargetTurnCursor = pygame.image.load("spr/battle/cursor-target2.png")
 
-        self.iconDead = pygame.image.load("spr/battle/icon-cross.png")
-        self.iconDown = pygame.image.load("spr/battle/icon-down.png")
-        self.iconDefend = pygame.image.load("spr/battle/icon-shield.png")
-        self.iconPoison = pygame.image.load("spr/battle/icon-poison.png")
+        self.iconDead = pygame.image.load("spr/icons/cross.png")
+        self.iconDown = pygame.image.load("spr/icons/down.png")
+        self.iconDefend = pygame.image.load("spr/icons/shield.png")
+        self.iconPoison = pygame.image.load("spr/icons/poison.png")
+
+
         self.iconBlood = pygame.image.load("spr/battle/icon-blood.png")
         self.iconMoon = pygame.image.load("spr/battle/icon-moon.png")
         self.iconNotes = {}
@@ -545,7 +548,7 @@ class BattleUI (object):
         length = self.skillTableLength
 
         topLeft = self.tableAnchor
-        widths = [195, 16]
+        widths = [163, 16]
 
         heights = []
         for i in range(0, length):
@@ -583,7 +586,7 @@ class BattleUI (object):
         length = self.itemTableLength
 
         topLeft = self.tableAnchor
-        widths = [179, 32]
+        widths = [147, 32]
 
         heights = []
         for i in range(0, length):
@@ -638,6 +641,10 @@ class BattleUI (object):
         for i in range(0, self.targetTableLength):
             if i+self.targetCursorOffset[curBattler.battlerIndex] < len(self.validTargets):
                 strings[i][0] = self.validTargets[i+self.targetCursorOffset[curBattler.battlerIndex]].attr['name']
+                if self.validTargets[i+self.targetCursorOffset[curBattler.battlerIndex]].mods[g.BattlerStatus.DEFEND] > 0:
+                    strings[i][0] += " &iShield"
+                if self.validTargets[i+self.targetCursorOffset[curBattler.battlerIndex]].mods[g.BattlerStatus.POISON] > 0:
+                    strings[i][0] += " &iPoison"
 
     def get_command(self, user):
         self.currentUser = user
@@ -653,6 +660,7 @@ class BattleUI (object):
         self.currentUser = user
         self.validTargets = validTargets
         self.selectedThing = None
+
 
         if len(validTargets) > self.targetCursor[self.BC.currentBattler.battlerIndex]:
             self.cursorIndex = self.targetCursor[self.BC.currentBattler.battlerIndex]
@@ -697,7 +705,9 @@ class BattleUI (object):
         if self.validTargets:
             selection = self.process_input(0, len(self.validTargets)-1)
             if (selection > -1):
-                self.selectedThing = self.validTargets[selection]
+                selIndex = selection + self.targetCursorOffset[self.BC.currentBattler.battlerIndex]
+
+                self.selectedThing = self.validTargets[selIndex]
                 self.targetCursor[self.BC.currentBattler.battlerIndex] = self.cursorIndex
                 self.BC.change_state(g.BattleState.FIGHT)
                 self.showHP = False
@@ -736,10 +746,15 @@ class BattleUI (object):
             self.commandTable.render(self.cursorIndex)
 
     def render_target_window(self):
+        if len(self.validTargets) > self.targetTableLength:
+            self.BC.controller.viewSurf.blit(self.indexImage, self.windowAnchor)
+            self.BC.controller.TM.draw_text_centered(str(1 + self.cursorIndex + self.targetCursorOffset[self.BC.currentBattler.battlerIndex]) + "/" + str(len(self.validTargets)),utility.add_tuple(self.windowAnchor, (24, 9)), g.WHITE)
+
         if self.showHP:
             self.render_battler_hp(self.BC.currentBattler)
         elif self.showSP:
             self.render_battler_hp(self.BC.currentBattler)
+        self.update_target_table()
         self.targetTable.render(self.cursorIndex)
 
     def render_item_window(self):
@@ -752,7 +767,7 @@ class BattleUI (object):
     def render_skill_window(self):
         battler = self.BC.currentBattler
         self.BC.controller.viewSurf.blit(self.indexImage, self.windowAnchor)
-        self.BC.controller.TM.draw_text_ralign(str(1 + self.cursorIndex + self.skillSelectOffset[battler.battlerIndex]) + "/" + str(len(battler.skills)), utility.add_tuple(self.windowAnchor, (44, 1)), g.WHITE)
+        self.BC.controller.TM.draw_text_centered(str(1 + self.cursorIndex + self.skillSelectOffset[battler.battlerIndex]) + "/" + str(len(battler.skills)), utility.add_tuple(self.windowAnchor, (24, 9)), g.WHITE)
 
         self.render_battler_sp(battler)
 
@@ -763,10 +778,10 @@ class BattleUI (object):
         self.BC.controller.viewSurf.blit(self.windowImage, (0,0))
         index = 0
         for hero in self.BC.battlers:
-            iconOffset = (0, 7)
+            iconOffset = (-36, 11)
             iconOffsetH = (9, 0)
             if (hero.isHero):
-                self.BC.controller.TM.draw_text(hero.attr['name'][0:4], self.heroStatusAnchors[index], g.WHITE, g.FONT_LRG)
+                self.BC.controller.TM.draw_text(hero.attr['name'][0:4], utility.add_tuple(self.heroStatusAnchors[index], (-32, 0)), g.WHITE, g.FONT_LRG)
                 self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 9)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED)
                 self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 21)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE)
                 self.BC.controller.TM.draw_text_shaded_ralign(str(hero.attr['hp']), utility.add_tuple(self.heroStatusAnchors[index], (84, 4)), g.WHITE, g.BLACK, g.FONT_MED)
@@ -791,14 +806,14 @@ class BattleUI (object):
         pygame.draw.rect(self.BC.controller.viewSurf, color, rect, 0)
 
     def render_battler_hp(self, battler):
-        self.BC.controller.viewSurf.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchor, (125, 0)))
-        self.BC.controller.TM.draw_text("HP: ", utility.add_tuple(self.windowAnchor, (129, 1)), g.WHITE)
-        self.BC.controller.TM.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.totalMaxHP), utility.add_tuple(self.windowAnchor, (217, 1)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchor, (93, 0)))
+        self.BC.controller.TM.draw_text("HP: ", utility.add_tuple(self.windowAnchor, (97, 1)), g.WHITE)
+        self.BC.controller.TM.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.totalMaxHP), utility.add_tuple(self.windowAnchor, (185, 1)), g.WHITE)
 
     def render_battler_sp(self, battler):
-        self.BC.controller.viewSurf.blit(self.spWindowImage, utility.add_tuple(self.windowAnchor, (125, 0)))
-        self.BC.controller.TM.draw_text("SP: ", utility.add_tuple(self.windowAnchor, (129, 1)), g.WHITE)
-        self.BC.controller.TM.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.totalMaxSP), utility.add_tuple(self.windowAnchor, (217, 1)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.spWindowImage, utility.add_tuple(self.windowAnchor, (93, 0)))
+        self.BC.controller.TM.draw_text("SP: ", utility.add_tuple(self.windowAnchor, (97, 1)), g.WHITE)
+        self.BC.controller.TM.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.totalMaxSP), utility.add_tuple(self.windowAnchor, (185, 1)), g.WHITE)
 
     def render_meter(self, skillType, pos):
         pos = utility.add_tuple(pos, self.meterIconOffset)
@@ -824,14 +839,19 @@ class BattleUI (object):
 
     def render_target_cursor(self):
         if self.validTargets:
-            if len(self.validTargets) > self.cursorIndex:
-                battler = self.validTargets[self.cursorIndex]
+            selIndex = self.cursorIndex + self.targetCursorOffset[self.BC.currentBattler.battlerIndex]
+            if len(self.validTargets) > selIndex:
+                battler = self.validTargets[selIndex]
                 if battler:
                     cursorOffset = utility.add_tuple((0, -battler.size), self.battlerCursorOffset)
                     self.BC.controller.viewSurf.blit(self.currentTargetCursor, utility.add_tuple(battler.spr.pos, cursorOffset))
                     if battler.turnOrder >= 0:
                         #this is currently rendering over any icons in the turn area
-                        self.BC.controller.viewSurf.blit(self.currentTargetTurnCursor, utility.add_tuple(self.turnAnchors[battler.turnOrder], (2,0)))
+                        anchor = utility.add_tuple(self.turnAnchor, (2,0))
+                        for i in range(0, battler.turnOrder):
+                            anchor = utility.add_tuple(anchor, (32, 0))
+
+                        self.BC.controller.viewSurf.blit(self.currentTargetTurnCursor, anchor)
 
     def render_battlers(self):
         dt = self.BC.controller.clock.get_time()
@@ -847,19 +867,23 @@ class BattleUI (object):
                 iconOffsetH = (-8, 0)
                 if not battler.isDead:
                     battler.spr.draw(surf)
-                    if battler.mods[g.BattlerStatus.DEFEND] > 0:
-                        self.BC.controller.viewSurf.blit(self.iconDefend, utility.add_tuple(battler.spr.pos, iconOffset))
-                        iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
-                    if battler.mods[g.BattlerStatus.STUN] > 0:
-                        self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(battler.spr.pos, iconOffset))
-                        iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
-                    if battler.mods[g.BattlerStatus.POISON] > 0:
-                        self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(battler.spr.pos, iconOffset))
-                        iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+                    # if battler.mods[g.BattlerStatus.DEFEND] > 0:
+                    #     self.BC.controller.viewSurf.blit(self.iconDefend, utility.add_tuple(battler.spr.pos, iconOffset))
+                    #     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+                    # if battler.mods[g.BattlerStatus.STUN] > 0:
+                    #     self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(battler.spr.pos, iconOffset))
+                    #     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+                    # if battler.mods[g.BattlerStatus.POISON] > 0:
+                    #     self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(battler.spr.pos, iconOffset))
+                    #     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             index += 1
 
     def render_turns(self):
         self.BC.controller.viewSurf.blit(self.turnImage, self.turnBannerAnchor)
+
+        anchor = self.turnAnchor
+        offset = (32, 0)
+
         for battler in self.BC.turnOrder:
             if (battler.isHero):
                 img = self.heroTurnImage
@@ -867,26 +891,28 @@ class BattleUI (object):
                 img = self.monTurnImage
                 
             anchorIndex = battler.turnOrder
-            self.BC.controller.viewSurf.blit(img, self.turnAnchors[anchorIndex])
-            self.BC.controller.viewSurf.blit(battler.icon, utility.add_tuple(self.turnAnchors[anchorIndex], (2,0)))
+            self.BC.controller.viewSurf.blit(img, anchor)
+            self.BC.controller.viewSurf.blit(battler.icon, utility.add_tuple(anchor, (2,0)))
             label = battler.attr['name'][0:5]
-            self.BC.controller.TM.draw_text(label, utility.add_tuple(self.turnAnchors[anchorIndex], (2,17)), g.WHITE, g.FONT_SML)
+            self.BC.controller.TM.draw_text(label, utility.add_tuple(anchor, (2,17)), g.WHITE, g.FONT_SML)
 
-            iconOffset = (0, 0)
-            iconOffsetH = (9, 0)
+            iconOffset = (18, -4)
+            iconOffsetH = (0, 10)
             
             if (battler.attr['hp'] <= 0):
-                self.BC.controller.viewSurf.blit(self.iconDead, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                self.BC.controller.viewSurf.blit(self.iconDead, utility.add_tuple(anchor, iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             if battler.mods[g.BattlerStatus.STUN] > 0:
-                self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(anchor, iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             if battler.mods[g.BattlerStatus.DEFEND] > 0:
-                self.BC.controller.viewSurf.blit(self.iconDefend, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                self.BC.controller.viewSurf.blit(self.iconDefend, utility.add_tuple(anchor, iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             if battler.mods[g.BattlerStatus.POISON] > 0:
-                self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(self.turnAnchors[anchorIndex], iconOffset))
+                self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(anchor, iconOffset))
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
+
+            anchor = utility.add_tuple(anchor, offset)
 
     def render_help(self):
         if (self.helpLabel != ""):

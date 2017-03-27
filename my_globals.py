@@ -296,9 +296,9 @@ partyList = []
 monsterList = []
 
 meter = {}
-meter[SkillType.BLOOD] = 0
+meter[SkillType.BLOOD] = 3
 meter[SkillType.MUSIC] = [] #fills with damage types
-meter[SkillType.MOON] = 0
+meter[SkillType.MOON] = 4
 
 def music_meter_add(damageType):
     meter[SkillType.MUSIC].insert(0, damageType)

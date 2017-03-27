@@ -94,8 +94,8 @@ class MenuUI(object):
         self.iconNotes[g.DamageType.ELEC] = pygame.image.load("spr/battle/icon-note-ylw.png")
         self.iconNotes[g.DamageType.WIND] = pygame.image.load("spr/battle/icon-note-grn.png")
 
-        self.infoAnchor = (106, 91)
-        self.mainAnchor = [(207, 24), (207, 92), (207, 160)]
+        self.infoAnchor = (237, 182)
+        self.mainAnchor = [(10, 30), (10, 98), (10, 166)]
         self.portraitAnchor = [(15, 21), (15, 61), (15, 101)]
         self.itemIndexAnchor = (152, 7)
         self.itemAnchor = [(48, 20), (48, 29), (48, 38), (48, 47), (48, 56), (48, 65), (48, 74), (48, 83), (48, 92)]
@@ -270,7 +270,7 @@ class MenuUI(object):
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
 
     def init_item_options_table(self):
-        topLeft = (90, 85)
+        topLeft = (241, 7)
         widths = [80]
         heights = [11, 11, 11, 11, 11]
         strings = [["Use"], ["Sort"], ["Arrange"], ["Condense"], ["Back"],]
@@ -1021,7 +1021,7 @@ class MenuUI(object):
 
     def render_bar(self, pos, curVal, maxVal, color):
         percent = curVal / maxVal
-        width = math.floor(100 * percent)
+        width = math.floor(97 * percent)
         rect = pygame.Rect(pos, (width, 4))
 
         pygame.draw.rect(self.MC.controller.viewSurf, color, rect, 0)
@@ -1033,26 +1033,27 @@ class MenuUI(object):
         index = 0
         for hero in g.partyList:
             offset = self.mainAnchor[index]
-            offset = utility.add_tuple(offset, (-19, 4))
+            offset = utility.add_tuple(offset, (4, 0))
             self.MC.controller.viewSurf.blit(hero.icon, offset)
 
-            offset = utility.add_tuple(offset, (-7, -8))
-            self.MC.controller.TM.draw_text_ralign(str(hero.attr['name']), offset, g.WHITE)
+            offset = utility.add_tuple(offset, (25, -8))
+            self.MC.controller.TM.draw_text(str(hero.attr['name']), offset, g.WHITE)
+            self.MC.controller.TM.draw_text("Lv " + str(hero.attr['lvl']), utility.add_tuple(offset, (0,13)), g.WHITE)
+            self.render_meter(hero.skillType, utility.add_tuple(offset, (71,19)))
 
-            self.render_bar(utility.add_tuple(self.mainAnchor[index], (-99, 35)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED)
-            offset = utility.add_tuple(offset, (26, 28))
+            self.render_bar(utility.add_tuple(self.mainAnchor[index], (2, 31)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED)
+            offset = utility.add_tuple(offset, (69, 28))
             self.MC.controller.TM.draw_text_shaded_ralign(str(hero.totalMaxHP), offset, g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign("/", utility.add_tuple(offset, (-29, 0)), g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign(str(hero.attr['hp']), utility.add_tuple(offset, (-34, 0)), g.WHITE)
 
-            self.render_bar(utility.add_tuple(self.mainAnchor[index], (-99, 51)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE)
+            self.render_bar(utility.add_tuple(self.mainAnchor[index], (2, 47)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE)
             offset = utility.add_tuple(offset, (0, 16))
             self.MC.controller.TM.draw_text_shaded_ralign(str(hero.totalMaxSP), offset, g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign("/", utility.add_tuple(offset, (-29, 0)), g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign(str(hero.attr['sp']), utility.add_tuple(offset, (-34, 0)), g.WHITE)
 
-            offset = utility.add_tuple(offset, (24, 0))
-            self.render_meter(hero.skillType, offset)
+
             index += 1
 
     def render_animagi_window(self):
@@ -1205,7 +1206,11 @@ class MenuUI(object):
 
         #Draw table
         self.update_item_table()
-        self.itemTable.render(self.itemCursor, globalOffset)
+        if (self.MC.menuState == g.MenuState.ITEM_OPTIONS):
+            cursor = -1
+        else:
+            cursor = self.itemCursor
+        self.itemTable.render(cursor, globalOffset)
 
         #Draw arrange secondary cursor
         if self.MC.menuState != g.MenuState.ITEM_OPTIONS:
@@ -1219,7 +1224,7 @@ class MenuUI(object):
                 parsedStr = self.MC.controller.TM.parse_string(curItem.desc, helpWidth)[0]
 
                 curOffset = utility.add_tuple(globalOffset, (0, 0))
-                lineOffset = (0, 8)
+                lineOffset = (0, 11)
 
                 index = 0
                 for line in range(0, len(parsedStr)):
@@ -1295,15 +1300,15 @@ class MenuUI(object):
         self.commandTable.render(self.commandCursor)
 
     def render_info_window(self):
-        self.MC.controller.viewSurf.blit(self.infoPanel, (0, 0))
+        #self.MC.controller.viewSurf.blit(self.infoPanel, (0, 0))
         self.MC.controller.TM.draw_text("GP", self.infoAnchor, g.WHITE)
-        self.MC.controller.TM.draw_text_ralign(str(g.GP), utility.add_tuple(self.infoAnchor, (48, 9)), g.WHITE)
-        self.MC.controller.TM.draw_text("Time", utility.add_tuple(self.infoAnchor, (0, 18)), g.WHITE)
-        self.MC.controller.TM.draw_text_ralign(g.playTimeSecText, utility.add_tuple(self.infoAnchor, (48, 27)), g.WHITE)
-        self.MC.controller.TM.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (35, 27)), g.WHITE)
-        self.MC.controller.TM.draw_text_ralign(g.playTimeMinText, utility.add_tuple(self.infoAnchor, (33, 27)), g.WHITE)
-        self.MC.controller.TM.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (20, 27)), g.WHITE)
-        self.MC.controller.TM.draw_text_ralign(g.playTimeHourText, utility.add_tuple(self.infoAnchor, (18, 27)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(str(g.GP), utility.add_tuple(self.infoAnchor, (72, 11)), g.WHITE)
+        self.MC.controller.TM.draw_text("Time", utility.add_tuple(self.infoAnchor, (0, 22)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(g.playTimeSecText, utility.add_tuple(self.infoAnchor, (72, 33)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (59, 33)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(g.playTimeMinText, utility.add_tuple(self.infoAnchor, (57, 33)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(":", utility.add_tuple(self.infoAnchor, (44, 33)), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(g.playTimeHourText, utility.add_tuple(self.infoAnchor, (42, 33)), g.WHITE)
 
     def restore_cursor(self):
         if self.MC.menuState == g.MenuState.MENU:
@@ -1520,20 +1525,25 @@ class MenuUI(object):
     def update(self):
         self.MC.controller.viewSurf.fill(g.BLACK)
         self.render_main_window()
-        self.render_command_window()
         self.render_info_window()
+
+        if not self.MC.menuState == g.MenuState.ITEM_OPTIONS and not self.MC.menuState == g.MenuState.ITEM_ORGANIZE and not self.MC.menuState == g.MenuState.ITEM:
+            self.render_command_window()
 
         if self.MC.menuState == g.MenuState.ITEM_OPTIONS:
             self.render_item_window()
             self.render_item_options()
             self.process_get_item_options()
         elif self.MC.menuState == g.MenuState.ITEM_ORGANIZE:
+            self.render_item_options()
             self.render_item_window()
             self.process_get_item_organize()
         elif self.MC.menuState == g.MenuState.ITEM:
+            self.render_item_options()
             self.render_item_window()
             self.process_get_item()
         elif self.MC.menuState == g.MenuState.TARGET_ITEM:
+            self.render_item_options()
             self.render_target_cursor()
             self.render_item_window()
             self.process_get_target()
