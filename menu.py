@@ -68,6 +68,7 @@ class MenuUI(object):
     def __init__(self, MC):
         self.MC = MC
 
+        self.mainPanel = pygame.image.load("spr/menu/main.png")
         self.statusPanel = pygame.image.load("spr/menu/status-panel.png")
         self.commandPanel = pygame.image.load("spr/menu/command-panel.png")
         self.infoPanel = pygame.image.load("spr/menu/info-panel.png")
@@ -94,8 +95,7 @@ class MenuUI(object):
         self.iconNotes[g.DamageType.WIND] = pygame.image.load("spr/battle/icon-note-grn.png")
 
         self.infoAnchor = (106, 91)
-        self.statusAnchor = [(94, 15), (94, 55), (94, 95)]
-        self.statusAnchorOffset = (0, 9)
+        self.mainAnchor = [(207, 24), (207, 92), (207, 160)]
         self.portraitAnchor = [(15, 21), (15, 61), (15, 101)]
         self.itemIndexAnchor = (152, 7)
         self.itemAnchor = [(48, 20), (48, 29), (48, 38), (48, 47), (48, 56), (48, 65), (48, 74), (48, 83), (48, 92)]
@@ -124,7 +124,7 @@ class MenuUI(object):
 
         self.resOffset = (-25, 0)
 
-        self.hCursorPosOffset = (-8, 0)
+        self.hCursorPosOffset = (-8, 5)
 
         self.commandCursorPosOffset = (-7, 0)
         self.commandCursor = 0
@@ -262,9 +262,9 @@ class MenuUI(object):
         self.restore_cursor()
 
     def init_command_table(self):
-        topLeft = (110, 11)
+        topLeft = (241, 7)
         widths = [80]
-        heights = [9, 9, 9, 9, 9, 9]
+        heights = [11, 11, 11, 11, 11, 11]
         strings = [["Items"], ["Skills"], ["Equip"], ["Animagi"], ["Status"], ["Exit"]]
         aligns = ["left"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
@@ -272,7 +272,7 @@ class MenuUI(object):
     def init_item_options_table(self):
         topLeft = (90, 85)
         widths = [80]
-        heights = [9, 9, 9, 9, 9]
+        heights = [11, 11, 11, 11, 11]
         strings = [["Use"], ["Sort"], ["Arrange"], ["Condense"], ["Back"],]
         aligns = ["left"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
@@ -280,7 +280,7 @@ class MenuUI(object):
     def init_item_table(self):
         topLeft = (48, 20)
         widths = [22, 90]
-        heights = [9, 9, 9, 9, 9, 9, 9, 9, 9]
+        heights = [11, 11, 11, 11, 11, 11, 11, 11, 11]
         strings = [["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""]]
         aligns = ["right", "left"]
         colors = [[g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE]]
@@ -303,7 +303,7 @@ class MenuUI(object):
     def init_skill_table(self):
         topLeft = (48, 20)
         widths = [8, 74, 24]
-        heights = [9, 9, 9, 9, 9, 9, 9, 9, 9]
+        heights = [11, 11, 11, 11, 11, 11, 11, 11, 11]
         strings = [["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""]]
         aligns = ["right", "left", "right"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
@@ -336,7 +336,7 @@ class MenuUI(object):
     def init_equip_slot_table(self):
         topLeft = (48, 19)
         widths = [26, 80]
-        heights = [10, 10, 10]
+        heights = [11, 11, 11]
         strings = [["Wpn:", ""], ["Acc:", ""], ["Acc:", ""]]
         aligns = ["right", "left"]
         colors = [[g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY]]
@@ -355,7 +355,7 @@ class MenuUI(object):
     def init_equip_list_table(self):
         topLeft = (48, 19)
         widths = [110]
-        heights = [10, 10, 10]
+        heights = [11, 11, 11]
         strings = [[""], [""], [""]]
         aligns = ["left"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
@@ -375,7 +375,7 @@ class MenuUI(object):
     def init_equip_cur_stats_table(self):
         topLeft = (48, 104)
         widths = [24, 16, 24, 16]
-        heights = [10, 10, 10]
+        heights = [11, 11, 11]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
@@ -408,7 +408,7 @@ class MenuUI(object):
     def init_equip_cur_res_table(self):
         topLeft = (48, 104)
         widths = [32, 18, 35, 18]
-        heights = [10, 10, 10]
+        heights = [11, 11, 11]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
@@ -444,7 +444,7 @@ class MenuUI(object):
     def init_equip_sel_stats_table(self):
         topLeft = (48, 62)
         widths = [24, 16, 24, 16]
-        heights = [10, 10, 10]
+        heights = [11, 11, 11]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
@@ -477,7 +477,7 @@ class MenuUI(object):
     def init_equip_sel_res_table(self):
         topLeft = (48, 62)
         widths = [32, 18, 35, 18]
-        heights = [10, 10, 10]
+        heights = [11, 11, 11]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
@@ -513,7 +513,7 @@ class MenuUI(object):
     def init_animagi_table(self):
         topLeft = (48, 20)
         widths = [80, 24]
-        heights = [10, 10, 10, 10, 10]
+        heights = [11, 11, 11, 11, 11]
         strings = [["",""], ["",""], ["",""], ["",""], ["",""]]
         aligns = ["left", "right"]
         colors = [[g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY]]
@@ -533,7 +533,7 @@ class MenuUI(object):
     def init_animagi_growth_table(self):
         topLeft = (48, 80)
         widths = [24, 24, 24, 24]
-        heights = [10, 10, 10]
+        heights = [11, 11, 11]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
 
         strings[0][0] = g.ATTR_NAME['str']
@@ -594,7 +594,7 @@ class MenuUI(object):
     def init_animagi_skills_table(self):
         topLeft = (48, 80)
         widths = [8, 80]
-        heights = [10, 10, 10]
+        heights = [11, 11, 11]
         strings = [["", ""], ["", ""], ["", ""]]
         aligns = ["right", "left"]
         colors = [[g.WHITE, g.WHITE], [g.WHITE, g.WHITE], [g.WHITE, g.WHITE]]
@@ -632,7 +632,7 @@ class MenuUI(object):
     def init_stats_table(self):
         topLeft = (38, 74)
         widths = [30, 24, 36, 24]
-        heights = [10, 10, 10, 10, 10, 10]
+        heights = [11, 11, 11, 11, 11, 11]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings[0][0] = g.ATTR_NAME['str']
         strings[1][0] = g.ATTR_NAME['end']
@@ -685,7 +685,7 @@ class MenuUI(object):
     def init_res_table(self):
         topLeft = (30, 20)
         widths = [48, 24, 26, 24]
-        heights = [10, 10, 10, 10, 10, 10, 10, 10, 10]
+        heights = [11, 11, 11, 11, 11, 11, 11, 11, 11]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings[0][0] = g.DamageType.NAME[g.DamageType.PHYS]
         strings[1][0] = g.DamageType.NAME[g.DamageType.FIRE]
@@ -1019,26 +1019,39 @@ class MenuUI(object):
     def render_status_hero_cursor(self):
         self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.statusHeroCursor], self.skillHeroCursorPosOffset))
 
-    def render_status_window(self):
-        self.MC.controller.viewSurf.blit(self.statusPanel, (0, 0))
+    def render_bar(self, pos, curVal, maxVal, color):
+        percent = curVal / maxVal
+        width = math.floor(100 * percent)
+        rect = pygame.Rect(pos, (width, 4))
+
+        pygame.draw.rect(self.MC.controller.viewSurf, color, rect, 0)
+
+    def render_main_window(self):
+        self.MC.controller.viewSurf.blit(self.mainPanel, (0, 0))
 
         #Draw basic info for each hero
         index = 0
         for hero in g.partyList:
-            offset = self.statusAnchor[index]
-            self.MC.controller.viewSurf.blit(hero.icon, self.portraitAnchor[index])
-            self.MC.controller.TM.draw_text("Lv", utility.add_tuple(self.portraitAnchor[index], (-6, 23)), g.WHITE)
-            self.MC.controller.TM.draw_text_ralign(str(hero.attr['lvl']), utility.add_tuple(self.portraitAnchor[index], (22, 23)), g.WHITE)
+            offset = self.mainAnchor[index]
+            offset = utility.add_tuple(offset, (-19, 4))
+            self.MC.controller.viewSurf.blit(hero.icon, offset)
+
+            offset = utility.add_tuple(offset, (-7, -8))
             self.MC.controller.TM.draw_text_ralign(str(hero.attr['name']), offset, g.WHITE)
-            offset = utility.add_tuple(offset, self.statusAnchorOffset)
-            self.MC.controller.TM.draw_text_ralign(str(hero.totalMaxHP), offset, g.WHITE)
-            self.MC.controller.TM.draw_text_ralign("/", utility.add_tuple(offset, (-27, 0)), g.WHITE)
-            self.MC.controller.TM.draw_text_ralign(str(hero.attr['hp']), utility.add_tuple(offset, (-31, 0)), g.WHITE)
-            offset = utility.add_tuple(offset, self.statusAnchorOffset)
-            self.MC.controller.TM.draw_text_ralign(str(hero.totalMaxSP), offset, g.WHITE)
-            self.MC.controller.TM.draw_text_ralign("/", utility.add_tuple(offset, (-27, 0)), g.WHITE)
-            self.MC.controller.TM.draw_text_ralign(str(hero.attr['sp']), utility.add_tuple(offset, (-31, 0)), g.WHITE)
-            offset = utility.add_tuple(offset, self.statusAnchorOffset)
+
+            self.render_bar(utility.add_tuple(self.mainAnchor[index], (-99, 35)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED)
+            offset = utility.add_tuple(offset, (26, 28))
+            self.MC.controller.TM.draw_text_shaded_ralign(str(hero.totalMaxHP), offset, g.WHITE)
+            self.MC.controller.TM.draw_text_shaded_ralign("/", utility.add_tuple(offset, (-29, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_shaded_ralign(str(hero.attr['hp']), utility.add_tuple(offset, (-34, 0)), g.WHITE)
+
+            self.render_bar(utility.add_tuple(self.mainAnchor[index], (-99, 51)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE)
+            offset = utility.add_tuple(offset, (0, 16))
+            self.MC.controller.TM.draw_text_shaded_ralign(str(hero.totalMaxSP), offset, g.WHITE)
+            self.MC.controller.TM.draw_text_shaded_ralign("/", utility.add_tuple(offset, (-29, 0)), g.WHITE)
+            self.MC.controller.TM.draw_text_shaded_ralign(str(hero.attr['sp']), utility.add_tuple(offset, (-34, 0)), g.WHITE)
+
+            offset = utility.add_tuple(offset, (24, 0))
             self.render_meter(hero.skillType, offset)
             index += 1
 
@@ -1278,7 +1291,7 @@ class MenuUI(object):
                 pos = utility.add_tuple(pos, offset)
 
     def render_command_window(self):
-        self.MC.controller.viewSurf.blit(self.commandPanel, (0, 0))
+        #self.MC.controller.viewSurf.blit(self.commandPanel, (0, 0))
         self.commandTable.render(self.commandCursor)
 
     def render_info_window(self):
@@ -1506,7 +1519,7 @@ class MenuUI(object):
 
     def update(self):
         self.MC.controller.viewSurf.fill(g.BLACK)
-        self.render_status_window()
+        self.render_main_window()
         self.render_command_window()
         self.render_info_window()
 

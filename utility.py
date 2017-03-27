@@ -128,8 +128,8 @@ class TextManager:
             if words[wordIndex].find("&i") >= 0:
                 glyphIndex.append(len(curLine))
 
-                curLine += "  "
-                curWidth += self.curFont.size("  ")[0]
+                curLine += "   "
+                curWidth += self.curFont.size("   ")[0]
 
                 glyphX.append(curWidth)
                 glyphList.append(g.iconCache.icon(words[wordIndex]))
@@ -154,7 +154,7 @@ class TextManager:
         lines.append(curLine)
         return lines, glyphList, glyphX, glyphLine, glyphIndex
 
-    def create_text_box(self, string, font = g.FONT_MED):
+    def create_text_box(self, string, font = g.FONT_LRG):
         self.uiSurf.blit(self.boxImage, (0, 111))
         self.curFont = font
         self.curHeight = 0
@@ -168,7 +168,7 @@ class TextManager:
         self.nextX = self.startX
         self.nextY = self.startY
 
-    def type_text(self, keys, font = g.FONT_MED, maxY = 140):
+    def type_text(self, keys, maxY = 140):
         if not self.boxDrawn:
             self.uiSurf.blit(self.boxImage, (0, 111))
             self.boxDrawn = True
@@ -181,7 +181,7 @@ class TextManager:
 
                     if self.glyphIndex:
                         if self.charIndex == self.glyphIndex[0] and self.lineIndex == self.glyphLine[0]:
-                            self.uiSurf.blit(self.glyphList[0], (self.nextX, self.nextY))
+                            self.uiSurf.blit(self.glyphList[0], (self.nextX-4, self.nextY+1))
                             del self.glyphList[0]
                             del self.glyphX[0]
                             del self.glyphIndex[0]
@@ -219,13 +219,13 @@ class TextManager:
         self.confirmRelease = False
         self.boxDrawn = False
 
-    def draw_text (self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
+    def draw_text (self, string, pos=(0,0), color = g.BLACK, font = g.FONT_LRG):
         textObj = font.render(string, False, color)
         textRect = textObj.get_rect()
         textRect.topleft = pos
         self.uiSurf.blit(textObj, textRect)
 
-    def draw_text_f(self, string, pos=(0,0), color = g.BLACK, maxWidth = g.VIEW_WIDTH, wrap = False, font = g.FONT_MED):
+    def draw_text_f(self, string, pos=(0,0), color = g.BLACK, maxWidth = g.VIEW_WIDTH, wrap = False, font = g.FONT_LRG):
         parsedStr, glyphList, glyphX, glyphLine, glyphIndex = self.parse_string(string, maxWidth)
         offset = pos
         heightInc = (0, font.size("X")[1])
@@ -236,10 +236,10 @@ class TextManager:
 
         index = 0
         for glyph in glyphList:
-            self.uiSurf.blit(glyph, (pos[0] + glyphX[index] - 8, pos[1] + glyphLine[index] * font.size('X')[1]))
+            self.uiSurf.blit(glyph, (pos[0] + glyphX[index] - 14, pos[1] + glyphLine[index] * font.size('X')[1] + 1))
             index += 1
 
-    def draw_text_fr(self, string, pos=(0,0), color = g.BLACK, maxWidth = g.VIEW_WIDTH, wrap = False, font = g.FONT_MED):
+    def draw_text_fr(self, string, pos=(0,0), color = g.BLACK, maxWidth = g.VIEW_WIDTH, wrap = False, font = g.FONT_LRG):
         parsedStr, glyphList, glyphX, glyphLine, glyphIndex = self.parse_string(string, maxWidth)
         offset = add_tuple(pos, (4, 0))
         heightInc = (0, font.size("X")[1])
@@ -253,19 +253,19 @@ class TextManager:
             self.uiSurf.blit(glyph, (pos[0] - glyphX[index], pos[1] - glyphLine[index] * font.size('X')[1]))
             index += 1
 
-    def draw_text_centered(self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
+    def draw_text_centered(self, string, pos=(0,0), color = g.BLACK, font = g.FONT_LRG):
         textObj = font.render(string, False, color)
         textRect = textObj.get_rect()
         textRect.center = pos
         self.uiSurf.blit(textObj, textRect)
 
-    def draw_text_ralign (self, string, pos=(0,0), color = g.BLACK, font = g.FONT_MED):
+    def draw_text_ralign (self, string, pos=(0,0), color = g.BLACK, font = g.FONT_LRG):
         textObj = font.render(string, False, color)
         textRect = textObj.get_rect()
         textRect.topright = pos
         self.uiSurf.blit(textObj, textRect)
 
-    def draw_text_shaded(self, string, pos, color1 = g.WHITE, color2 = g.BLACK, font = g.FONT_MED):
+    def draw_text_shaded(self, string, pos, color1 = g.WHITE, color2 = g.BLACK, font = g.FONT_LRG):
         textObj4 = font.render(string, False, color2)
         textRect4 = textObj4.get_rect()
         textRect4.topleft = add_tuple(pos, (1,0))
@@ -283,7 +283,7 @@ class TextManager:
         textRect1.topleft = pos
         self.uiSurf.blit(textObj1, textRect1)
 
-    def draw_text_shaded_centered(self, string, pos, color1 = g.WHITE, color2 = g.BLACK, font = g.FONT_MED):
+    def draw_text_shaded_centered(self, string, pos, color1 = g.WHITE, color2 = g.BLACK, font = g.FONT_LRG):
         textObj4 = font.render(string, False, color2)
         textRect4 = textObj4.get_rect()
         textRect4.center = add_tuple(pos, (1,0))
@@ -299,4 +299,22 @@ class TextManager:
         textObj1 = font.render(string, False, color1)
         textRect1 = textObj1.get_rect()
         textRect1.center = pos
+        self.uiSurf.blit(textObj1, textRect1)
+
+    def draw_text_shaded_ralign(self, string, pos, color1 = g.WHITE, color2 = g.BLACK, font = g.FONT_LRG):
+        textObj4 = font.render(string, False, color2)
+        textRect4 = textObj4.get_rect()
+        textRect4.topright = add_tuple(pos, (1,0))
+        self.uiSurf.blit(textObj4, textRect4)
+        textObj3 = font.render(string, False, color2)
+        textRect3 = textObj3.get_rect()
+        textRect3.topright = add_tuple(pos, (1,1))
+        self.uiSurf.blit(textObj3, textRect3)
+        textObj2 = font.render(string, False, color2)
+        textRect2 = textObj2.get_rect()
+        textRect2.topright = add_tuple(pos, (0,1))
+        self.uiSurf.blit(textObj2, textRect2)
+        textObj1 = font.render(string, False, color1)
+        textRect1 = textObj1.get_rect()
+        textRect1.topright = pos
         self.uiSurf.blit(textObj1, textRect1)

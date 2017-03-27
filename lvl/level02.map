@@ -1,7 +1,7 @@
 [level]
 tileset = lvl/forest.png
 map = wwwwwwwwwwwwww
-      w............w
+      w........1...w
       w............w
       w.....f......w
       w.........f..w
@@ -36,3 +36,9 @@ name = flower
 tile = 0, 9
 scenery = 18, 10
 block = false
+
+[1]
+name = actor001
+tile = 0,1
+block = true
+entity = actor001

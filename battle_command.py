@@ -351,7 +351,7 @@ class Sacrifice():
 
             for hero in self.user.BC.battlers:
                 if hero.isHero and not hero.isDead:
-                    hero.attr['sp'] = hero.attr['maxSP']
+                    hero.attr['sp'] = hero.totalMaxSP
                     self.user.BC.UI.create_popup("FULL SP", hero.spr.pos, g.BLUE)
         else:
             self.user.BC.UI.create_popup("NO EFFECT", self.user.spr.pos, g.RED)

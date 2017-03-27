@@ -29,7 +29,9 @@ class BattleController (object):
         
         self.battleState = g.BattleState.FIGHT
         self.prevBattleState = [self.battleState]
-        
+
+        self.battleBack = pygame.image.load("spr/battle/bg/plains.png")
+
         self.battlers = []
         self.battlerCount = 0
 
@@ -429,16 +431,17 @@ class BattleUI (object):
         self.cursorPos = (0,0)
 
         self.cursorImage = pygame.image.load("spr/cursor-h.png")
-        self.hCursorPosOffset = (-8, 0)
+        self.hCursorPosOffset = (-8, 5)
 
         self.cursorRect = self.cursorImage.get_rect()
-        self.heroStatusAnchors = [(101, 91), (101, 109), (101, 125)]
+        self.tableAnchor = (9, 156)
+        self.heroStatusAnchors = [(228, 156), (228, 182), (228, 208)]
         self.cmdAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.tgtAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.itemAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.skillAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.outAnchors = [(2, 66), (2, 58), (2,50), (2,42), (2,34), (2, 26), (2, 18), (2,10), (2,2)]
-        self.battlerAnchors = [(124, 48), (132, 64), (140, 80), (38, 64), (22, 80), (54, 48), (62, 76), (78, 60)]
+        self.battlerAnchors = [(240, 84), (256, 116), (270, 148), (125, 74), (109, 111), (93, 143), (77, 74), (61, 111), (45, 143)]
         self.turnBannerAnchor = (2, 0)
         self.turnAnchors = [(8, 0), (34, 0), (59, 0), (84, 0), (109, 0), (134, 0), (159, 0), (185, 0), (185, 0), (185, 0), (185, 0)]
         self.meterIconOffset = (30, 7)
@@ -464,12 +467,12 @@ class BattleUI (object):
             self.itemSelectOffset.append(0)
             self.targetCursorOffset.append(0)
 
-        self.windowImage = pygame.image.load("spr/battle/ui-window.png")
+        self.windowImage = pygame.image.load("spr/battle/battle-ui.png")
         self.indexImage = pygame.image.load("spr/battle/ui-index.png")
         self.helpImage = pygame.image.load("spr/battle/ui-help.png")
-        self.spWindowImage = pygame.image.load("spr/battle/ui-sp.png")
+        self.spWindowImage = pygame.image.load("spr/battle/ui-hp.png")
         self.hpWindowImage = pygame.image.load("spr/battle/ui-hp.png")
-        self.windowAnchors = [(0,85)]
+        self.windowAnchor = (2, 140)
 
         self.battlerCursorOffset = (-4, -8)
         self.currentTurnCursor = pygame.image.load("spr/battle/cursor-turn.png")
@@ -507,13 +510,13 @@ class BattleUI (object):
 
         self.commandTable = None
 
-        self.skillTableLength = 5
+        self.skillTableLength = 7
         self.skillTable = self.init_skill_table()
 
-        self.itemTableLength = 5
+        self.itemTableLength = 7
         self.itemTable = self.init_item_table()
 
-        self.targetTableLength = 5
+        self.targetTableLength = 7
         self.targetTable = self.init_target_table()
 
     def clean_up(self):
@@ -525,12 +528,12 @@ class BattleUI (object):
     def init_command_table(self):
         length = len(self.BC.currentBattler.commands)
 
-        topLeft = (8, 92)
+        topLeft = self.tableAnchor
         widths = [80]
 
         heights = []
         for i in range(0, length):
-            heights.append(10)
+            heights.append(11)
 
         strings = []
         for i in range(length):
@@ -541,12 +544,12 @@ class BattleUI (object):
     def init_skill_table(self):
         length = self.skillTableLength
 
-        topLeft = (8, 92)
-        widths = [72, 16]
+        topLeft = self.tableAnchor
+        widths = [195, 16]
 
         heights = []
         for i in range(0, length):
-            heights.append(10)
+            heights.append(11)
 
         strings = []
         for i in range(0, length):
@@ -579,12 +582,12 @@ class BattleUI (object):
     def init_item_table(self):
         length = self.itemTableLength
 
-        topLeft = (8, 92)
-        widths = [72, 16]
+        topLeft = self.tableAnchor
+        widths = [179, 32]
 
         heights = []
         for i in range(0, length):
-            heights.append(10)
+            heights.append(11)
 
         strings = []
         colors = []
@@ -603,7 +606,7 @@ class BattleUI (object):
         for i in range(0, self.itemTableLength):
             strings[i][0] = g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][0].icon + " " + g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][0].name
             if g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][0].name != "":
-                strings[i][1] = str(g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][1])
+                strings[i][1] = "x" + str(g.INVENTORY[i+self.itemSelectOffset[curBattler.battlerIndex]][1])
             else:
                 strings[i][1] = ""
             if g.INVENTORY[i + self.itemSelectOffset[curBattler.battlerIndex]][0].usableBattle:
@@ -614,12 +617,12 @@ class BattleUI (object):
     def init_target_table(self):
         length = self.targetTableLength
 
-        topLeft = (8, 92)
+        topLeft = self.tableAnchor
         widths = [80]
 
         heights = []
         for i in range(0, length):
-            heights.append(10)
+            heights.append(11)
 
         strings = []
         for i in range(0, length):
@@ -733,19 +736,23 @@ class BattleUI (object):
             self.commandTable.render(self.cursorIndex)
 
     def render_target_window(self):
+        if self.showHP:
+            self.render_battler_hp(self.BC.currentBattler)
+        elif self.showSP:
+            self.render_battler_hp(self.BC.currentBattler)
         self.targetTable.render(self.cursorIndex)
 
     def render_item_window(self):
-        self.BC.controller.viewSurf.blit(self.indexImage, utility.add_tuple(self.windowAnchors[0], (2, -10)))
-        self.BC.controller.TM.draw_text_ralign(str(1 + self.cursorIndex + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]) + "/" + str(g.INVENTORY_MAX_SLOTS), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.indexImage, self.windowAnchor)
+        self.BC.controller.TM.draw_text_centered(str(1 + self.cursorIndex + self.itemSelectOffset[self.BC.currentBattler.battlerIndex]) + "/" + str(g.INVENTORY_MAX_SLOTS), utility.add_tuple(self.windowAnchor, (24, 9)), g.WHITE)
 
         self.update_item_table()
         self.itemTable.render(self.cursorIndex)
 
     def render_skill_window(self):
         battler = self.BC.currentBattler
-        self.BC.controller.viewSurf.blit(self.indexImage, utility.add_tuple(self.windowAnchors[0], (2, -10)))
-        self.BC.controller.TM.draw_text_ralign(str(1 + self.cursorIndex + self.skillSelectOffset[battler.battlerIndex]) + "/" + str(len(battler.skills)), utility.add_tuple(self.windowAnchors[0], (38, -6)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.indexImage, self.windowAnchor)
+        self.BC.controller.TM.draw_text_ralign(str(1 + self.cursorIndex + self.skillSelectOffset[battler.battlerIndex]) + "/" + str(len(battler.skills)), utility.add_tuple(self.windowAnchor, (44, 1)), g.WHITE)
 
         self.render_battler_sp(battler)
 
@@ -753,14 +760,17 @@ class BattleUI (object):
         self.skillTable.render(self.cursorIndex)
 
     def render_hero_status(self):
-        self.BC.controller.viewSurf.blit(self.windowImage, self.windowAnchors[0])
+        self.BC.controller.viewSurf.blit(self.windowImage, (0,0))
         index = 0
         for hero in self.BC.battlers:
             iconOffset = (0, 7)
             iconOffsetH = (9, 0)
             if (hero.isHero):
-                self.BC.controller.TM.draw_text(hero.attr['name'][0:4], self.heroStatusAnchors[index], g.WHITE)
-                self.BC.controller.TM.draw_text_ralign(str(hero.attr['hp']), utility.add_tuple(self.heroStatusAnchors[index], (56, 0)), g.WHITE)
+                self.BC.controller.TM.draw_text(hero.attr['name'][0:4], self.heroStatusAnchors[index], g.WHITE, g.FONT_LRG)
+                self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 9)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED)
+                self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 21)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE)
+                self.BC.controller.TM.draw_text_shaded_ralign(str(hero.attr['hp']), utility.add_tuple(self.heroStatusAnchors[index], (84, 4)), g.WHITE, g.BLACK, g.FONT_MED)
+                self.BC.controller.TM.draw_text_shaded_ralign(str(hero.attr['sp']), utility.add_tuple(self.heroStatusAnchors[index], (84, 16)), g.WHITE, g.BLACK, g.FONT_MED)
                 if hero.mods[g.BattlerStatus.STUN] > 0:
                     self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
                     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
@@ -770,18 +780,25 @@ class BattleUI (object):
                 if hero.mods[g.BattlerStatus.POISON] > 0:
                     self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(self.heroStatusAnchors[index], iconOffset))
                     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
-                self.render_meter(hero.skillType, self.heroStatusAnchors[index])
+                self.render_meter(hero.skillType, utility.add_tuple(self.heroStatusAnchors[index], (-29, 10)))
                 index += 1
 
+    def render_bar(self, pos, curVal, maxVal, color):
+        percent = curVal / maxVal
+        width = math.floor(51 * percent)
+        rect = pygame.Rect(pos, (width, 4))
+
+        pygame.draw.rect(self.BC.controller.viewSurf, color, rect, 0)
+
     def render_battler_hp(self, battler):
-        self.BC.controller.viewSurf.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
-        self.BC.controller.TM.draw_text("HP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
-        self.BC.controller.TM.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.totalMaxHP), utility.add_tuple(self.windowAnchors[0], (116, -6)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchor, (125, 0)))
+        self.BC.controller.TM.draw_text("HP: ", utility.add_tuple(self.windowAnchor, (129, 1)), g.WHITE)
+        self.BC.controller.TM.draw_text_ralign(str(battler.attr['hp']) + "/" + str(battler.totalMaxHP), utility.add_tuple(self.windowAnchor, (217, 1)), g.WHITE)
 
     def render_battler_sp(self, battler):
-        self.BC.controller.viewSurf.blit(self.spWindowImage, utility.add_tuple(self.windowAnchors[0], (40, -10)))
-        self.BC.controller.TM.draw_text("SP: ", utility.add_tuple(self.windowAnchors[0], (44, -6)), g.WHITE)
-        self.BC.controller.TM.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.totalMaxSP), utility.add_tuple(self.windowAnchors[0], (100, -6)), g.WHITE)
+        self.BC.controller.viewSurf.blit(self.spWindowImage, utility.add_tuple(self.windowAnchor, (125, 0)))
+        self.BC.controller.TM.draw_text("SP: ", utility.add_tuple(self.windowAnchor, (129, 1)), g.WHITE)
+        self.BC.controller.TM.draw_text_ralign(str(battler.attr['sp']) + "/" + str(battler.totalMaxSP), utility.add_tuple(self.windowAnchor, (217, 1)), g.WHITE)
 
     def render_meter(self, skillType, pos):
         pos = utility.add_tuple(pos, self.meterIconOffset)
@@ -851,7 +868,7 @@ class BattleUI (object):
                 
             anchorIndex = battler.turnOrder
             self.BC.controller.viewSurf.blit(img, self.turnAnchors[anchorIndex])
-            self.BC.controller.viewSurf.blit(battler.icon, utility.add_tuple(self.turnAnchors[anchorIndex], (3,0)))
+            self.BC.controller.viewSurf.blit(battler.icon, utility.add_tuple(self.turnAnchors[anchorIndex], (2,0)))
             label = battler.attr['name'][0:5]
             self.BC.controller.TM.draw_text(label, utility.add_tuple(self.turnAnchors[anchorIndex], (2,17)), g.WHITE, g.FONT_SML)
 
@@ -881,7 +898,8 @@ class BattleUI (object):
         g.confirmTimer = g.CONFIRM_DELAY
 
     def update(self):
-        self.BC.controller.viewSurf.fill(g.GREEN_BLUE)
+        #self.BC.controller.viewSurf.fill(g.GREEN_BLUE)
+        self.BC.controller.viewSurf.blit(self.BC.battleBack, (0,0))
         self.render_battlers()
         self.render_hero_status()
         #self.render_help()
@@ -1064,7 +1082,7 @@ class BattleUIPopup (object):
         self.speed = .6
         self.anchor = pos
         self.x = pos[0]
-        self.y = pos[1] + self.ui.battlerCursorOffset[1]
+        self.y = pos[1] + self.ui.battlerCursorOffset[1] - 16
 
     def update(self):
         if self.life < self.halfLife and not self.halfTrigger:
@@ -1080,13 +1098,13 @@ class BattleUIMessage (object):
         self.ui = ui
         self.string = string
         self.life = life
-        self.boxPos = (0,0)
-        self.textPos = (80, 11)
+        self.boxPos = (80,0)
+        self.textPos = (160, 11)
 
     def update(self):
         self.life -= self.ui.BC.controller.clock.get_time()
         self.ui.BC.controller.viewSurf.blit(self.ui.messageBoxImage, self.boxPos)
-        self.ui.BC.controller.TM.draw_text_centered(self.string, self.textPos, g.WHITE, g.FONT_LRG)
+        self.ui.BC.controller.TM.draw_text_centered(self.string, self.textPos, g.WHITE)
 
 #################
 ##ACTOR CLASSES##
@@ -1144,24 +1162,24 @@ class Sprite (pygame.sprite.Sprite):
                      (2,1)]
         self.create_animation("defend", framelist)
 
-        framelist = [(0, 6),
-                     (1, 6),
-                     (2, 6)]
+        framelist = [(0, 1),
+                     (1, 1),
+                     (2, 1)]
         self.create_animation("attack", framelist)
         
         framelist = [(0,4)]
         self.create_animation("dead", framelist)
 
-        framelist = [(0,2)]
+        framelist = [(0,5)]
         self.create_animation("damage", framelist)
         
         framelist = [(0,2)]
         self.create_animation("stun", framelist)
         
-        framelist = [(1,3),
-                     (0,3),
-                     (1,3),
-                     (2,3)]
+        framelist = [(1,6),
+                     (0,6),
+                     (1,6),
+                     (2,6)]
         self.create_animation("poison", framelist)
         
         framelist = [(1,5),

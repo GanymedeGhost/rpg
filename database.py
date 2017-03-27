@@ -525,7 +525,7 @@ def create_data():
     icon = "&iGem"
     equipType = g.ItemType.ACC
     attr = {}
-    attr["maxSP"] = 5
+    attr["maxSP"] = 10
     dmgType = None
     resD = {}
     resS = {}
@@ -694,9 +694,9 @@ def create_data():
     commands.append(cmd.Defend)
     skills = [Skill.dic["Sacrifice"]]
 
-    spr = "spr/battle/hero-luxe.png"
-    size = 16
-    icon = pygame.image.load("spr/battle/icon-luxe.png")
+    spr = "spr/battle/heroes/luxe.png"
+    size = 48
+    icon = pygame.image.load("spr/battle/icons/luxe.png")
 
     Hero(attr["name"], attr, resD, resS, skillType, weaponType, commands, skills, equip, spr, size, icon)
 
@@ -729,9 +729,9 @@ def create_data():
     commands.append(cmd.Defend)
     skills = [Skill.dic["Finale"]]
 
-    spr = "spr/battle/hero-elle.png"
-    size = 16
-    icon = pygame.image.load("spr/battle/icon-elle.png")
+    spr = "spr/battle/heroes/elle.png"
+    size = 48
+    icon = pygame.image.load("spr/battle/icons/elle.png")
 
     Hero(attr["name"], attr, resD, resS, skillType, weaponType, commands, skills, equip, spr, size, icon)
 
@@ -764,9 +764,9 @@ def create_data():
     commands.append(cmd.Defend)
     skills = [Skill.dic["Transform"]]
 
-    spr = "spr/battle/hero-asa.png"
-    size = 16
-    icon = pygame.image.load("spr/battle/icon-asa.png")
+    spr = "spr/battle/heroes/asa.png"
+    size = 48
+    icon = pygame.image.load("spr/battle/icons/asa.png")
 
     Hero(attr["name"], attr, resD, resS, skillType, weaponType, commands, skills, equip, spr, size, icon)
 
@@ -797,9 +797,9 @@ def create_data():
     resD = {}
     resS = {}
 
-    spr = "spr/battle/mon-slime.png"
-    size = 16
-    icon = pygame.image.load("spr/battle/mon-slime.png")
+    spr = "spr/battle/monsters/slime.png"
+    size = 32
+    icon = pygame.image.load("spr/battle/icons/slime.png")
 
     Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
 
@@ -830,9 +830,9 @@ def create_data():
     resD[g.DamageType.FIRE] = -1
     resS = {}
 
-    spr = "spr/battle/mon-mold.png"
-    size = 16
-    icon = pygame.image.load("spr/battle/mon-mold.png")
+    spr = "spr/battle/monsters/mold.png"
+    size = 32
+    icon = pygame.image.load("spr/battle/icons/mold.png")
 
     Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
 
