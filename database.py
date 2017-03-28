@@ -793,7 +793,7 @@ def create_data():
     attr['gold'] = 5
 
     drops = []
-    drops.append(("Potion", 50))
+    drops.append(("Potion", 25))
 
     steals = []
 
@@ -824,7 +824,7 @@ def create_data():
 
     drops = []
     drops.append(("Revive", 10))
-    drops.append(("Antidote", 50))
+    drops.append(("Antidote", 25))
 
 
     steals = []
