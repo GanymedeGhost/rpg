@@ -674,7 +674,7 @@ def create_data():
 
     attr = {}
     attr["name"] = "Luxe"
-    attr["title"] = "King"
+    attr["title"] = "The Exiled King"
     attr["lvl"] = 5
     attr["exp"] = 0
     attr["str"] = 10
@@ -709,7 +709,7 @@ def create_data():
     equip["acc2"] = InvItem.dic[""]
     attr = {}
     attr["name"] = "Elle"
-    attr["title"] = "Vibramancer"
+    attr["title"] = "Royal Vibramancer"
     attr["lvl"] = 5
     attr["exp"] = 0
     attr["str"] = 7
@@ -744,7 +744,7 @@ def create_data():
     equip["acc2"] = InvItem.dic[""]
     attr = {}
     attr["name"] = "Asa"
-    attr["title"] = "Great Wolf"
+    attr["title"] = "The Last Wolf"
     attr["lvl"] = 5
     attr["exp"] = 0
     attr["str"] = 12

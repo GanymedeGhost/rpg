@@ -148,13 +148,23 @@ class Level(object):
         new_image = self.image.copy()
 
         for scenery in self.scenery:
-            scenery.draw(new_image)
+            if (scenery.rect.topleft[0] >= self.viewport.topleft[0] - 16 and
+                scenery.rect.topright[0] <= self.viewport.topright[0] + 16 and
+                scenery.rect.topleft[1] >= self.viewport.topleft[1] - 16 and
+                scenery.rect.bottomright[1] <= self.viewport.bottomright[1] + 16):
+
+                scenery.draw(new_image)
 
         for ent in self.entities:
             self.entities[ent].draw(new_image)
 
         for over in self.overlays:
-            over.draw(new_image)
+            if (over.rect.topleft[0] >= self.viewport.topleft[0] - 16 and
+                over.rect.topright[0] <= self.viewport.topright[0] + 16 and
+                over.rect.topleft[1] >= self.viewport.topleft[1] - 16 and
+                over.rect.bottomright[1] <= self.viewport.bottomright[1] + 16):
+
+                over.draw(new_image)
 
         surface.blit(new_image, (0,0), self.viewport)
 
@@ -242,7 +252,7 @@ class Entity(pygame.sprite.Sprite):
             except KeyError:
                 self.curAnim = lastAnim
                 self.image = self.animations[self.curAnim][self.curFrame]
-                utility.log("ERROR: tried to set a non-existant animation. Reverting to the previous animation", g.LogLevel.ERROR)
+                utility.log("ERROR: tried to set a non-existent animation. Reverting to the previous animation", g.LogLevel.ERROR)
 
     def animate(self, dt):
         if (self.animated):
@@ -258,7 +268,12 @@ class Entity(pygame.sprite.Sprite):
         self.animate(dt)
 
     def draw(self, surface):
-        surface.blit(self.image, utility.add_tuple(self.rect.topleft, (-4, -20)))
+        if (self.rect.topleft[0] >= self.level.viewport.topleft[0] - 16 and
+            self.rect.topright[0] <= self.level.viewport.topright[0] + 16 and
+            self.rect.topleft[1] >= self.level.viewport.topleft[1] - 16 and
+            self.rect.bottomright[1] <= self.level.viewport.bottomright[1] + 16):
+
+            surface.blit(self.image, utility.add_tuple(self.rect.topleft, (-4, -20)))
 
     def interact(self):
         utility.log("test")

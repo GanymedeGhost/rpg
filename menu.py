@@ -117,7 +117,7 @@ class MenuUI(object):
         self.statusHeaderAnchor = (10, 6)
         self.statusPageAnchor = (223, 6)
         self.resAnchor = [(104, 21), (104, 31), (104, 41), (104, 51), (104, 61), (104, 71), (104, 81), (104, 91), (104, 101), (154, 21), (154, 31), (154, 41), (154, 51), (154, 61), (154, 71), (154, 81)]
-        self.statsAnchor = [(45, 21), (152, 31), (152, 41), (94, 73), (94, 83), (94, 93), (94, 103), (94, 113), (94, 123), (152, 73), (152, 83), (152, 93), (152, 103), (152, 113), (152, 123)]
+        self.statsAnchor = [(64, 32), (10, 64), (10, 76), (94, 73), (94, 83), (94, 93), (94, 103), (94, 113), (94, 123), (152, 73), (152, 83), (152, 93), (152, 103), (152, 113), (152, 123)]
         self.statsOffset = (-24, 0)
         self.animagiHeroAnchor = (44, 20)
         self.animagiHeaderAnchor = (10, 6)
@@ -649,8 +649,8 @@ class MenuUI(object):
                 i += 1
 
     def init_stats_table(self):
-        topLeft = (38, 74)
-        widths = [30, 24, 36, 24]
+        topLeft = (34, 148)
+        widths = [40, 30, 40, 30]
         heights = [12, 12, 12, 12, 12, 12]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings[0][0] = g.ATTR_NAME['str']
@@ -702,8 +702,8 @@ class MenuUI(object):
         colors[5][3] = self.get_stat_color(self.currentHero.totalEva, self.currentHero.baseEva)
 
     def init_res_table(self):
-        topLeft = (30, 20)
-        widths = [48, 24, 26, 24]
+        topLeft = (28, 100)
+        widths = [48, 30, 48, 30]
         heights = [12, 12, 12, 12, 12, 12, 12, 12, 12]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings[0][0] = g.DamageType.NAME[g.DamageType.PHYS]
@@ -1064,12 +1064,14 @@ class MenuUI(object):
 
             self.render_bar(utility.add_tuple(self.mainAnchor[index], (2, 31)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED)
             offset = utility.add_tuple(offset, (69, 28))
+            self.MC.controller.TM.draw_text_shaded("HP", utility.add_tuple(offset, (-96, 0)), g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign(str(hero.totalMaxHP), offset, g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign("/", utility.add_tuple(offset, (-29, 0)), g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign(str(hero.attr['hp']), utility.add_tuple(offset, (-34, 0)), g.WHITE)
 
             self.render_bar(utility.add_tuple(self.mainAnchor[index], (2, 47)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE)
             offset = utility.add_tuple(offset, (0, 16))
+            self.MC.controller.TM.draw_text_shaded("SP", utility.add_tuple(offset, (-96, 0)), g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign(str(hero.totalMaxSP), offset, g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign("/", utility.add_tuple(offset, (-29, 0)), g.WHITE)
             self.MC.controller.TM.draw_text_shaded_ralign(str(hero.attr['sp']), utility.add_tuple(offset, (-34, 0)), g.WHITE)
@@ -1244,30 +1246,41 @@ class MenuUI(object):
 
     def render_stats_window(self):
         self.currentHero = g.partyList[self.cursorIndex]
-        #self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.cursorIndex], self.skillHeroCursorPosOffset))
+
         self.MC.controller.viewSurf.blit(self.statsPanel, (0, 0))
+        self.MC.controller.TM.draw_text("Status - " + self.currentHero.attr['name'], self.statusHeaderAnchor, g.WHITE)
         self.MC.controller.TM.draw_text_ralign(str(self.statusPage + 1) + "/" + str(self.statusPages), self.statusPageAnchor, g.WHITE)
 
+        offset = self.statsAnchor[0]
+        offset = utility.add_tuple(offset, (2, 0))
+        self.MC.controller.viewSurf.blit(self.currentHero.icon, offset)
+
+        offset = utility.add_tuple(offset, (-2, 3))
+        self.MC.controller.TM.draw_text(str(self.currentHero.attr['name']), utility.add_tuple(offset, (24, 0)), g.WHITE)
+        self.MC.controller.TM.draw_text(str(self.currentHero.attr['title']), utility.add_tuple(offset, (0, 13)), g.GRAY)
+
+        self.render_bar(utility.add_tuple(self.statsAnchor[0], (2, 42)), self.currentHero.attr['hp'], self.currentHero.totalMaxHP, g.HP_RED)
+        offset = utility.add_tuple(offset, (98, 28))
+        self.MC.controller.TM.draw_text_shaded("HP", utility.add_tuple(offset, (-96, 0)), g.WHITE)
+        self.MC.controller.TM.draw_text_shaded_ralign(str(self.currentHero.totalMaxHP), offset, g.WHITE)
+        self.MC.controller.TM.draw_text_shaded_ralign("/", utility.add_tuple(offset, (-29, 0)), g.WHITE)
+        self.MC.controller.TM.draw_text_shaded_ralign(str(self.currentHero.attr['hp']), utility.add_tuple(offset, (-34, 0)), g.WHITE)
+
+        self.render_bar(utility.add_tuple(self.statsAnchor[0], (2, 58)), self.currentHero.attr['sp'], self.currentHero.totalMaxSP, g.SP_BLUE)
+        offset = utility.add_tuple(offset, (0, 16))
+        self.MC.controller.TM.draw_text_shaded("SP", utility.add_tuple(offset, (-96, 0)), g.WHITE)
+        self.MC.controller.TM.draw_text_shaded_ralign(str(self.currentHero.totalMaxSP), offset, g.WHITE)
+        self.MC.controller.TM.draw_text_shaded_ralign("/", utility.add_tuple(offset, (-29, 0)), g.WHITE)
+        self.MC.controller.TM.draw_text_shaded_ralign(str(self.currentHero.attr['sp']), utility.add_tuple(offset, (-34, 0)), g.WHITE)
+
         if (self.statusPage == 0):
-            self.MC.controller.TM.draw_text("Status - " + self.currentHero.attr['name'], self.statusHeaderAnchor, g.WHITE)
+            self.MC.controller.TM.draw_text("Lv ", utility.add_tuple(self.statsAnchor[0], (1, 68)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.attr['lvl']), utility.add_tuple(self.statsAnchor[0], (30, 68)), g.WHITE)
+            self.MC.controller.TM.draw_text("Anima", utility.add_tuple(self.statsAnchor[0], (1, 80)), g.WHITE)
+            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.statsAnchor[0], (95, 80)), g.GRAY)
 
-            self.MC.controller.TM.draw_text_ralign("HP", utility.add_tuple(self.statsAnchor[1], (-68, 0)), g.WHITE)
-            color = self.get_stat_color(self.currentHero.totalMaxHP, self.currentHero.baseMaxHP)
-            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.totalMaxHP), self.statsAnchor[1], color)
-            self.MC.controller.TM.draw_text_ralign("/", utility.add_tuple(self.statsAnchor[1], (-30, 0)), g.WHITE)
-            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.attr['hp']), utility.add_tuple(self.statsAnchor[1], (-34, 0)), g.GRAY)
-
-            self.MC.controller.TM.draw_text_ralign("SP", utility.add_tuple(self.statsAnchor[2], (-68, 0)), g.WHITE)
-            color = self.get_stat_color(self.currentHero.totalMaxSP, self.currentHero.baseMaxSP)
-            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.totalMaxSP), self.statsAnchor[2], color)
-            self.MC.controller.TM.draw_text_ralign("/", utility.add_tuple(self.statsAnchor[2], (-30, 0)), g.WHITE)
-            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.attr['sp']), utility.add_tuple(self.statsAnchor[2], (-34, 0)), g.GRAY)
-
-            self.MC.controller.TM.draw_text_ralign(g.SkillType.NAME[self.currentHero.skillType], utility.add_tuple(self.statsAnchor[2], (-68, 10)), g.GRAY)
-            self.render_meter(self.currentHero.skillType, utility.add_tuple(self.statsAnchor[2], (-34, 10)))
-
-            self.MC.controller.TM.draw_text_ralign("Anima", utility.add_tuple(self.statsAnchor[2], (-68, 20)), g.WHITE)
-            self.MC.controller.TM.draw_text_ralign(str(self.currentHero.exp), utility.add_tuple(self.statsAnchor[2], (0, 20)), g.GRAY)
+            self.MC.controller.TM.draw_text(g.SkillType.NAME[self.currentHero.skillType], utility.add_tuple(self.statsAnchor[0], (1, 96)), g.GRAY)
+            self.render_meter(self.currentHero.skillType, utility.add_tuple(self.statsAnchor[0], (1, 148)))
 
             self.update_stats_table()
             self.statsTable.render()

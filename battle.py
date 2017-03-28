@@ -782,8 +782,12 @@ class BattleUI (object):
             iconOffsetH = (9, 0)
             if (hero.isHero):
                 self.BC.controller.TM.draw_text(hero.attr['name'][0:4], utility.add_tuple(self.heroStatusAnchors[index], (-32, 0)), g.WHITE, g.FONT_LRG)
+
                 self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 9)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED)
                 self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 21)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE)
+
+                self.BC.controller.TM.draw_text_shaded("HP", utility.add_tuple(self.heroStatusAnchors[index], (34, 4)), g.WHITE, g.BLACK, g.FONT_MED)
+                self.BC.controller.TM.draw_text_shaded("SP", utility.add_tuple(self.heroStatusAnchors[index], (34, 16)), g.WHITE, g.BLACK, g.FONT_MED)
                 self.BC.controller.TM.draw_text_shaded_ralign(str(hero.attr['hp']), utility.add_tuple(self.heroStatusAnchors[index], (84, 4)), g.WHITE, g.BLACK, g.FONT_MED)
                 self.BC.controller.TM.draw_text_shaded_ralign(str(hero.attr['sp']), utility.add_tuple(self.heroStatusAnchors[index], (84, 16)), g.WHITE, g.BLACK, g.FONT_MED)
                 if hero.mods[g.BattlerStatus.STUN] > 0:
