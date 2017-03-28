@@ -82,13 +82,11 @@ def level_up(animagus, hero):
     else:
         return False
 
-
 def learn_skill(animagus, hero):
     for skill in animagus.skills:
-        if not skill in animagus.skillsTaught and not skill in hero.skills:
+        if not skill in animagus.skillsTaught and not hero.knows_skill(skill):
             if skill.skillType == g.SkillType.NONE or skill.skillType == hero.skillType:
                 hero.skills.append(skill)
                 animagus.skillsTaught.append(skill)
                 return True
-    else:
-        return False
+    return False

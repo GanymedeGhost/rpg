@@ -228,7 +228,7 @@ class TextManager:
     def draw_text_f(self, string, pos=(0,0), color = g.BLACK, maxWidth = g.VIEW_WIDTH, wrap = False, font = g.FONT_LRG):
         parsedStr, glyphList, glyphX, glyphLine, glyphIndex = self.parse_string(string, maxWidth)
         offset = pos
-        heightInc = (0, font.size("X")[1])
+        heightInc = (0, font.size("X")[1]-4)
 
         for line in parsedStr:
             self.draw_text(line, offset, color)
@@ -242,7 +242,7 @@ class TextManager:
     def draw_text_fr(self, string, pos=(0,0), color = g.BLACK, maxWidth = g.VIEW_WIDTH, wrap = False, font = g.FONT_LRG):
         parsedStr, glyphList, glyphX, glyphLine, glyphIndex = self.parse_string(string, maxWidth)
         offset = add_tuple(pos, (4, 0))
-        heightInc = (0, font.size("X")[1])
+        heightInc = (0, font.size("X")[1]-4)
 
         for line in parsedStr:
             self.draw_text_ralign(line, offset, color)

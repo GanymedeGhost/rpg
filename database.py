@@ -29,7 +29,7 @@ class Hero (object):
         self.attr["hp"] = self.baseMaxHP
         self.attr["sp"] = self.baseMaxSP
 
-        self.exp = 1000
+        self.exp = 0
 
         self.resD = resD
         for dmgType in range(0, g.DamageType.SIZE):
@@ -209,6 +209,12 @@ class Hero (object):
                     total += self.equip[item].resS[status]
         return total
 
+    def knows_skill(self, skillToCheck):
+        for skill in self.skills:
+            if skillToCheck.name == skill.name:
+                return True
+        return False
+
     def heal_hp(self, value, damageType):
 
         value -= math.floor(value * self.resD[damageType])
@@ -216,11 +222,9 @@ class Hero (object):
         self.attr['hp'] +=  value
         self.check_hp()
 
-
     def check_hp(self):
         if self.attr['hp'] > self.baseMaxHP:
             self.attr['hp'] = self.baseMaxHP
-
 
     def revive(self, hpPercent):
         self.attr['hp'] = max(1, math.floor(self.baseMaxHP * hpPercent / 100))
@@ -446,7 +450,7 @@ def create_data():
     InvItem(name, desc, icon, itemType, limit, useAction, battleAction, sortPriority)
 
     name = "Royal Blade"
-    desc = "A blade forged from royal blood"
+    desc = "A blade imbued with the royal blood"
     icon = "&iSword"
     equipType = g.ItemType.SWORD
     attr = {}
@@ -464,7 +468,7 @@ def create_data():
     Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Resobell"
-    desc = "A very sensitive bell"
+    desc = "An exceptionally resonant bell"
     icon = "&iBell"
     equipType = g.ItemType.BELL
     attr = {}
@@ -483,7 +487,7 @@ def create_data():
     Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Fur Gloves"
-    desc = "Furry gloves, better than nothing"
+    desc = "They're warm, but not particularly intimidating"
     icon = "&iGlove"
     equipType = g.ItemType.BELL
     attr = {}
@@ -501,13 +505,12 @@ def create_data():
     Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Stone Ring"
-    desc = "A heavy ring carved from marbled stone"
+    desc = "A heavy ring carved from solid stone, worn smooth by wear"
     icon = "&iRing"
     equipType = g.ItemType.ACC
     attr = {}
     attr["def"] = 1
     dmgType = None
-    resD = {}
     resD = {}
     resD[g.DamageType.EARTH] = 0.10
     resS = {}
@@ -525,7 +528,7 @@ def create_data():
     icon = "&iGem"
     equipType = g.ItemType.ACC
     attr = {}
-    attr["maxSP"] = 10
+    attr["maxSP"] = 5
     dmgType = None
     resD = {}
     resS = {}
@@ -539,7 +542,7 @@ def create_data():
     Equip(name, desc, icon, equipType, dmgType, attr, resD, resS, onAttack, onHit, limit, useAction, battleAction, sortPriority)
 
     name = "Pepper Charm"
-    desc = "A charm hot to the touch"
+    desc = "A pulsing red gem, hot to the touch"
     icon = "&iCharm"
     equipType = g.ItemType.ACC
     attr = {}
@@ -562,7 +565,7 @@ def create_data():
     ##BLOOD SKILLS##
     ################
     name = "Sacrifice"
-    desc = "Lower M.HP to recover the party's SP"
+    desc = "Lower Luxe's max HP to recover the party's SP"
     icon = "&iBlood"
     skillType = g.SkillType.BLOOD
     spCost = 0
@@ -573,7 +576,7 @@ def create_data():
     Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     name = "Blood Slash"
-    desc = "Deals NULL damage to an enemy"
+    desc = "Deals NULL damage to an enemy that scales with the blood meter"
     icon = "&iBlood"
     skillType = g.SkillType.BLOOD
     spCost = 15
@@ -588,7 +591,7 @@ def create_data():
     ################
 
     name = "Finale"
-    desc = "Resolve the melody"
+    desc = "Empty the music meter and resolve the melody"
     icon = "&iMusic"
     skillType = g.SkillType.MUSIC
     spCost = 0
@@ -625,7 +628,7 @@ def create_data():
     ################
 
     name = "Transform"
-    desc = "The moon changes one's physical form"
+    desc = "Change's Asa physical form and alters attributes relative to the strength of the moon"
     icon = "&iMoon"
     skillType = g.SkillType.MOON
     spCost = 0
@@ -636,7 +639,7 @@ def create_data():
     Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
     name = "Double Cut"
-    desc = "Attack twice"
+    desc = "Perform two normal attacks"
     icon = "&iMoon"
 
     skillType = g.SkillType.MOON

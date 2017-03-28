@@ -434,7 +434,7 @@ class BattleUI (object):
         self.hCursorPosOffset = (-8, 5)
 
         self.cursorRect = self.cursorImage.get_rect()
-        self.tableAnchor = (9, 156)
+        self.tableAnchor = (9, 158)
         self.heroStatusAnchors = [(228, 156), (228, 182), (228, 208)]
         self.cmdAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.tgtAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
@@ -513,13 +513,13 @@ class BattleUI (object):
 
         self.commandTable = None
 
-        self.skillTableLength = 7
+        self.skillTableLength = 6
         self.skillTable = self.init_skill_table()
 
-        self.itemTableLength = 7
+        self.itemTableLength = 6
         self.itemTable = self.init_item_table()
 
-        self.targetTableLength = 7
+        self.targetTableLength = 6
         self.targetTable = self.init_target_table()
 
     def clean_up(self):
@@ -536,7 +536,7 @@ class BattleUI (object):
 
         heights = []
         for i in range(0, length):
-            heights.append(11)
+            heights.append(12)
 
         strings = []
         for i in range(length):
@@ -552,7 +552,7 @@ class BattleUI (object):
 
         heights = []
         for i in range(0, length):
-            heights.append(11)
+            heights.append(12)
 
         strings = []
         for i in range(0, length):
@@ -590,7 +590,7 @@ class BattleUI (object):
 
         heights = []
         for i in range(0, length):
-            heights.append(11)
+            heights.append(12)
 
         strings = []
         colors = []
@@ -625,7 +625,7 @@ class BattleUI (object):
 
         heights = []
         for i in range(0, length):
-            heights.append(11)
+            heights.append(12)
 
         strings = []
         for i in range(0, length):
@@ -799,11 +799,12 @@ class BattleUI (object):
                 index += 1
 
     def render_bar(self, pos, curVal, maxVal, color):
-        percent = curVal / maxVal
-        width = math.floor(51 * percent)
-        rect = pygame.Rect(pos, (width, 4))
+        if curVal > 0:
+            percent = curVal / maxVal
+            width = math.floor(51 * percent)
+            rect = pygame.Rect(pos, (width, 4))
 
-        pygame.draw.rect(self.BC.controller.viewSurf, color, rect, 0)
+            pygame.draw.rect(self.BC.controller.viewSurf, color, rect, 0)
 
     def render_battler_hp(self, battler):
         self.BC.controller.viewSurf.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchor, (93, 0)))
@@ -863,19 +864,8 @@ class BattleUI (object):
                 battler.spr.animate(dt)
                 battler.spr.draw(surf)
             else:
-                iconOffset = (0, -16)
-                iconOffsetH = (-8, 0)
                 if not battler.isDead:
                     battler.spr.draw(surf)
-                    # if battler.mods[g.BattlerStatus.DEFEND] > 0:
-                    #     self.BC.controller.viewSurf.blit(self.iconDefend, utility.add_tuple(battler.spr.pos, iconOffset))
-                    #     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
-                    # if battler.mods[g.BattlerStatus.STUN] > 0:
-                    #     self.BC.controller.viewSurf.blit(self.iconDown, utility.add_tuple(battler.spr.pos, iconOffset))
-                    #     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
-                    # if battler.mods[g.BattlerStatus.POISON] > 0:
-                    #     self.BC.controller.viewSurf.blit(self.iconPoison, utility.add_tuple(battler.spr.pos, iconOffset))
-                    #     iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
             index += 1
 
     def render_turns(self):
@@ -1182,10 +1172,7 @@ class Sprite (pygame.sprite.Sprite):
                      (2,0)]
         self.create_animation("idle", framelist)
         
-        framelist = [(1,1),
-                     (0,1),
-                     (1,1),
-                     (2,1)]
+        framelist = [(0,1)]
         self.create_animation("defend", framelist)
 
         framelist = [(0, 1),

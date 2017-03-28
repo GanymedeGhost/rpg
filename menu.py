@@ -96,31 +96,37 @@ class MenuUI(object):
 
         self.infoAnchor = (237, 182)
         self.mainAnchor = [(10, 30), (10, 98), (10, 166)]
-        self.portraitAnchor = [(15, 21), (15, 61), (15, 101)]
-        self.itemIndexAnchor = (152, 7)
+        self.portraitAnchor = [(16, 30), (16, 98), (16, 166)]
+        self.itemHeaderAnchor = (10, 6)
+        self.itemIndexAnchor = (223, 6)
         self.itemAnchor = [(48, 20), (48, 29), (48, 38), (48, 47), (48, 56), (48, 65), (48, 74), (48, 83), (48, 92)]
-        self.itemDescAnchor = (44, 104)
+        self.itemDescAnchor = (10, 171)
         self.itemOptionsAnchor = [(90, 85), (90, 94), (90, 103), (90, 112), (90, 121)]
         self.skillAnchor = [(48, 20), (48, 29), (48, 38), (48, 47), (48, 56), (48, 65), (48, 74), (48, 83), (48, 92)]
-        self.skillDescAnchor = (44, 104)
-        self.skillIndexAnchor = (152, 7)
-        self.skillHeroAnchor = (38, 7)
+        self.skillHeaderAnchor = (10, 6)
+        self.skillDescAnchor = (10, 171)
+        self.skillIndexAnchor = (154, 6)
+        self.skillHeroAnchor = (159, 6)
+        self.equipHeaderAnchor = (10, 6)
         self.equipSlotAnchor = [(74, 19), (74, 29), (74, 39)]
         self.equipListAnchor = [(48, 19), (48, 29), (48, 39)]
-        self.equipSelAnchor = (45, 52)
-        self.equipCurAnchor = (45, 94)
-        self.equipIndexAnchor = (152, 7)
+        self.equipSelAnchor = (9, 108)
+        self.equipCurAnchor = (9, 171)
+        self.equipIndexAnchor = (223, 6)
         self.meterIconOffset = (-26, -1)
-        self.statusPageAnchor = (136, 11)
+        self.statusHeaderAnchor = (10, 6)
+        self.statusPageAnchor = (223, 6)
         self.resAnchor = [(104, 21), (104, 31), (104, 41), (104, 51), (104, 61), (104, 71), (104, 81), (104, 91), (104, 101), (154, 21), (154, 31), (154, 41), (154, 51), (154, 61), (154, 71), (154, 81)]
         self.statsAnchor = [(45, 21), (152, 31), (152, 41), (94, 73), (94, 83), (94, 93), (94, 103), (94, 113), (94, 123), (152, 73), (152, 83), (152, 93), (152, 103), (152, 113), (152, 123)]
         self.statsOffset = (-24, 0)
         self.animagiHeroAnchor = (44, 20)
+        self.animagiHeaderAnchor = (10, 6)
         self.animagiListAnchor = [(48, 20), (48, 30), (48, 40), (48, 50), (48, 60)]
-        self.animagiPageAnchor = (100, 72)
-        self.animagiStatsAnchor = [(44, 114), (44, 124)]
+        self.animagiPageAnchor = (100, 71)
+        self.animagiStatsAnchor = [(60, 205), (60, 217)]
         self.animagiGrowthAnchor = [(68, 80), (68, 90), (68, 100), (124, 80), (124, 90), (124, 100)]
         self.animagiSkillAnchor = [(48, 80), (48, 90), (48, 100)]
+        self.animagiConfirmAnchor = [(178, 189), (183, 202), (183, 214)]
 
         self.resOffset = (-25, 0)
 
@@ -159,7 +165,7 @@ class MenuUI(object):
         self.equipListCursorPrev = 0
         self.equipListCursorOffsetPrev = 0
 
-        self.animagiCursorPosOffset = (-7, 0)
+        self.animagiCursorPosOffset = (-8, 5)
         self.animagiHeroCursor = 0
         self.animagiCursor = 0
         self.animagiCursorOffset = 0
@@ -199,16 +205,16 @@ class MenuUI(object):
         self.itemOptionsTableLength = 4
         self.itemOptionsTable = self.init_item_options_table()
 
-        self.itemTableLength = 9
+        self.itemTableLength = 12
         self.itemTable = self.init_item_table()
 
-        self.skillTableLength = 9
+        self.skillTableLength = 12
         self.skillTable = self.init_skill_table()
 
         self.equipSlotTableLength = 3
         self.equipSlotTable = self.init_equip_slot_table()
 
-        self.equipListTableLength = 3
+        self.equipListTableLength = 7
         self.equipListTable = self.init_equip_list_table()
 
         self.equipCurStatsTableLength = 3
@@ -223,13 +229,13 @@ class MenuUI(object):
         self.equipSelResTableLength = 3
         self.equipSelResTable = self.init_equip_sel_res_table()
 
-        self.animagiTableLength = 5
+        self.animagiTableLength = 9
         self.animagiTable = self.init_animagi_table()
 
-        self.animagiGrowthTableLength = 3
+        self.animagiGrowthTableLength = 6
         self.animagiGrowthTable = self.init_animagi_growth_table()
 
-        self.animagiSkillsTableLength = 3
+        self.animagiSkillsTableLength = 6
         self.animagiSkillsTable = self.init_animagi_skills_table()
 
         self.animagiExpTableLength = 2
@@ -264,7 +270,7 @@ class MenuUI(object):
     def init_command_table(self):
         topLeft = (241, 7)
         widths = [80]
-        heights = [11, 11, 11, 11, 11, 11]
+        heights = [12, 12, 12, 12, 12, 12]
         strings = [["Items"], ["Skills"], ["Equip"], ["Animagi"], ["Status"], ["Exit"]]
         aligns = ["left"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
@@ -272,18 +278,18 @@ class MenuUI(object):
     def init_item_options_table(self):
         topLeft = (241, 7)
         widths = [80]
-        heights = [11, 11, 11, 11, 11]
+        heights = [12, 12, 12, 12, 12]
         strings = [["Use"], ["Sort"], ["Arrange"], ["Condense"], ["Back"],]
         aligns = ["left"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
 
     def init_item_table(self):
-        topLeft = (48, 20)
+        topLeft = (14, 22)
         widths = [22, 90]
-        heights = [11, 11, 11, 11, 11, 11, 11, 11, 11]
-        strings = [["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""]]
+        heights = [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
+        strings = [["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""],["",""], ["",""]]
         aligns = ["right", "left"]
-        colors = [[g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE]]
+        colors = [[g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE], [g.GRAY, g.WHITE]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
     def update_item_table(self):
@@ -301,10 +307,10 @@ class MenuUI(object):
                 strings[i][1] = ""
 
     def init_skill_table(self):
-        topLeft = (48, 20)
-        widths = [8, 74, 24]
-        heights = [11, 11, 11, 11, 11, 11, 11, 11, 11]
-        strings = [["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""]]
+        topLeft = (14, 22)
+        widths = [8, 176, 24]
+        heights = [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
+        strings = [["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""],["","",""]]
         aligns = ["right", "left", "right"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
 
@@ -334,10 +340,10 @@ class MenuUI(object):
                 strings[i][2] = ""
 
     def init_equip_slot_table(self):
-        topLeft = (48, 19)
-        widths = [26, 80]
-        heights = [11, 11, 11]
-        strings = [["Wpn:", ""], ["Acc:", ""], ["Acc:", ""]]
+        topLeft = (14, 22)
+        widths = [30, 144]
+        heights = [12, 12, 12]
+        strings = [["Wpn: ", ""], ["Acc: ", ""], ["Acc: ", ""]]
         aligns = ["right", "left"]
         colors = [[g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
@@ -353,10 +359,10 @@ class MenuUI(object):
             i += 1
 
     def init_equip_list_table(self):
-        topLeft = (48, 19)
+        topLeft = (14, 22)
         widths = [110]
-        heights = [11, 11, 11]
-        strings = [[""], [""], [""]]
+        heights = [12, 12, 12, 12, 12, 12, 12]
+        strings = [[""], [""], [""], [""], [""], [""], [""]]
         aligns = ["left"]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, [])
 
@@ -373,9 +379,9 @@ class MenuUI(object):
                 strings[i][0] = ""
 
     def init_equip_cur_stats_table(self):
-        topLeft = (48, 104)
+        topLeft = (16, 184)
         widths = [24, 16, 24, 16]
-        heights = [11, 11, 11]
+        heights = [12, 12, 12]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
@@ -406,9 +412,9 @@ class MenuUI(object):
                 colors[valInd[i][0]][valInd[i][1]] = g.RED
 
     def init_equip_cur_res_table(self):
-        topLeft = (48, 104)
+        topLeft = (16, 184)
         widths = [32, 18, 35, 18]
-        heights = [11, 11, 11]
+        heights = [12, 12, 12]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
@@ -442,9 +448,9 @@ class MenuUI(object):
                 colors[valInd[i][0]][valInd[i][1]] = g.RED
 
     def init_equip_sel_stats_table(self):
-        topLeft = (48, 62)
+        topLeft = (16, 121)
         widths = [24, 16, 24, 16]
-        heights = [11, 11, 11]
+        heights = [12, 12, 12]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
@@ -475,9 +481,9 @@ class MenuUI(object):
                 colors[valInd[i][0]][valInd[i][1]] = g.RED
 
     def init_equip_sel_res_table(self):
-        topLeft = (48, 62)
+        topLeft = (16, 121)
         widths = [32, 18, 35, 18]
-        heights = [11, 11, 11]
+        heights = [12, 12, 12]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         aligns = ["right","right","right","right"]
         colors = [[g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY], [g.GRAY, g.GRAY, g.GRAY, g.GRAY]]
@@ -511,12 +517,12 @@ class MenuUI(object):
                 colors[valInd[i][0]][valInd[i][1]] = g.RED
 
     def init_animagi_table(self):
-        topLeft = (48, 20)
-        widths = [80, 24]
-        heights = [11, 11, 11, 11, 11]
-        strings = [["",""], ["",""], ["",""], ["",""], ["",""]]
+        topLeft = (14, 22)
+        widths = [184, 24]
+        heights = [12, 12, 12, 12, 12, 12, 12, 12, 12]
+        strings = [["",""], ["",""], ["",""], ["",""], ["",""], ["",""], ["",""], ["",""], ["",""]]
         aligns = ["left", "right"]
-        colors = [[g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY]]
+        colors = [[g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY], [g.WHITE, g.GRAY]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
     def update_animagi_table(self):
@@ -525,26 +531,26 @@ class MenuUI(object):
             ii = i + self.animagiCursorOffset
             if ii < len(g.ANIMAGI):
                 strings[i][0] = g.ANIMAGI[ii].name
-                strings[i][1] = str(g.ANIMAGI[ii].level) + "/" + str(g.ANIMAGUS_MAX_LEVEL)
+                strings[i][1] = "Lv " + str(g.ANIMAGI[ii].level) + "/" + str(g.ANIMAGUS_MAX_LEVEL)
             else:
                 strings[i][0] = ""
                 strings[i][1] = ""
 
     def init_animagi_growth_table(self):
-        topLeft = (48, 80)
-        widths = [24, 24, 24, 24]
-        heights = [11, 11, 11]
-        strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
+        topLeft = (10, 133)
+        widths = [32, 32, 32]
+        heights = [12, 12, 12, 12, 12, 12]
+        strings = [["", "", ""],["", "", ""],["", "", ""],["", "", ""],["", "", ""],["", "", ""]]
 
         strings[0][0] = g.ATTR_NAME['str']
         strings[1][0] = g.ATTR_NAME['end']
         strings[2][0] = g.ATTR_NAME['wis']
-        strings[0][2] = g.ATTR_NAME['spr']
-        strings[1][2] = g.ATTR_NAME['agi']
-        strings[2][2] = g.ATTR_NAME['lck']
+        strings[3][0] = g.ATTR_NAME['spr']
+        strings[4][0] = g.ATTR_NAME['agi']
+        strings[5][0] = g.ATTR_NAME['lck']
 
-        aligns = ["right", "right", "right", "right"]
-        colors = [[g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY], [g.WHITE, g.GRAY, g.WHITE, g.GRAY]]
+        aligns = ["right", "right", "right"]
+        colors = [[g.WHITE, g.GRAY, g.WHITE],[g.WHITE, g.GRAY, g.WHITE],[g.WHITE, g.GRAY, g.WHITE],[g.WHITE, g.GRAY, g.WHITE],[g.WHITE, g.GRAY, g.WHITE],[g.WHITE, g.GRAY, g.WHITE]]
         return Table(self.MC, topLeft, widths, heights, strings, aligns, colors)
 
     def update_animagi_growth_table(self):
@@ -554,47 +560,58 @@ class MenuUI(object):
         if selIndex < len(g.ANIMAGI):
             curAnimagus = g.ANIMAGI[selIndex]
 
-            text = ""
+            text = "+"
             if "str" in curAnimagus.growth:
-                text = str(curAnimagus.growth['str']) + "-" + str(curAnimagus.growth['str'] + curAnimagus.level)
+                text += str(curAnimagus.growth['str']) + "-" + str(curAnimagus.growth['str'] + curAnimagus.level)
             else:
-                text = "0-" + str(curAnimagus.level)
-            strings[0][1] = text
+                text += "0-" + str(curAnimagus.level)
+            strings[0][1] = str(self.currentHero.attr['str'])
+            strings[0][2] = text
 
+            text = "+"
             if "end" in curAnimagus.growth:
-                text = str(curAnimagus.growth['end']) + "-" + str(curAnimagus.growth['end'] + curAnimagus.level)
+                text += str(curAnimagus.growth['end']) + "-" + str(curAnimagus.growth['end'] + curAnimagus.level)
             else:
-                text = "0-" + str(curAnimagus.level)
-            strings[1][1] = text
+                text += "0-" + str(curAnimagus.level)
+            strings[1][1] = str(self.currentHero.attr['end'])
+            strings[1][2] = text
 
+            text = "+"
             if "wis" in curAnimagus.growth:
-                text = str(curAnimagus.growth['wis']) + "-" + str(curAnimagus.growth['wis'] + curAnimagus.level)
+                text += str(curAnimagus.growth['wis']) + "-" + str(curAnimagus.growth['wis'] + curAnimagus.level)
             else:
-                text = "0-" + str(curAnimagus.level)
-            strings[2][1] = text
+                text += "0-" + str(curAnimagus.level)
+            strings[2][1] = str(self.currentHero.attr['wis'])
+            strings[2][2] = text
 
+            text = "+"
             if "spr" in curAnimagus.growth:
-                text = str(curAnimagus.growth['spr']) + "-" + str(curAnimagus.growth['spr'] + curAnimagus.level)
+                text += str(curAnimagus.growth['spr']) + "-" + str(curAnimagus.growth['spr'] + curAnimagus.level)
             else:
-                text = "0-" + str(curAnimagus.level)
-            strings[0][3] = text
+                text += "0-" + str(curAnimagus.level)
+            strings[3][1] = str(self.currentHero.attr['spr'])
+            strings[3][2] = text
 
+            text = "+"
             if "agi" in curAnimagus.growth:
-                text = str(curAnimagus.growth['agi']) + "-" + str(curAnimagus.growth['agi'] + curAnimagus.level)
+                text += str(curAnimagus.growth['agi']) + "-" + str(curAnimagus.growth['agi'] + curAnimagus.level)
             else:
-                text = "0-" + str(curAnimagus.level)
-            strings[1][3] = text
+                text += "0-" + str(curAnimagus.level)
+            strings[4][1] = str(self.currentHero.attr['agi'])
+            strings[4][2] = text
 
+            text = "+"
             if "lck" in curAnimagus.growth:
-                text = str(curAnimagus.growth['lck']) + "-" + str(curAnimagus.growth['lck'] + curAnimagus.level)
+                text += str(curAnimagus.growth['lck']) + "-" + str(curAnimagus.growth['lck'] + curAnimagus.level)
             else:
-                text = "0-" + str(curAnimagus.level)
-            strings[2][3] = text
+                text += "0-" + str(curAnimagus.level)
+            strings[5][1] = str(self.currentHero.attr['lck'])
+            strings[5][2] = text
 
     def init_animagi_skills_table(self):
-        topLeft = (48, 80)
+        topLeft = (120, 133)
         widths = [8, 80]
-        heights = [11, 11, 11]
+        heights = [12, 12, 12]
         strings = [["", ""], ["", ""], ["", ""]]
         aligns = ["right", "left"]
         colors = [[g.WHITE, g.WHITE], [g.WHITE, g.WHITE], [g.WHITE, g.WHITE]]
@@ -620,11 +637,13 @@ class MenuUI(object):
                     strings[i][0] = skill.icon
                 if skill in curAnimagus.skillsTaught:
                     color = g.GRAY
+                elif self.currentHero.knows_skill(skill):
+                    color = g.SP_BLUE
                 else:
                     if skill.skillType == g.SkillType.NONE or skill.skillType == self.currentHero.skillType:
                         color = g.WHITE
                     else:
-                        color = g.RED
+                        color = g.HP_RED
                 strings[i][1] = skill.name
                 colors[i][1] = color
                 i += 1
@@ -632,7 +651,7 @@ class MenuUI(object):
     def init_stats_table(self):
         topLeft = (38, 74)
         widths = [30, 24, 36, 24]
-        heights = [11, 11, 11, 11, 11, 11]
+        heights = [12, 12, 12, 12, 12, 12]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings[0][0] = g.ATTR_NAME['str']
         strings[1][0] = g.ATTR_NAME['end']
@@ -685,7 +704,7 @@ class MenuUI(object):
     def init_res_table(self):
         topLeft = (30, 20)
         widths = [48, 24, 26, 24]
-        heights = [11, 11, 11, 11, 11, 11, 11, 11, 11]
+        heights = [12, 12, 12, 12, 12, 12, 12, 12, 12]
         strings = [["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""]]
         strings[0][0] = g.DamageType.NAME[g.DamageType.PHYS]
         strings[1][0] = g.DamageType.NAME[g.DamageType.FIRE]
@@ -1003,9 +1022,10 @@ class MenuUI(object):
             self.restore_cursor()
 
     def render_target_cursor(self):
-        curTarget = self.validTargets[self.cursorIndex]
-        targetIndex = g.partyList.index(curTarget)
-        self.MC.controller.viewSurf.blit(self.targetCursorImage, utility.add_tuple(self.portraitAnchor[targetIndex], self.targetCursorPosOffset))
+        if self.cursorIndex < len(self.validTargets):
+            curTarget = self.validTargets[self.cursorIndex]
+            targetIndex = g.partyList.index(curTarget)
+            self.MC.controller.viewSurf.blit(self.targetCursorImage, utility.add_tuple(self.portraitAnchor[targetIndex], self.targetCursorPosOffset))
 
     def render_skill_hero_cursor(self):
         self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.skillHeroCursor], self.skillHeroCursorPosOffset))
@@ -1020,11 +1040,12 @@ class MenuUI(object):
         self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.statusHeroCursor], self.skillHeroCursorPosOffset))
 
     def render_bar(self, pos, curVal, maxVal, color):
-        percent = curVal / maxVal
-        width = math.floor(97 * percent)
-        rect = pygame.Rect(pos, (width, 4))
+        if curVal > 0:
+            percent = curVal / maxVal
+            width = math.floor(97 * percent)
+            rect = pygame.Rect(pos, (width, 4))
 
-        pygame.draw.rect(self.MC.controller.viewSurf, color, rect, 0)
+            pygame.draw.rect(self.MC.controller.viewSurf, color, rect, 0)
 
     def render_main_window(self):
         self.MC.controller.viewSurf.blit(self.mainPanel, (0, 0))
@@ -1058,6 +1079,8 @@ class MenuUI(object):
 
     def render_animagi_window(self):
         self.MC.controller.viewSurf.blit(self.animagiPanel, (0,0))
+        self.MC.controller.TM.draw_text("Animagi - " + self.currentHero.attr['name'], self.animagiHeaderAnchor, g.WHITE)
+
         selIndex = self.animagiCursor + self.animagiCursorOffset
 
         if g.ANIMAGI:
@@ -1067,18 +1090,13 @@ class MenuUI(object):
             self.animagiTable.render(self.animagiCursor)
 
             #draw animagus growth page
-            if self.animagiPage == 0:
-                self.MC.controller.TM.draw_text_centered("Growth", self.animagiPageAnchor, g.WHITE)
+            self.MC.controller.TM.draw_text("Growth", utility.add_tuple(self.animagiPageAnchor, (-86, 50)), g.WHITE)
+            self.MC.controller.TM.draw_text("Skills", utility.add_tuple(self.animagiPageAnchor, (16, 50)), g.WHITE)
 
-                #self.update_animagi_growth_table_strings()
-                self.animagiGrowthTable.render()
+            #self.update_animagi_growth_table_strings()
+            self.animagiGrowthTable.render()
+            self.animagiSkillsTable.render()
 
-            #draw animagus skill page
-            elif self.animagiPage == 1:
-                self.MC.controller.TM.draw_text_centered("Skills", self.animagiPageAnchor, g.WHITE)
-
-                #self.update_animagi_skills_strings()
-                self.animagiSkillsTable.render()
 
             #always draw level up info
             self.MC.controller.TM.draw_text("Anima", self.animagiStatsAnchor[0], g.WHITE)
@@ -1096,19 +1114,21 @@ class MenuUI(object):
 
             #draw confirm level up
             if self.MC.menuState == g.MenuState.ANIMAGI_CONFIRM:
-                self.MC.controller.viewSurf.blit(self.itemOptionsPanel, (0, 0))
-                self.MC.controller.TM.draw_text("Level Up?", self.itemOptionsAnchor[0], g.WHITE)
-                self.MC.controller.TM.draw_text("Confirm", self.itemOptionsAnchor[1], g.GRAY)
-                self.MC.controller.TM.draw_text("Cancel", self.itemOptionsAnchor[2], g.GRAY)
-                self.MC.controller.viewSurf.blit(self.cursorImage, utility.add_tuple(self.itemOptionsAnchor[self.animagiConfirmCursor+1], self.itemOptionsCursorPosOffset))
+                self.MC.controller.viewSurf.blit(self.itemOptionsPanel, (92, 106))
+                self.MC.controller.TM.draw_text("Level Up?", self.animagiConfirmAnchor[0], g.WHITE)
+                self.MC.controller.TM.draw_text("Confirm", self.animagiConfirmAnchor[1], g.GRAY)
+                self.MC.controller.TM.draw_text("Cancel", self.animagiConfirmAnchor[2], g.GRAY)
+                self.MC.controller.viewSurf.blit(self.cursorImage, utility.add_tuple(self.animagiConfirmAnchor[self.animagiConfirmCursor+1], self.animagiCursorPosOffset))
 
         else:
             self.MC.controller.TM.draw_text("No Animagi", self.animagiListAnchor[0], g.WHITE)
 
     def render_equip_window(self):
         self.MC.controller.viewSurf.blit(self.equipPanel, (0,0))
+        self.MC.controller.TM.draw_text("Equip - " + self.currentHero.attr['name'], self.equipHeaderAnchor, g.WHITE)
 
         if self.MC.menuState == g.MenuState.EQUIP_WEAPON or self.MC.menuState == g.MenuState.EQUIP_ACC:
+
             selIndex = self.equipListCursor + self.equipListCursorOffset
             self.MC.controller.TM.draw_text_ralign(str(1 + selIndex) + "/" + str(len(self.currentEquipList)), self.equipIndexAnchor, g.WHITE)
 
@@ -1120,9 +1140,9 @@ class MenuUI(object):
 
                 #Always show names of current and selected equip
                 if self.currentHero.equip[self.currentEquipSlot].name != "":
-                    self.MC.controller.TM.draw_text(self.currentHero.equip[self.currentEquipSlot].name, self.equipCurAnchor, g.WHITE)
+                    self.MC.controller.TM.draw_text("Equipped: " + self.currentHero.equip[self.currentEquipSlot].name, self.equipCurAnchor, g.WHITE)
 
-                self.MC.controller.TM.draw_text(self.currentEquipList[selIndex].name, self.equipSelAnchor, g.WHITE)
+                self.MC.controller.TM.draw_text("Selected: " + self.currentEquipList[selIndex].name, self.equipSelAnchor, g.WHITE)
 
                 #Show stats of current and selected equip
                 if self.equipInfoPage == 0:
@@ -1150,9 +1170,9 @@ class MenuUI(object):
                 elif self.equipInfoPage == 2:
                     # current
                     if self.currentHero.equip[self.currentEquipSlot].desc != "":
-                        self.MC.controller.TM.draw_text_f(self.currentHero.equip[self.currentEquipSlot].desc, utility.add_tuple(self.equipCurAnchor, (0,10)), g.GRAY, 108)
+                        self.MC.controller.TM.draw_text_f(self.currentHero.equip[self.currentEquipSlot].desc, utility.add_tuple(self.equipCurAnchor, (0,13)), g.GRAY, 210)
                     # selected
-                    self.MC.controller.TM.draw_text_f(self.currentEquipList[selIndex].desc, utility.add_tuple(self.equipSelAnchor, (0,10)), g.GRAY, 108)
+                    self.MC.controller.TM.draw_text_f(self.currentEquipList[selIndex].desc, utility.add_tuple(self.equipSelAnchor, (0,13)), g.GRAY, 210)
 
 
         else:
@@ -1160,23 +1180,22 @@ class MenuUI(object):
             self.equipSlotTable.render(self.equipCursor)
 
     def render_item_options(self):
-        self.MC.controller.viewSurf.blit(self.itemOptionsPanel, (0,0))
         self.itemOptionsTable.render(self.itemOptionsCursor)
 
     def render_skill_window(self):
-
         #Move UI over when targeting
         if self.MC.menuState == g.MenuState.TARGET_SKILL:
-            globalOffset = (54, 0)
-            helpWidth = 60
+            globalOffset = (108, 0)
+            helpWidth = 180
         else:
             globalOffset = (0, 0)
-            helpWidth = 108
+            helpWidth = 208
 
         #Draw panel and headers
         self.MC.controller.viewSurf.blit(self.skillPanel, globalOffset)
+        self.MC.controller.TM.draw_text(self.currentHero.attr['name'] + "'s Skills", utility.add_tuple(self.skillHeaderAnchor, globalOffset), g.WHITE)
         self.MC.controller.TM.draw_text("SP: ", utility.add_tuple(self.skillHeroAnchor, globalOffset), g.WHITE)
-        self.MC.controller.TM.draw_text_ralign(str(self.currentHero.attr['sp']) + "/" + str(self.currentHero.baseMaxSP), utility.add_tuple(self.skillHeroAnchor, utility.add_tuple(globalOffset, (71, 0))), g.WHITE)
+        self.MC.controller.TM.draw_text_ralign(str(self.currentHero.attr['sp']) + "/" + str(self.currentHero.totalMaxSP), utility.add_tuple(self.skillHeroAnchor, utility.add_tuple(globalOffset, (64, 0))), g.WHITE)
         self.MC.controller.TM.draw_text_ralign(str(1 + self.skillCursor + self.skillCursorOffset) + "/" + str(len(self.currentHero.skills)), utility.add_tuple(self.skillIndexAnchor, globalOffset), g.WHITE)
 
         #Draw table
@@ -1190,15 +1209,15 @@ class MenuUI(object):
                 self.MC.controller.TM.draw_text_f(curSkill.desc, utility.add_tuple(self.skillDescAnchor, globalOffset), g.WHITE, helpWidth)
 
     def render_item_window(self):
-        selIndex = self.currentIndex - self.itemCursorOffset
+        selIndex = self.cursorIndex - self.itemCursorOffset
 
         #Move everything over when targeting
         if self.MC.menuState == g.MenuState.TARGET_ITEM:
-            globalOffset = (54, 0)
-            helpWidth = 60
+            globalOffset = (108, 0)
+            helpWidth = 208
         else:
             globalOffset = (0, 0)
-            helpWidth = 108
+            helpWidth = 180
 
         #Draw panel and index
         self.MC.controller.viewSurf.blit(self.itemPanel, globalOffset)
@@ -1221,25 +1240,16 @@ class MenuUI(object):
         if selIndex < g.INVENTORY_MAX_SLOTS:
             curItem = g.INVENTORY[selIndex][0]
             if curItem.desc != "":
-                parsedStr = self.MC.controller.TM.parse_string(curItem.desc, helpWidth)[0]
-
-                curOffset = utility.add_tuple(globalOffset, (0, 0))
-                lineOffset = (0, 11)
-
-                index = 0
-                for line in range(0, len(parsedStr)):
-                    self.MC.controller.TM.draw_text(parsedStr[index], utility.add_tuple(self.itemDescAnchor, curOffset), g.WHITE)
-                    curOffset = utility.add_tuple(curOffset, lineOffset)
-                    index += 1
+                self.MC.controller.TM.draw_text_f(curItem.desc, utility.add_tuple(self.itemDescAnchor, globalOffset), g.WHITE, helpWidth)
 
     def render_stats_window(self):
         self.currentHero = g.partyList[self.cursorIndex]
         #self.MC.controller.viewSurf.blit(self.cursorHeroImage, utility.add_tuple(self.portraitAnchor[self.cursorIndex], self.skillHeroCursorPosOffset))
+        self.MC.controller.viewSurf.blit(self.statsPanel, (0, 0))
+        self.MC.controller.TM.draw_text_ralign(str(self.statusPage + 1) + "/" + str(self.statusPages), self.statusPageAnchor, g.WHITE)
 
         if (self.statusPage == 0):
-            self.MC.controller.viewSurf.blit(self.statsPanel, (0,0))
-
-            self.MC.controller.TM.draw_text(self.currentHero.attr['name'] + ", " + self.currentHero.attr['title'], self.statsAnchor[0], g.GRAY)
+            self.MC.controller.TM.draw_text("Status - " + self.currentHero.attr['name'], self.statusHeaderAnchor, g.WHITE)
 
             self.MC.controller.TM.draw_text_ralign("HP", utility.add_tuple(self.statsAnchor[1], (-68, 0)), g.WHITE)
             color = self.get_stat_color(self.currentHero.totalMaxHP, self.currentHero.baseMaxHP)
@@ -1263,13 +1273,8 @@ class MenuUI(object):
             self.statsTable.render()
 
         elif (self.statusPage == 1):
-            self.MC.controller.viewSurf.blit(self.resPanel, (0, 0))
-
             self.update_res_table()
             self.resTable.render()
-
-
-        self.MC.controller.TM.draw_text_centered(str(self.statusPage + 1) + "/" + str(self.statusPages), self.statusPageAnchor, g.WHITE)
 
     def get_stat_color(self, total, base):
         if total > base:
@@ -1382,10 +1387,14 @@ class MenuUI(object):
                     else:
                         self.statusPage -= 1
                 elif self.MC.menuState == g.MenuState.ANIMAGI:
-                    if self.animagiPage <= 0:
-                        self.animagiPage = self.animagiPages-1
+                    if self.animagiHeroCursor > 0:
+                        self.animagiHeroCursor -= 1
                     else:
-                        self.animagiPage -= 1
+                        self.animagiHeroCursor = len(g.partyList) - 1
+                    self.currentHero = g.partyList[self.animagiHeroCursor]
+                    self.update_animagi_growth_table()
+                    self.update_animagi_skills_table()
+                    self.animagiCursorOffset = 0
         elif self.MC.controller.eventKeys[g.keyRight]:
             if g.cursorTimer < 0:
                 g.cursorTimer = g.CURSOR_DELAY
@@ -1421,10 +1430,14 @@ class MenuUI(object):
                     else:
                         self.statusPage += 1
                 elif self.MC.menuState == g.MenuState.ANIMAGI:
-                    if self.animagiPage >= self.animagiPages-1:
-                        self.animagiPage = 0
+                    if self.animagiHeroCursor < len(g.partyList)-1:
+                        self.animagiHeroCursor += 1
                     else:
-                        self.animagiPage += 1
+                        self.animagiHeroCursor = 0
+                    self.currentHero = g.partyList[self.animagiHeroCursor]
+                    self.update_animagi_growth_table()
+                    self.update_animagi_skills_table()
+                    self.animagiCursorOffset = 0
 
         elif self.MC.controller.eventKeys[g.keyConfirm]:
             if g.confirmTimer < 0:
