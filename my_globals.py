@@ -23,7 +23,7 @@ BATTLE_MESSAGE_LIFE = 1000
 
 VIEW_WIDTH = TILE_SIZE * 20 #208px
 VIEW_HEIGHT = TILE_SIZE * 15 #160px
-VIEW_SCALE = 4
+VIEW_SCALE = 3
 WIN_WIDTH = VIEW_WIDTH * VIEW_SCALE
 WIN_HEIGHT = VIEW_HEIGHT * VIEW_SCALE
 
@@ -298,7 +298,7 @@ INVENTORY = [] #stores tuples (item, quantity)
 INVENTORY_SORT_KEY = 0
 ANIMAGI = []
 ANIMAGI_SORT_KEY = 0
-GP = 100
+GP = 0
 
 partyList = []
 monsterList = []
@@ -306,7 +306,7 @@ monsterList = []
 meter = {}
 meter[SkillType.BLOOD] = 0
 meter[SkillType.MUSIC] = [] #fills with damage types
-meter[SkillType.MOON] = 0
+meter[SkillType.MOON] = 3
 
 def music_meter_add(damageType):
     meter[SkillType.MUSIC].insert(0, damageType)

@@ -21,11 +21,12 @@ map = wwwwwwwwwwwwwwwwwwwwwwwwwwww
 	  
 [battle]
 rate = 20,30
-enemies = 	Slime,Slime,Slime,Slime,Slime,Slime,Slime,Slime,Slime
-			Slime,Mold,Slime
-			Slime,Mold,Slime,Mold,Slime
-			Slime,Slime,Slime
+enemies = 	Slime,Slime,Slime,Beetle,Sapling,Beetle,Slime,Slime,Slime
+			Slime,Beetle,Slime
+			Slime,Mold,Sapling,Mold,Slime
+			Slime,Sapling,Slime
 			Mold,Mold
+			Sapling,Beetle,Sapling
 
 [.]
 name = grass

@@ -1146,10 +1146,16 @@ class BattleUIMessage (object):
 
 class Sprite (pygame.sprite.Sprite):
 
-    def __init__(self, frameset, frameSize, anchor, animated = False, animTime = 200):
+    def __init__(self, frameset, width, height, anchor, animated = False, animTime = 200):
         pygame.sprite.Sprite.__init__(self)
-        
-        self.frameCache = utility.TileCache(frameSize, frameSize)
+
+        if width < 0 or height < 0:
+            image = pygame.image.load(frameset)
+            width = image.get_rect().bottomright[0]
+            height = image.get_rect().bottomright[1]
+            del image
+
+        self.frameCache = utility.TileCache(width, height)
         self.frameset = self.frameCache[frameset]
         self.animations = {}
         
@@ -1289,8 +1295,16 @@ class BattleActor (object):
         self.BC.battlerCount += 1
         self.turnStarted = False
 
+        width = -1
+        height = -1
+
         self.size = size
-        self.spr = Sprite(spr, size, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
+        if self.isHero:
+            width = size
+            height = size
+
+
+        self.spr = Sprite(spr, width, height, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
         if self.isDead:
             self.spr.set_anim("dead")
         self.icon = icon
@@ -1575,7 +1589,7 @@ class BattleActor (object):
                 self.clear_mods()
                 self.mods[g.BattlerStatus.WOLF] = 1
                 del self.spr
-                self.spr = Sprite("spr/battle/hero-asa-wolf.png", 16, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
+                self.spr = Sprite("spr/battle/heroes/asa-wolf.png", 48, 48, self.BC.UI.battlerAnchors[self.battlerIndex], self.isHero)
                 self.attr['maxHP'] = self.baseAttr['maxHP'] + math.ceil(self.baseAttr['maxHP'] * 0.1 * g.meter[g.SkillType.MOON])
                 self.attr['atk'] = self.baseAttr['atk'] + math.ceil(self.baseAttr['atk'] * 0.1 * g.meter[g.SkillType.MOON])
                 self.attr['def'] = self.baseAttr['def'] + math.ceil(self.baseAttr['def'] * 0.1 * g.meter[g.SkillType.MOON])

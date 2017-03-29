@@ -415,7 +415,7 @@ class Player(Actor):
                 if (g.inputTimer <= 0):
                     self.resetConfirm = False
 
-            if keys[g.keyRun]:
+            if keys[g.keyCancel]:
                 self.moveSpeed = self.runSpeed
             else:
                 self.moveSpeed = self.walkSpeed

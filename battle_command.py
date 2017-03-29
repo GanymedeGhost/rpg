@@ -634,3 +634,44 @@ class Toxic():
         self.target.poison(33)
         return -1
 
+class Symbioism():
+
+    def __init__(self, user, target):
+        self.user = user
+        self.target = target
+
+    @staticmethod
+    def name():
+        return "Symbioism"
+
+    def start(user):
+        if (user.isHero):
+            get_target(user, Toxic)
+        else:
+            get_target_auto(user, Toxic)
+
+    def queue(user, target):
+        user.BC.UI.create_message(Symbioism.name())
+        user.attr['sp'] -= db.Skill.dic[Symbioism.name()].spCost
+        lastAnim = user.spr.curAnim
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, "idle"))
+        user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
+        user.BC.eventQueue.queue(event.JumpInPlace(user.BC.eventQueue, user.spr))
+        user.BC.eventQueue.queue(Symbioism(user, target))
+        user.BC.eventQueue.queue(event.ChangeAnimation(user.spr, lastAnim))
+
+    def run(self):
+        utility.log(self.user.attr['name'] + " uses Symbiosm on " + self.target.attr['name'])
+
+        baseDmg = 30 + self.user.attr['matk']
+        dmg = random.randint(baseDmg, baseDmg + self.user.totalMAtk) - self.target.totalMDef
+        if self.user.BC.crit_calc(self.user, self.target):
+            dmg *= 2
+            self.target.stun()
+        if (dmg < 0):
+            dmg = 0
+
+        self.target.heal_hp(dmg)
+
+        return -1
+

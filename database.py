@@ -29,7 +29,7 @@ class Hero (object):
         self.attr["hp"] = self.baseMaxHP
         self.attr["sp"] = self.baseMaxSP
 
-        self.exp = 500
+        self.exp = 0
 
         self.resD = resD
         for dmgType in range(0, g.DamageType.SIZE):
@@ -665,6 +665,17 @@ def create_data():
 
     Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
 
+    name = "Symbioism"
+    desc = "Restores some HP to an ally"
+    icon = ""
+    skillType = g.SkillType.ENEMY
+    spCost = 10
+    meterReq = 0
+    useAction = None
+    battleAction = cmd.Symbioism
+
+    Skill(name, desc, icon, skillType, spCost, meterReq, useAction, battleAction)
+
     ##########
     ##HEROES##
     ##########
@@ -827,7 +838,6 @@ def create_data():
     drops.append(("Revive", 10))
     drops.append(("Antidote", 25))
 
-
     steals = []
 
     resD = {}
@@ -837,6 +847,67 @@ def create_data():
     spr = "spr/battle/monsters/mold.png"
     size = 32
     icon = pygame.image.load("spr/battle/icons/mold.png")
+
+    Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
+
+    attr = {}
+    attr["name"] = "Sapling"
+    attr["lvl"] = 4
+    attr["hp"] = 40
+    attr["sp"] = 40
+    attr["atk"] = 16
+    attr["def"] = 12
+    attr["matk"] = 30
+    attr["mdef"] = 30
+    attr["hit"] = 95
+    attr["eva"] = 5
+    attr["agi"] = 20
+    attr["lck"] = 5
+    attr['exp'] = 6
+    attr['gold'] = 7
+
+    drops = []
+    drops.append(("Potion", 10))
+
+    steals = []
+
+    resD = {}
+    resD[g.DamageType.FIRE] = -1
+    resS = {}
+
+    spr = "spr/battle/monsters/sapling.png"
+    size = 32
+    icon = pygame.image.load("spr/battle/icons/sapling.png")
+
+    Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
+
+    attr = {}
+    attr["name"] = "Beetle"
+    attr["lvl"] = 2
+    attr["hp"] = 20
+    attr["sp"] = 10
+    attr["atk"] = 18
+    attr["def"] = 10
+    attr["matk"] = 10
+    attr["mdef"] = 10
+    attr["hit"] = 100
+    attr["eva"] = 25
+    attr["agi"] = 20
+    attr["lck"] = 20
+    attr['exp'] = 5
+    attr['gold'] = 5
+
+    drops = []
+    drops.append(("Revive", 5))
+
+    steals = []
+
+    resD = {}
+    resS = {}
+
+    spr = "spr/battle/monsters/beetle.png"
+    size = 32
+    icon = pygame.image.load("spr/battle/icons/beetle.png")
 
     Monster(attr["name"], attr, resD, resS, drops, steals, spr, size, icon)
 
