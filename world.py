@@ -377,6 +377,10 @@ class Actor(Entity):
 class Player(Actor):
     def __init__(self, handle, level, pos, tileset, animated, animTime = 200):
         Actor.__init__(self, handle, level, pos, tileset, animated, animTime)
+
+        self.walkSpeed = self.moveSpeed
+        self.runSpeed = self.walkSpeed * 2
+
         g.inputTimer = -1
         self.resetConfirm = False
     
@@ -397,16 +401,25 @@ class Player(Actor):
             elif keys[g.keyRight]:
                 mDir = "right"
                 self.facing = g.Dir.RIGHT
+
             if keys[g.keyMenu]:
                 if (g.inputTimer <= 0 and not self.resetConfirm):
                     self.controller.open_menu()
+
             if keys[g.keyConfirm]:
                 if (g.inputTimer <= 0 and not self.resetConfirm):
                     self.try_interact()
                     g.inputTimer = g.INPUT_DELAY
                     self.resetConfirm = True
-            elif (g.inputTimer <= 0):
+            else:
+                if (g.inputTimer <= 0):
                     self.resetConfirm = False
+
+            if keys[g.keyRun]:
+                self.moveSpeed = self.runSpeed
+            else:
+                self.moveSpeed = self.walkSpeed
+
             if (mDir != ""):
                 self.set_anim(mDir, False)
                 self.try_move(mDir)

@@ -23,7 +23,7 @@ BATTLE_MESSAGE_LIFE = 1000
 
 VIEW_WIDTH = TILE_SIZE * 20 #208px
 VIEW_HEIGHT = TILE_SIZE * 15 #160px
-VIEW_SCALE = 3
+VIEW_SCALE = 4
 WIN_WIDTH = VIEW_WIDTH * VIEW_SCALE
 WIN_HEIGHT = VIEW_HEIGHT * VIEW_SCALE
 
@@ -36,6 +36,8 @@ BLUE = (0, 0, 255)
 GREEN_BLUE = (0, 180, 120)
 HP_RED = (172, 50, 50)
 SP_BLUE = (99, 155, 255)
+DK_RED = (112, 0, 0)
+DK_BLUE = (35, 95, 195)
 
 HERO_MAX_HP = 9999
 HERO_MAX_SP = 999
@@ -272,6 +274,7 @@ playTimeHourText = "0"
 keyConfirm = pygame.K_z
 keyCancel = pygame.K_x
 keyMenu = pygame.K_c
+keyRun = pygame.K_LSHIFT
 keyUp = pygame.K_UP
 keyDown = pygame.K_DOWN
 keyLeft = pygame.K_LEFT

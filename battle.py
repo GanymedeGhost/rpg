@@ -441,7 +441,7 @@ class BattleUI (object):
         self.itemAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.skillAnchors = [(8,92), (8,102), (8, 112), (8,122), (8,132)]
         self.outAnchors = [(2, 66), (2, 58), (2,50), (2,42), (2,34), (2, 26), (2, 18), (2,10), (2,2)]
-        self.battlerAnchors = [(240, 84), (256, 116), (270, 148), (125, 74), (109, 111), (93, 143), (77, 74), (61, 111), (45, 143), (175, 74), (159, 111), (143, 143)]
+        self.battlerAnchors = [(240, 84), (256, 116), (270, 148), (77, 74), (61, 111), (45, 143), (125, 74), (109, 111), (93, 143), (175, 74), (159, 111), (143, 143)]
         self.turnBannerAnchor = (2, 0)
         self.turnAnchor = (8,0)
         self.turnAnchors = [(8, 0), (34, 0), (59, 0), (84, 0), (109, 0), (134, 0), (159, 0), (185, 0), (185, 0), (185, 0), (185, 0)]
@@ -783,8 +783,8 @@ class BattleUI (object):
             if (hero.isHero):
                 self.BC.controller.TM.draw_text(hero.attr['name'][0:4], utility.add_tuple(self.heroStatusAnchors[index], (-32, 0)), g.WHITE, g.FONT_LRG)
 
-                self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 9)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED)
-                self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 21)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE)
+                self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 9)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED, g.DK_RED)
+                self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 21)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE, g.DK_BLUE)
 
                 self.BC.controller.TM.draw_text_shaded("HP", utility.add_tuple(self.heroStatusAnchors[index], (34, 4)), g.WHITE, g.BLACK, g.FONT_MED)
                 self.BC.controller.TM.draw_text_shaded("SP", utility.add_tuple(self.heroStatusAnchors[index], (34, 16)), g.WHITE, g.BLACK, g.FONT_MED)
@@ -802,13 +802,17 @@ class BattleUI (object):
                 self.render_meter(hero.skillType, utility.add_tuple(self.heroStatusAnchors[index], (-29, 10)))
                 index += 1
 
-    def render_bar(self, pos, curVal, maxVal, color):
+    def render_bar(self, pos, curVal, maxVal, color, color2 = g.BLACK):
         if curVal > 0:
             percent = curVal / maxVal
             width = math.floor(51 * percent)
             rect = pygame.Rect(pos, (width, 4))
+            rect2 = pygame.Rect((pos[0] + width, pos[1]), (51 - width, 4))
 
             pygame.draw.rect(self.BC.controller.viewSurf, color, rect, 0)
+
+            if curVal < maxVal:
+                pygame.draw.rect(self.BC.controller.viewSurf, color2, rect2, 0)
 
     def render_battler_hp(self, battler):
         self.BC.controller.viewSurf.blit(self.hpWindowImage, utility.add_tuple(self.windowAnchor, (93, 0)))
@@ -854,7 +858,7 @@ class BattleUI (object):
                         #this is currently rendering over any icons in the turn area
                         anchor = utility.add_tuple(self.turnAnchor, (2,0))
                         for i in range(0, battler.turnOrder):
-                            anchor = utility.add_tuple(anchor, (32, 0))
+                            anchor = utility.add_tuple(anchor, (36, 0))
 
                         self.BC.controller.viewSurf.blit(self.currentTargetTurnCursor, anchor)
 
@@ -876,7 +880,7 @@ class BattleUI (object):
         self.BC.controller.viewSurf.blit(self.turnImage, self.turnBannerAnchor)
 
         anchor = self.turnAnchor
-        offset = (32, 0)
+        offset = (36, 0)
 
         for battler in self.BC.turnOrder:
             if (battler.isHero):
@@ -888,7 +892,8 @@ class BattleUI (object):
             self.BC.controller.viewSurf.blit(img, anchor)
             self.BC.controller.viewSurf.blit(battler.icon, utility.add_tuple(anchor, (2,0)))
             label = battler.attr['name'][0:5]
-            self.BC.controller.TM.draw_text(label, utility.add_tuple(anchor, (2,17)), g.WHITE, g.FONT_SML)
+
+            self.BC.controller.TM.draw_text(label, utility.add_tuple(anchor, (2,18)), g.WHITE, g.FONT_SML)
 
             iconOffset = (18, -4)
             iconOffsetH = (0, 10)
@@ -907,6 +912,9 @@ class BattleUI (object):
                 iconOffset = utility.add_tuple(iconOffset, iconOffsetH)
 
             anchor = utility.add_tuple(anchor, offset)
+
+        if not self.BC.turnOrder:
+            self.BC.controller.TM.draw_text("ROUND", utility.add_tuple(anchor, (2, 18)), g.WHITE, g.FONT_SML)
 
     def render_help(self):
         if (self.helpLabel != ""):
