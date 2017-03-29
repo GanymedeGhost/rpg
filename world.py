@@ -294,7 +294,7 @@ class Actor(Entity):
         self.warp(pos[0], pos[1])
         self.tPos = (0,0)
         self.set_move_target(pos[0], pos[1])
-        self.moveSpeed = 2
+        self.moveSpeed = 1
         self.moving = False
         self.moveSuccess = False
 

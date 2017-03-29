@@ -781,7 +781,13 @@ class BattleUI (object):
             iconOffset = (-36, 11)
             iconOffsetH = (9, 0)
             if (hero.isHero):
-                self.BC.controller.TM.draw_text(hero.attr['name'][0:4], utility.add_tuple(self.heroStatusAnchors[index], (-32, 0)), g.WHITE, g.FONT_LRG)
+                if (self.BC.currentBattler == hero):
+                    color = g.YELLOW
+                elif hero.attr['hp']  <= 0:
+                    color = g.GRAY
+                else:
+                    color = g.WHITE
+                self.BC.controller.TM.draw_text(hero.attr['name'][0:4], utility.add_tuple(self.heroStatusAnchors[index], (-32, 0)), color, g.FONT_LRG)
 
                 self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 9)), hero.attr['hp'], hero.totalMaxHP, g.HP_RED, g.DK_RED)
                 self.render_bar(utility.add_tuple(self.heroStatusAnchors[index], (34, 21)), hero.attr['sp'], hero.totalMaxSP, g.SP_BLUE, g.DK_BLUE)
@@ -1705,10 +1711,14 @@ class Table ():
 
         for y in range(0, self.rows):
             for x in range(0, self.cols):
+                if cursor == y and self.colors[y][x] == g.WHITE:
+                    color = g.YELLOW
+                else:
+                    color = self.colors[y][x]
                 if self.aligns[x] == "left":
-                    self.TM.draw_text_f(self.strings[y][x], offset, self.colors[y][x])
+                    self.TM.draw_text_f(self.strings[y][x], offset, color)
                 elif self.aligns[x] == "right":
-                    self.TM.draw_text_fr(self.strings[y][x], utility.add_tuple(offset, (self.widths[x], 0)), self.colors[y][x])
+                    self.TM.draw_text_fr(self.strings[y][x], utility.add_tuple(offset, (self.widths[x], 0)), color)
                 offset = utility.add_tuple(offset, (self.widths[x], 0))
             if cursor == y:
                 self.BC.controller.viewSurf.blit(self.BC.UI.cursorImage, utility.add_tuple((globalOffset[0], offset[1]), self.BC.UI.hCursorPosOffset))

@@ -20,7 +20,7 @@ map = wwwwwwwwwwwwwwwwwwwwwwwwwwww
 
 	  
 [battle]
-rate = 10,15
+rate = 20,30
 enemies = 	Slime,Slime,Slime,Slime,Slime,Slime,Slime,Slime,Slime
 			Slime,Mold,Slime
 			Slime,Mold,Slime,Mold,Slime

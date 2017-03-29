@@ -29,7 +29,7 @@ class Hero (object):
         self.attr["hp"] = self.baseMaxHP
         self.attr["sp"] = self.baseMaxSP
 
-        self.exp = 0
+        self.exp = 500
 
         self.resD = resD
         for dmgType in range(0, g.DamageType.SIZE):
@@ -510,6 +510,7 @@ def create_data():
     equipType = g.ItemType.ACC
     attr = {}
     attr["def"] = 1
+    attr['agi'] = -1
     dmgType = None
     resD = {}
     resD[g.DamageType.EARTH] = 0.10

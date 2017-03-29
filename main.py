@@ -132,7 +132,7 @@ class Control(object):
             self.event_loop()
             self.update()
             pygame.display.update()
-            self.clock.tick(30)
+            self.clock.tick(60)
             self.display_fps()
 
 def main():
